@@ -22,3 +22,16 @@ void Player::moveUp() {
 void Player::moveDown() {
     setPos(x(), y() + speed);
 }
+
+int Player::getHealth() const {
+    return health;
+}
+
+void Player::setHealth(int newHealth) {
+    health = newHealth;
+}
+
+void Player::takeDamage(int amount) {
+    health -= amount;
+    if (health < 0) health = 0;
+}
