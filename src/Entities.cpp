@@ -53,6 +53,6 @@ void Entity::setWeapon(Weapon* w) {
     weapon = w;
 }
 
-Weapon* Entity::getWeapon() const {
+Weapon   Entity::getWeapon() const {
     return weapon;
 }

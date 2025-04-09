@@ -11,6 +11,7 @@
 enum class EnemyType{           //On crée une classe à part pour les deux types d'ennemis 
     Soldier,
     Hero
+    //+ pour plus tard
 };
 
 class Enemy: public QGraphicsPixmapItem{        
@@ -22,7 +23,7 @@ public:
     //Mutateur
     void setWeapon(Weapon* weapon);
     //Accesseur
-    Weapon* getWeapon() const;
+    Weapon getWeapon() const;
 
 public slot : 
     void move();            //Méthode qui permettra à l'ennemi de se déplacer de manière aléatoire
@@ -30,6 +31,7 @@ public slot :
 private :
     EnemyType* type;
     QTimer* moveTimer;
+    Weapon weapon;
     
     void setAppearance();       //Cette méthode permettra de donner l'apparence à l'ennemi en fonction de son type 
 
@@ -39,12 +41,12 @@ private :
 
 class Weapon{
     public:
-        Weapon(QString name, int damage, QString projectileSprite); //Constucteur de l'arme
+        Weapon(QString name, int damage, QString projectileSprite); //Constructeur de l'arme
 
         //Accesseurs
         QString getName() const;
         int getDamage() const;
-        QString getProjectileSprite() const;
+        QString getProjectileSprite() const;            
     
     private:
         QString name;
