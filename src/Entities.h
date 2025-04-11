@@ -25,8 +25,9 @@ public:
     //Accesseur
     Weapon getWeapon() const;
 
-public slot : 
+public slots : 
     void move();            //Méthode qui permettra à l'ennemi de se déplacer de manière aléatoire
+    void shoot();          //Méthode qui permettra à l'ennemi de tirer un projectile
 
 private :
     EnemyType* type;
@@ -38,20 +39,45 @@ private :
 
 };
 
+enum class WeaponType{           //On crée une classe à part pour les deux types d'armes 
+    Gun,
+    Rifle
+    //+ pour plus tard
+};
+
 
 class Weapon{
     public:
-        Weapon(QString name, int damage, QString projectileSprite); //Constructeur de l'arme
+        Weapon(QString name, int damage, QString projectileSprite,WeaponType type); //Constructeur de l'arme
 
         //Accesseurs
         QString getName() const;
         int getDamage() const;
+        WeaponType getType() const;
         QString getProjectileSprite() const;            
     
     private:
         QString name;
         int damage;
+        WeaponType type; // pour savoir si c'est une arme de type Gun ou Rifle
         QString projectileSpritePath; // pour les visuels de tirs
+};
+
+
+//Classe projectile pour gérer les tirs ennemis et du joueur, gérer leur déplacement et leur collision avec les ennemis
+
+class Projectile : public QObject, public QGraphicsPixmapItem {
+    Q_OBJECT
+
+public:
+    Projectile(QPointF startPosition, QPointF direction, int speed, QGraphicsItem* parent = nullptr);
+
+public slots:
+    void move();
+
+private:
+    QPointF direction;
+    int speed;
 };
 
 #endif 

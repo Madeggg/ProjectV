@@ -6,6 +6,8 @@
 #include <QRandomGenerator>
 #include <QStringList>
 
+//Méthode de Enemy
+
 Enemy::Enemy(EnemyType type, QGraphicsItem* parent) : QGraphicsPixmapItem(parent), type(type){
     setAppearance();            // On définit le sprite + comportement visuel dès la création 
 }
@@ -14,7 +16,8 @@ void Enemy::setAppearance(){
     QString imagePath;              //Déclaration du lien vers l'image comme un objet QString
 
     if (type == EnemyType::Soldier) {
-        imagePath = " ";                                    // Sprite unique pour les soldats
+        imagePath = " ";               
+        weapon = Weapon("Rifle",10,"",WeaponType::Rifle)                     // Sprite unique pour les soldats
     } else if (type == EnemyType::Hero) {
         QStringList heroSprites = {                         
             "homelander",
@@ -28,7 +31,7 @@ void Enemy::setAppearance(){
         int index = QRandomGenerator::global()->bounded(heroSprites.size());
         QString chosenHero = heroSprites[index];
         imagePath = ":/img/super_" + chosenHero + ".png";
-
+        weapon = Weapon("Laser", 20, ":/img/laser.png");    // Exemple d'arme pour un héros
 
     }
 
@@ -40,9 +43,22 @@ void Enemy::setAppearance(){
     }
 }
 
+void Enemy::shoot() {
+    QPointF direction(0, 1); // Exemple : les projectiles descendent
+    int speed = 5;
+    Projectile* projectile = new Projectile(pos(), direction, speed);
+    scene()->addItem(projectile);
+}
+
+Weapon Enemy::getWeapon() const {
+    return weapon;
+}
+
+
+//Méthode de weapon
 
 Weapon::Weapon(QString name, int damage, QString projectileSprite): 
-    name(name), damage(damage), projectileSpritePath(projectileSprite) {}
+    name(name), damage(damage), projectileSpritePath(projectileSprite), type(type) {}
 
 //Accesseurs
 QString Weapon::getName() const { return name; }
@@ -53,6 +69,28 @@ void Entity::setWeapon(Weapon* w) {
     weapon = w;
 }
 
-Weapon   Entity::getWeapon() const {
-    return weapon;
+WeaponType Weapon::getType() const {
+    return type;
+}
+
+
+//Méthode de Projectile
+
+Projectile::Projectile(QPointF startPosition, QPointF direction, int speed, QGraphicsItem* parent)
+    : QObject(), QGraphicsPixmapItem(parent), direction(direction), speed(speed) {
+    setPos(startPosition);
+    setPixmap(QPixmap(":/img/projectile.png").scaled(16, 16)); // Exemple de sprite
+    QTimer* moveTimer = new QTimer(this);
+    connect(moveTimer, &QTimer::timeout, this, &Projectile::move);
+    moveTimer->start(16); // 60 FPS
+}
+
+void Projectile::move() {
+    setPos(pos() + direction * speed);
+    //On vérifie si la position actuelle du projectile est contenue dans le rectangle de la scène
+    //Si le projectile sort de la scène, on le supprime
+    if (!scene()->sceneRect().contains(pos())) {
+        scene()->removeItem(this);
+        delete this;
+    }
 }
