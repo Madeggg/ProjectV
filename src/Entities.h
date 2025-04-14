@@ -18,38 +18,6 @@ enum class EnemyType{           //On crée une classe à part pour les deux type
     //+ pour plus tard
 };
 
-class Enemy: public QGraphicsPixmapItem{        
-    Q_OBJECT
-
-public:
-    // Constructeur : crée un ennemi du type spécifié
-    Enemy(EnemyType type,QGraphicsItem* parent = nullptr);
-    //Mutateur
-    void setWeapon(Weapon* weapon);
-    //Accesseur
-    Weapon getWeapon() const;
-
-public slots : 
-    void move();            //Méthode qui permettra à l'ennemi de se déplacer de manière aléatoire
-    void shoot();          //Méthode qui permettra à l'ennemi de tirer un projectile
-
-private :
-    EnemyType* type;
-    QTimer* moveTimer;
-    Weapon weapon;
-    
-    void setAppearance();       //Cette méthode permettra de donner l'apparence à l'ennemi en fonction de son type 
-
-
-};
-
-enum class WeaponType{           //On crée une classe à part pour les deux types d'armes 
-    Gun,
-    Rifle
-    //+ pour plus tard
-};
-
-
 class Weapon{
     public:
         Weapon(QString name, int damage, QString projectileSprite,WeaponType type); //Constructeur de l'arme
@@ -66,6 +34,42 @@ class Weapon{
         WeaponType type; // pour savoir si c'est une arme de type Gun ou Rifle
         QString projectileSpritePath; // pour les visuels de tirs
 };
+
+
+
+class Enemy: public QGraphicsPixmapItem{        
+    Q_OBJECT
+
+public:
+    // Constructeur : crée un ennemi du type spécifié
+    Enemy(EnemyType type,QGraphicsItem* parent = nullptr);
+    //Mutateur
+    void setWeapon(Weapon* weapon);
+    //Accesseur
+    Weapon getWeapon() const;
+
+public slots : 
+    void move();            //Méthode qui permettra à l'ennemi de se déplacer de manière aléatoire
+    void shoot();          //Méthode qui permettra à l'ennemi de tirer un projectile
+
+private :
+    EnemyType type;
+    QTimer* moveTimer;
+    Weapon weapon;
+    
+    void setAppearance();       //Cette méthode permettra de donner l'apparence à l'ennemi en fonction de son type 
+
+
+};
+
+enum class WeaponType{           //On crée une classe à part pour les deux types d'armes 
+    Gun,
+    Rifle
+    //+ pour plus tard
+};
+
+
+
 
 
 //Classe projectile pour gérer les tirs ennemis et du joueur, gérer leur déplacement et leur collision avec les ennemis

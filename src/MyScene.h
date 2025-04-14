@@ -1,10 +1,10 @@
 #ifndef CPP_QT_TPMINIPROJET_MYSCENE_H
 #define CPP_QT_TPMINIPROJET_MYSCENE_H
 
-#include <QGraphicsScene
+#include <QGraphicsScene>
 #include "GameManager.h"
 #include "Player.h"
-#include "Entites.h"
+#include "Entities.h"
 
 
 class MyScene : public QGraphicsScene {

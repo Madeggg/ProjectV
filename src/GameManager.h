@@ -6,6 +6,7 @@
 #include <QTimer>
 #include "Player.h"
 #include "MyScene.h"
+#include "Entities.h"
 
 class GameManager : public QObject {
     Q_OBJECT
