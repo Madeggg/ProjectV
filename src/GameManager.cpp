@@ -72,18 +72,21 @@ void GameManager::spawnEnemies() {
     // Positionne l'ennemi en haut de la scène (y=0) à une position aléatoire sur l'axe x:
     enemy->setPos(QRandomGenerator::global()->bounded(0, 400), 0);
 
-    QTimer* shootTimer = new QTimer(enemy);
+    //Le parent est défini comme this (l'objet GameManager), ce qui garantit que le QTimer sera correctement géré et détruit lorsque l'objet GameManager sera détruit.
+    QTimer* shootTimer = new QTimer(this);  
     connect(shootTimer, &QTimer::timeout, enemy, &Enemy::shoot);
     shootTimer->start(3000); // L'ennemi tire toutes les 3 secondes
 }
 
 
-void gameManager::spawnHero(){
+void GameManager::spawnHero(){
     Enemy* hero = new Enemy(EnemyType::Hero);
     scene->addItem(hero);
 
     // Positionne le héros en bas de la scène (y=600) à une position aléatoire sur l'axe x:
     hero->setPos(QRandomGenerator::global()->bounded(0, 400), 600);
+
+    QTimer* shootTimer = new QTimer(this);
     connect(shootTimer, &QTimer::timeout, hero, &Enemy::shoot);
     shootTimer->start(1500);                    // Le héros tire plus rapidement (toutes les 1,5 secondes)
 }

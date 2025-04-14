@@ -18,8 +18,19 @@ enum class EnemyType{           //On crée une classe à part pour les deux type
     //+ pour plus tard
 };
 
+enum class WeaponType{           //On crée une classe à part pour les deux types d'armes 
+    Gun,
+    Rifle,
+    Laser
+    //+ pour plus tard
+};
+
 class Weapon{
     public:
+        //Constructeur par défaut
+        Weapon(); 
+
+        //Constructeur avec paramètres
         Weapon(QString name, int damage, QString projectileSprite,WeaponType type); //Constructeur de l'arme
 
         //Accesseurs
@@ -37,7 +48,7 @@ class Weapon{
 
 
 
-class Enemy: public QGraphicsPixmapItem{        
+class Enemy: public QObject, public QGraphicsPixmapItem{        
     Q_OBJECT
 
 public:
@@ -62,11 +73,7 @@ private :
 
 };
 
-enum class WeaponType{           //On crée une classe à part pour les deux types d'armes 
-    Gun,
-    Rifle
-    //+ pour plus tard
-};
+
 
 
 

@@ -6,23 +6,23 @@
 #include <QRandomGenerator>
 #include <QStringList>
 
-//Méthode de Enemy
+// Méthode de Enemy
 
-Enemy::Enemy(EnemyType type, QGraphicsItem* parent) : QGraphicsPixmapItem(parent), type(type){
-    setAppearance();            // On définit le sprite + comportement visuel dès la création 
+Enemy::Enemy(EnemyType type, QGraphicsItem* parent) : QGraphicsPixmapItem(parent), type(type), weapon() {
+    setAppearance(); // On définit le sprite + comportement visuel dès la création 
 }
 
-void Enemy::setAppearance(){
-    QString imagePath;              //Déclaration du lien vers l'image comme un objet QString
+void Enemy::setAppearance() {
+    QString imagePath; // Déclaration du lien vers l'image comme un objet QString
 
     if (type == EnemyType::Soldier) {
-        imagePath = "";               
-        weapon = Weapon("Rifle",10,"",WeaponType::Rifle);                     // Sprite unique pour les soldats
+        imagePath = "";
+        weapon = Weapon("Rifle", 10, "", WeaponType::Rifle); // Sprite unique pour les soldats
     } else if (type == EnemyType::Hero) {
-        QStringList heroSprites = {                         
+        QStringList heroSprites = {
             "homelander",
             "a_train",
-            "black_noir",                   //Exemple d'une liste QStringList contenant les sprites de super héros (des strings vers les liens des sprites)
+            "black_noir", // Exemple d'une liste QStringList contenant les sprites de super héros (des strings vers les liens des sprites)
             "starlight",
             "the_deep"
         };
@@ -31,11 +31,10 @@ void Enemy::setAppearance(){
         int index = QRandomGenerator::global()->bounded(heroSprites.size());
         QString chosenHero = heroSprites[index];
         imagePath = ":/img/super_" + chosenHero + ".png";
-        weapon = Weapon("Laser", 20, ":/img/laser.png");    // Exemple d'arme pour un héros
-
+        weapon = Weapon("Laser", 20, ":/img/laser.png", WeaponType::Laser); // Exemple d'arme pour un héros
     }
 
-    QPixmap sprite(imagePath);  
+    QPixmap sprite(imagePath);
     if (!sprite.isNull()) {
         setPixmap(sprite.scaled(64, 64)); // La fonction scale permet d'appliquer au pixmap la taille donnée 
     } else {
@@ -54,27 +53,22 @@ Weapon Enemy::getWeapon() const {
     return weapon;
 }
 
+// Méthode de Weapon
 
-//Méthode de weapon
+//Constructeur par défaut
+Weapon::Weapon() : name(""), damage(0), projectileSpritePath(""), type(WeaponType::Rifle) {}
 
-Weapon::Weapon(QString name, int damage, QString projectileSprite): 
-    name(name), damage(damage), projectileSpritePath(projectileSprite), type(type) {}
+//Constructeur avec paramètres
+Weapon::Weapon(QString name, int damage, QString projectileSprite, WeaponType type)
+    : name(name), damage(damage), projectileSpritePath(projectileSprite), type(type) {}
 
-//Accesseurs
+// Accesseurs
 QString Weapon::getName() const { return name; }
 int Weapon::getDamage() const { return damage; }
 QString Weapon::getProjectileSprite() const { return projectileSpritePath; }
+WeaponType Weapon::getType() const { return type; }
 
-void Entity::setWeapon(Weapon* w) {
-    weapon = w;
-}
-
-WeaponType Weapon::getType() const {
-    return type;
-}
-
-
-//Méthode de Projectile
+// Méthode de Projectile
 
 Projectile::Projectile(QPointF startPosition, QPointF direction, int speed, QGraphicsItem* parent)
     : QObject(), QGraphicsPixmapItem(parent), direction(direction), speed(speed) {
@@ -87,8 +81,8 @@ Projectile::Projectile(QPointF startPosition, QPointF direction, int speed, QGra
 
 void Projectile::move() {
     setPos(pos() + direction * speed);
-    //On vérifie si la position actuelle du projectile est contenue dans le rectangle de la scène
-    //Si le projectile sort de la scène, on le supprime
+    // On vérifie si la position actuelle du projectile est contenue dans le rectangle de la scène
+    // Si le projectile sort de la scène, on le supprime
     if (!scene()->sceneRect().contains(pos())) {
         scene()->removeItem(this);
         delete this;

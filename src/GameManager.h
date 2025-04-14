@@ -4,6 +4,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QRandomGenerator>
 #include "Player.h"
 #include "MyScene.h"
 #include "Entities.h"
