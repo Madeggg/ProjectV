@@ -8,6 +8,10 @@
 #include <QTimer>
 #include <QString>
 
+#include "GameManager.h"
+#include "Player.h"
+#include "MyScene.h"
+
 enum class EnemyType{           //On crée une classe à part pour les deux types d'ennemis 
     Soldier,
     Hero
