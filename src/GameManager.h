@@ -1,5 +1,5 @@
-// Cette page, nous sert à gérer la vie, le score, le HUD, mais aussi le système de sauvegarde/chargement du meilleur score et pseudo
-#ifndef GameManager_h
+    // Cette page, nous sert à gérer la vie, le score, le HUD, mais aussi le système de sauvegarde/chargement du meilleur score et pseudo
+#   ifndef GameManager_h
 #define GameManager_h
 
 #include <QObject>
@@ -25,6 +25,7 @@ private:
     QTimer* gameLoopTimer;
 
     void spawnEnemies(); // À développer plus tard
+    void spawnHero();  // À développer plus tard
     void checkCollisions(); // À développer plus tard
 };
 

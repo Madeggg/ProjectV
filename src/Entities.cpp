@@ -17,7 +17,7 @@ void Enemy::setAppearance(){
 
     if (type == EnemyType::Soldier) {
         imagePath = " ";               
-        weapon = Weapon("Rifle",10,"",WeaponType::Rifle)                     // Sprite unique pour les soldats
+        weapon = Weapon("Rifle",10,"",WeaponType::Rifle);                     // Sprite unique pour les soldats
     } else if (type == EnemyType::Hero) {
         QStringList heroSprites = {                         
             "homelander",
