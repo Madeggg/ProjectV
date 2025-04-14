@@ -16,7 +16,7 @@ void Enemy::setAppearance(){
     QString imagePath;              //Déclaration du lien vers l'image comme un objet QString
 
     if (type == EnemyType::Soldier) {
-        imagePath = " ";               
+        imagePath = "";               
         weapon = Weapon("Rifle",10,"",WeaponType::Rifle);                     // Sprite unique pour les soldats
     } else if (type == EnemyType::Hero) {
         QStringList heroSprites = {                         
