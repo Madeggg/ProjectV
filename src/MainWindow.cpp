@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 }
 
 MainWindow::~MainWindow(){
-
+    delete mainScene;
 }
 
 void MainWindow::slot_aboutMenu(){
@@ -28,4 +28,12 @@ void MainWindow::slot_aboutMenu(){
     msgBox.setText("A small QT/C++ projet...");
     msgBox.setModal(true); // on souhaite que la fenetre soit modale i.e qu'on ne puisse plus cliquer ailleurs
     msgBox.exec();
+}
+
+void MainWindow::resizeEvent(QResizeEvent* event){
+    QMainWindow::resizeEvent(event);
+    if(mainView && mainScene){
+        //On garde le ratio de l'image de fond
+        mainView->fitInView(mainScene->sceneRect,Qt::KeepAspectRatio); 
+    }
 }

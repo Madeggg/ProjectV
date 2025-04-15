@@ -13,6 +13,8 @@
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
+protected:
+    void resizeEvent(QResizeEvent* event) override;
 private :
     MyScene* mainScene;
     QGraphicsView* mainView;
