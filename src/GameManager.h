@@ -21,7 +21,7 @@ public:
     void resetGame(); // redémarre le jeu sans redémarrer le programme
     Player* getPlayer() const;
 
-private slots:
+public slots:
     void update(); // appelée régulièrement par QTimer pour faire tourner le jeu
 
 private:

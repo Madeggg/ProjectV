@@ -53,6 +53,17 @@ Weapon Enemy::getWeapon() const {
     return weapon;
 }
 
+void Enemy::move() {
+    // Exemple de logique de déplacement : l'ennemi descend de 5 pixels
+    setPos(x(), y() + 5);
+
+    // Si l'ennemi sort de la scène, on le supprime
+    if (!scene()->sceneRect().contains(pos())) {
+        scene()->removeItem(this);
+        delete this;
+    }
+}
+
 // Méthode de Weapon
 
 //Constructeur par défaut
@@ -88,3 +99,4 @@ void Projectile::move() {
         delete this;
     }
 }
+

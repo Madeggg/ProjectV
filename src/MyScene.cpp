@@ -57,7 +57,7 @@ void MyScene::update(){
 
 }
 
-void myScene::keyPressEvent(QKeyEvent* event){
+void MyScene::keyPressEvent(QKeyEvent* event){
     //Pour mettre le jeu en pause en appuyant P par exemple
     if(event->key() == Qt::Key_P){
         if(timer->isActive()){
@@ -91,7 +91,7 @@ void myScene::keyPressEvent(QKeyEvent* event){
 }
 
 void MyScene::mousePressEvent(QMouseEvent* event){
-    if(event->button == Qt::LeftButton){
+    if(event->button() == Qt::LeftButton){
         //Tirer un projectile
         QPointF projStartPos = player->pos();   // Position de départ du projectile sur le joueur
 
@@ -109,7 +109,7 @@ void MyScene::mousePressEvent(QMouseEvent* event){
         int speed = 10;     // Vitesse du projectile
 
         // Création du projectile
-        Projectile* = new Projectile(projStartPos, direction, speed); 
+        Projectile* projectile = new Projectile(projStartPos, direction, speed); 
 
         //Ajout du projectile à la scène
         this->addItem(projectile);
