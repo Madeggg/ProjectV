@@ -34,6 +34,6 @@ void MainWindow::resizeEvent(QResizeEvent* event){
     QMainWindow::resizeEvent(event);
     if(mainView && mainScene){
         //On garde le ratio de l'image de fond
-        mainView->fitInView(mainScene->sceneRect,Qt::KeepAspectRatio); 
+        mainView->fitInView(mainScene->sceneRect(),Qt::KeepAspectRatio); 
     }
 }
