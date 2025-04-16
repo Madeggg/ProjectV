@@ -1,13 +1,13 @@
-#ifndef CPP_QT_TPMINIPROJET_MYSCENE_H
-#define CPP_QT_TPMINIPROJET_MYSCENE_H
+#ifndef MYSCENE_H
+#define MYSCENE_H
 
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
 #include <QGraphicsRectItem>
-#include<QGraphicsPixMapItem>
-#include<QPixMap>
-#include<QPainter>
-#include<QRectF>
+#include <QGraphicsPixmapItem>
+#include <QPixmap>
+#include <QPainter>
+#include <QRectF>
 #include <QTimer>
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -15,6 +15,10 @@
 #include "GameManager.h"
 #include "Player.h"
 #include "Entities.h"
+
+// Déclaration anticipée
+class GameManager;
+class Player;
 
 
 class MyScene : public QGraphicsScene {
@@ -38,7 +42,7 @@ private:
     QGraphicsRectItem* qgri;
     GameManager* gameManager;
     Player* player;
-    QPixMap pixBackground;
+    QPixmap pixBackground;
     
 
 };

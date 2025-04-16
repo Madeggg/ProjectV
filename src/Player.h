@@ -8,8 +8,12 @@
 #include <QTimer>
 
 #include "GameManager.h"
-#include "MyScene.h"
 #include "Entities.h"
+
+// Déclaration anticipée
+class MyScene;
+
+
 
 class Player : public QObject, public QGraphicsPixmapItem { //QGraphicsPixmapItem, sous-classe de QGraphicsItem, affiche une image (pixmap) dans une scène graphique
     Q_OBJECT

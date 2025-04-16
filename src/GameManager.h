@@ -1,6 +1,6 @@
-    // Cette page, nous sert à gérer la vie, le score, le HUD, mais aussi le système de sauvegarde/chargement du meilleur score et pseudo
-#   ifndef GameManager_h
-#define GameManager_h
+// Cette page, nous sert à gérer la vie, le score, le HUD, mais aussi le système de sauvegarde/chargement du meilleur score et pseudo
+#ifndef GAMEMANAGER_H
+#define GAMEMANAGER_H
 
 #include <QObject>
 #include <QTimer>
@@ -8,6 +8,9 @@
 #include "Player.h"
 #include "MyScene.h"
 #include "Entities.h"
+
+// Déclaration anticipée
+class MyScene;
 
 class GameManager : public QObject {
     Q_OBJECT
