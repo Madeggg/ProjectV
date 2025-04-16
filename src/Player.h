@@ -33,7 +33,10 @@ public:
 
 private:
     int health;
-    int speed;
+    int speed = 5;
+signals:
+    void playerMoved(); // Signal émis lorsque le joueur se déplace
+
 };
 
 #endif 
