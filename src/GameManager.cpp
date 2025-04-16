@@ -3,8 +3,6 @@
 
 GameManager::GameManager(MyScene* scene) : scene(scene) {
     player = new Player(); //création du personnage et ajoue à la scène
-    scene->addItem(player);
-    player->setPos(200, 400); // position initiale au centre approximatif
 
     
     gameLoopTimer = new QTimer(this); // création d'un timer pour gérer la boucle de jeu

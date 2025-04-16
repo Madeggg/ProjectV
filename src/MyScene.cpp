@@ -2,7 +2,7 @@
 
 MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     //Image de fond
-    pixBackground = QPixmap(":/img/background.png"); 
+    pixBackground = QPixmap("img/gameBackground.jpg"); 
 
     //Définir la taille de la scène en fonction de la taille de l'image de fond
     setSceneRect(0,0,pixBackground.width(),pixBackground.height()); 
@@ -11,18 +11,6 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MyScene::update);
     timer->start(30);  //Maj toutes les 30ms
-
-    
-
-    //Exemple avec l'ajout d'un rectangle
-    qgri = new QGraphicsRectItem(10, 100, 300, 200);
-    qgri->setBrush(Qt::blue); // Couleur de remplissage
-    this->addItem(qgri);
-
-    //Ajout texte
-    qgti = new QGraphicsTextItem("Hello World !");
-    this->addItem(qgti);
-    qgti->setPos(50, 50);   // Position du texte
 
     //Ajout du player
     player = new Player();
@@ -42,19 +30,14 @@ MyScene::~MyScene() {
 
 void MyScene::update(){
     //Déplacement de l'objet texte par exemple
-    QPointF pos = qgti->pos();
-    qgti->setPos(pos.x() + 1, pos.y());
-
-    //Collisions
-    if(qgri->collidesWithItem(player)) {
-        qDebug() << "Collision detected!";
-        player->setPos(200, 400); // Reset player position
-    }
-
-    gameManager->update(); // Appel à la méthode update du GameManager pour gérer les ennemis
+   gameManager->update(); // Appel à la méthode update du GameManager pour gérer les ennemis
 
     
 
+}
+
+Player* MyScene::getPlayer() const {
+    return player;
 }
 
 void MyScene::keyPressEvent(QKeyEvent* event){
@@ -71,22 +54,22 @@ void MyScene::keyPressEvent(QKeyEvent* event){
 
     // Déplacement vers la gauche
     if(event->key() == Qt::Key_Q){
-        player->setPos(player->x() - 10, player->y()); 
+        player->moveLeft();
     }
 
     //Déplacement vers la droite
     else if(event->key() == Qt::Key_D){
-        player->setPos(player->x() + 10, player->y()); 
+        player->moveRight();
     }
 
     //Déplacement vers le haut
     else if(event->key() == Qt::Key_Z){
-        player->setPos(player->x(), player->y() - 10); 
+        player->moveUp(); 
     }
 
     //Déplacement vers le bas
     else if(event->key() == Qt::Key_S){
-        player->setPos(player->x(), player->y() + 10); 
+        player->moveDown(); 
     }
 }
 
@@ -117,7 +100,11 @@ void MyScene::mousePressEvent(QMouseEvent* event){
 }
 
 void MyScene::drawBackground(QPainter* painter, const QRectF& rect) {
-    Q_UNUSED(rect); 
-    // Dessine l'image de fond
-    painter->drawPixmap(QPointF(0, 0),pixBackground,sceneRect());
+    Q_UNUSED(rect);
+    if (pixBackground.isNull()) {
+        qDebug() << "Erreur : pixBackground est nul dans drawBackground !";
+        return;
+    }
+    // Redimensionne l'image de fond pour qu'elle corresponde à la taille de la scène
+    painter->drawPixmap(sceneRect(), pixBackground, pixBackground.rect());
 }

@@ -12,6 +12,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     this->setWindowTitle("My main window");
     this->resize(400, 800);
 
+
+     // Connecte le signal playerMoved au recentrage de la vue
+     connect(mainScene->getPlayer(), &Player::playerMoved, this, [this]() {
+        mainView->centerOn(mainScene->getPlayer());
+    });
+
+
     helpMenu = menuBar()->addMenu(tr("&Help"));
     QAction* actionHelp = new QAction(tr("&About"), this);
     connect(actionHelp, SIGNAL(triggered()), this, SLOT(slot_aboutMenu()));
@@ -30,10 +37,17 @@ void MainWindow::slot_aboutMenu(){
     msgBox.exec();
 }
 
-void MainWindow::resizeEvent(QResizeEvent* event){
+void MainWindow::resizeEvent(QResizeEvent* event) {
     QMainWindow::resizeEvent(event);
-    if(mainView && mainScene){
-        //On garde le ratio de l'image de fond
-        mainView->fitInView(mainScene->sceneRect(),Qt::KeepAspectRatio); 
+    if (mainView && mainScene) {
+        // Ajuste la vue pour garder le ratio de l'image de fond
+        mainView->fitInView(mainScene->sceneRect(), Qt::KeepAspectRatioByExpanding);
+
+        // Centre la vue sur le joueur
+        Player* player = mainScene->getPlayer(); // Ajoutez une méthode getPlayer() dans MyScene
+        if (player) {
+            mainView->centerOn(player);
+        }
     }
 }
+

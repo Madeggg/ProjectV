@@ -27,6 +27,7 @@ class MyScene : public QGraphicsScene {
 public:
     MyScene(QObject* parent = nullptr);
     virtual ~MyScene();
+    Player* getPlayer() const;
 
 protected:
     void keyPressEvent(QKeyEvent* event);
