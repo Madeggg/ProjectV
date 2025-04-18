@@ -8,15 +8,26 @@
 
 // Méthode de Enemy
 
-Enemy::Enemy(EnemyType type, QGraphicsItem* parent) : QGraphicsPixmapItem(parent), type(type), weapon() {
+Enemy::Enemy(EnemyType type, Player* player, QGraphicsItem* parent) : QGraphicsPixmapItem(parent), type(type), weapon(), health(100) {
     setAppearance(); // On définit le sprite + comportement visuel dès la création 
+    followTimer = new QTimer(this); 
+    connect(followTimer, &QTimer::timeout, this, [this, player]() {
+        if (player) {
+            followPlayer(player); // Suit dynamiquement le joueur
+        }
+        else{
+            qDebug() << "Le joueur n'est pas défini ici. L'ennemi ne peut pas le suivre.";
+        }
+    });
+    followTimer->start(30); // On fait en sorte que le timer se déclenche toutes les 100ms
+    qDebug() << "Timer de suivi initialisé pour l'ennemi.";
 }
 
 void Enemy::setAppearance() {
     QString imagePath; // Déclaration du lien vers l'image comme un objet QString
 
     if (type == EnemyType::Soldier) {
-        imagePath = "";
+        imagePath = "img/atrain.png";
         weapon = Weapon("Rifle", 10, "", WeaponType::Rifle); // Sprite unique pour les soldats
     } else if (type == EnemyType::Hero) {
         QStringList heroSprites = {
@@ -53,17 +64,55 @@ Weapon Enemy::getWeapon() const {
     return weapon;
 }
 
-void Enemy::move() {
-    // Exemple de logique de déplacement : l'ennemi descend de 5 pixels
-    setPos(x(), y() + 5);
+int Enemy::getHealth() const {
+    return health;
+}
 
-    // Si l'ennemi sort de la scène, on le supprime
-    if (!scene()->sceneRect().contains(pos())) {
-        scene()->removeItem(this);
-        delete this;
+void Enemy::setHealth(int newHealth) {
+    health = newHealth;
+}
+
+void Enemy::setWeapon(Weapon* newWeapon) {
+    weapon = *newWeapon; 
+}
+
+
+
+void Enemy::followPlayer(Player* player) {
+    if (player) {
+        QPointF playerPos = player->pos();
+        QPointF direction = playerPos - pos();
+        qreal length = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());
+
+         // Si l'ennemi est suffisamment proche du joueur, il arrête de bouger
+         if (length < 2.0) { // Seuil de proximité (2 pixels)
+
+            return;
+        }
+
+        // Normalisation du vecteur direction
+        if (length != 0) {
+            direction /= length;
+        }
+
+        // Déplacement de l'ennemi vers le joueur
+        qreal speed = 2; // Vitesse de l'ennemi
+        setPos(pos() + direction * speed);
+        
+       
     }
 }
 
+void Enemy::attack(Player* player) {
+    if (player) {
+        // Logique d'attaque ici, par exemple, infliger des dégâts au joueur
+        player->takeDamage(weapon.getDamage()); // Utilise l'arme de l'ennemi pour infliger des dégâts au joueur
+        qDebug() << "L'ennemi attaque le joueur ! Dégâts infligés : " << weapon.getDamage();
+    } else {
+        qDebug() << "Aucun joueur à attaquer.";
+    }
+
+}
 // Méthode de Weapon
 
 //Constructeur par défaut

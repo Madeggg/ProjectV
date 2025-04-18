@@ -9,26 +9,39 @@ Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), 
 // Méthodes de déplacement 
 void Player::moveLeft() {
     setPos(x() - speed, y());
-    emit playerMoved();
+    qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    emit playerMoved(pos());
 }
 
 void Player::moveRight() {
     setPos(x() + speed, y());
-    emit playerMoved();
+    qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    emit playerMoved(pos());
 }
 
 void Player::moveUp() {
     setPos(x(), y() - speed);
-    emit playerMoved();
+    qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    emit playerMoved(pos());
 }
 
 void Player::moveDown() {
     setPos(x(), y() + speed);
-    emit playerMoved();
+     qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    emit playerMoved(pos());
+}
+
+bool Player::canMoveTo(const QPointF& newPosition, const QRectF& sceneRect) const {
+    QRectF playerRect(newPosition, QSizeF(boundingRect().width(), boundingRect().height()));
+    return sceneRect.contains(playerRect);
 }
 
 int Player::getHealth() const {
     return health;
+}
+
+qreal Player::getSpeed() const {
+    return speed; // Retourne la vitesse actuelle du joueur
 }
 
 void Player::setHealth(int newHealth) {

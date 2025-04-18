@@ -28,14 +28,16 @@ public:
     void moveDown();
     // Méthodes de gestion de PV
     int getHealth() const;
+    qreal getSpeed() const;
     void setHealth(int newHealth);
     void takeDamage(int amount);
+    bool canMoveTo(const QPointF& newPos, const QRectF& sceneRect) const;
 
 private:
     int health;
     int speed = 5;
 signals:
-    void playerMoved(); // Signal émis lorsque le joueur se déplace
+    void playerMoved(QPointF newPos); // Signal émis lorsque le joueur se déplace
 
 };
 

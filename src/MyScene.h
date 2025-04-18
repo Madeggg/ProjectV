@@ -19,6 +19,7 @@
 // Déclaration anticipée
 class GameManager;
 class Player;
+class Enemy;
 
 
 class MyScene : public QGraphicsScene {
@@ -43,6 +44,7 @@ private:
     QGraphicsRectItem* qgri;
     GameManager* gameManager;
     Player* player;
+    Enemy* soldier;
     QPixmap pixBackground;
     
 

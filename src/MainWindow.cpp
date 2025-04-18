@@ -18,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         mainView->centerOn(mainScene->getPlayer());
     });
 
+    mainView->scale(5,5);
+
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     QAction* actionHelp = new QAction(tr("&About"), this);

@@ -12,6 +12,8 @@
 #include "Player.h"
 #include "MyScene.h"
 
+class Player;   // Déclaration anticipée de la classe Player
+
 enum class EnemyType{           //On crée une classe à part pour les deux types d'ennemis 
     Soldier,
     Hero
@@ -53,19 +55,26 @@ class Enemy: public QObject, public QGraphicsPixmapItem{
 
 public:
     // Constructeur : crée un ennemi du type spécifié
-    Enemy(EnemyType type,QGraphicsItem* parent = nullptr);
+    Enemy(EnemyType type, Player* player, QGraphicsItem* parent = nullptr);
     //Mutateur
     void setWeapon(Weapon* weapon);
     //Accesseur
     Weapon getWeapon() const;
 
+    int getHealth() const;
+    void setHealth(int health); 
+    void attack(Player* player);    //Méthode pour attaquer le joueur
+
+    
 public slots : 
-    void move();            //Méthode qui permettra à l'ennemi de se déplacer de manière aléatoire
+    void followPlayer(Player* player);      //Méthode pour suivre le joueur
+
     void shoot();          //Méthode qui permettra à l'ennemi de tirer un projectile
 
 private :
+    int health;
     EnemyType type;
-    QTimer* moveTimer;
+    QTimer* followTimer;    // Timer pour le suivi du joueur
     Weapon weapon;
     
     void setAppearance();       //Cette méthode permettra de donner l'apparence à l'ennemi en fonction de son type 

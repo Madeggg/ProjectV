@@ -16,6 +16,8 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     player = new Player();
     this->addItem(player);
 
+    
+
     //Initialisation du gameManager
     gameManager = new GameManager(this);
 
@@ -41,6 +43,7 @@ Player* MyScene::getPlayer() const {
 }
 
 void MyScene::keyPressEvent(QKeyEvent* event){
+    QRectF sceneBounds = sceneRect(); // Récupère les limites de la scène
     //Pour mettre le jeu en pause en appuyant P par exemple
     if(event->key() == Qt::Key_P){
         if(timer->isActive()){
@@ -53,23 +56,35 @@ void MyScene::keyPressEvent(QKeyEvent* event){
     }
 
     // Déplacement vers la gauche
-    if(event->key() == Qt::Key_Q){
-        player->moveLeft();
+    if (event->key() == Qt::Key_Q) {
+        QPointF newPosition = player->pos() + QPointF(-player->getSpeed(), 0);
+        if (player->canMoveTo(newPosition, sceneBounds)) {
+            player->moveLeft();
+        }
     }
 
-    //Déplacement vers la droite
-    else if(event->key() == Qt::Key_D){
-        player->moveRight();
+    // Déplacement vers la droite
+    else if (event->key() == Qt::Key_D) {
+        QPointF newPosition = player->pos() + QPointF(player->getSpeed(), 0);
+        if (player->canMoveTo(newPosition, sceneBounds)) {
+            player->moveRight();
+        }
     }
 
-    //Déplacement vers le haut
-    else if(event->key() == Qt::Key_Z){
-        player->moveUp(); 
+    // Déplacement vers le haut
+    else if (event->key() == Qt::Key_Z) {
+        QPointF newPosition = player->pos() + QPointF(0, -player->getSpeed());
+        if (player->canMoveTo(newPosition, sceneBounds)) {
+            player->moveUp();
+        }
     }
 
-    //Déplacement vers le bas
-    else if(event->key() == Qt::Key_S){
-        player->moveDown(); 
+    // Déplacement vers le bas
+    else if (event->key() == Qt::Key_S) {
+        QPointF newPosition = player->pos() + QPointF(0, player->getSpeed());
+        if (player->canMoveTo(newPosition, sceneBounds)) {
+            player->moveDown();
+        }
     }
 }
 

@@ -23,7 +23,7 @@ public:
 
 public slots:
     void update(); // appelée régulièrement par QTimer pour faire tourner le jeu
-
+    void onPlayerMoved(QPointF newPos); // appelée lorsque le joueur se déplace
 private:
     MyScene* scene;
     Player* player;
