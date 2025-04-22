@@ -1,25 +1,37 @@
 #include "MyScene.h"
 
+#include <QTimer>
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QGraphicsRectItem>
+#include <QDebug>
+
 MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
-    //Image de fond
-    pixBackground = QPixmap("img/gameBackground.jpg"); 
+    loadMap(); 
 
-    //Définir la taille de la scène en fonction de la taille de l'image de fond
-    setSceneRect(0,0,pixBackground.width(),pixBackground.height()); 
-
-    //Initialisation du timer
+    // Initialisation du timer
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MyScene::update);
-    timer->start(30);  //Maj toutes les 30ms
+    timer->start(30);  // Maj toutes les 30ms
 
-    //Ajout du player
+    // Ajout du player
     player = new Player();
     this->addItem(player);
+    player->setPos(445, 555);
 
-    //Initialisation du gameManager
     gameManager = new GameManager(this);
 
+    // Chargement de la map (JSON de Tiled)
+    
+
+    
 }
+
 
 MyScene::~MyScene() {
     delete timer;
@@ -92,28 +104,213 @@ void MyScene::keyPressEvent(QKeyEvent* event){
     }
 }
 
-void MyScene::mousePressEvent(QMouseEvent* event){
-    if(event->button() == Qt::LeftButton){
-        //Tirer un projectile
-        QPointF projStartPos = player->pos();   // Position de départ du projectile sur le joueur
+// void MyScene::mousePressEvent(QMouseEvent* event){
+//     if(event->button() == Qt::LeftButton){
+//         //Tirer un projectile
+//         QPointF projStartPos = player->pos();   // Position de départ du projectile sur le joueur
 
-        QPointF projTargetPos = event->pos(); // Position au clic du joueur
+//         QPointF projTargetPos = event->pos(); // Position au clic du joueur
 
-        //Calcul de la direction
-        QPointF direction = projTargetPos - projStartPos;
-        qreal length = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());    //Calcul de la norme du vecteur avec la formule connue
+//         //Calcul de la direction
+//         QPointF direction = projTargetPos - projStartPos;
+//         qreal length = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());    //Calcul de la norme du vecteur avec la formule connue
         
-        //On normalise le vecteur en le divisant par sa longueur, afin que sa norme vale 1 
-        if(length != 0) {
-            direction /= length; 
+//         //On normalise le vecteur en le divisant par sa longueur, afin que sa norme vale 1 
+//         if(length != 0) {
+//             direction /= length; 
+//         }
+
+//         int speed = 10;     // Vitesse du projectile
+
+//         // Création du projectile
+//         Projectile* projectile = new Projectile(projStartPos, direction, speed); 
+
+//         //Ajout du projectile à la scène
+//         this->addItem(projectile);
+//     }   
+// }
+
+
+// void MyScene::loadMap(const QString& path) {
+//     QFile file(path);
+//     if (!file.open(QIODevice::ReadOnly)) {
+//         qWarning("Failed to open map file");
+//         return;
+//     }
+
+//     QByteArray data = file.readAll();
+//     file.close();
+
+//     QJsonParseError parseError;
+//     QJsonDocument document = QJsonDocument::fromJson(data, &parseError);
+//     if (parseError.error != QJsonParseError::NoError) {
+//         qWarning("JSON parse error: %s", qUtf8Printable(parseError.errorString()));
+//         return;
+//     }
+
+//     QJsonObject rootObj = document.object();
+//     QJsonArray layers = rootObj["layers"].toArray();
+
+//     for (const QJsonValue& layerVal : layers) {
+//         QJsonObject layerObj = layerVal.toObject();
+
+//         // On cherche le calque nommé "collisions"
+//         if (layerObj["name"].toString() == "collisions" && layerObj["type"].toString() == "objectgroup") {
+//             QJsonArray objects = layerObj["objects"].toArray();
+
+//             for (const QJsonValue& objVal : objects) {
+//                 QJsonObject obj = objVal.toObject();
+//                 double x = obj["x"].toDouble();
+//                 double y = obj["y"].toDouble();
+//                 double width = obj["width"].toDouble();
+//                 double height = obj["height"].toDouble();
+
+//                 QGraphicsRectItem* collisionItem = new QGraphicsRectItem(x, y, width, height);
+//                 collisionItem->setBrush(Qt::red); // Pour le debug
+//                 collisionItem->setPen(Qt::NoPen);
+//                 collisionItem->setZValue(-1); // derrière les entités
+//                 collisionItem->setData(0, "collision");
+
+//                 this->addItem(collisionItem);
+//             }
+//         }
+//     }
+// }
+
+void MyScene::loadMap(){
+
+    //Load and parse json file
+    QFile file("test1.json");
+    file.open(QIODevice::ReadOnly);
+
+    QJsonDocument document = QJsonDocument::fromJson(file.readAll());
+    QJsonObject mapObject = document.object();
+
+    //listPixmap will contains every tiles
+    QMap<int, QPixmap> listPixmap;
+
+    int tileWidth = mapObject["tilewidth"].toInt();
+    int tileHeight = mapObject["tileheight"].toInt();
+    int numberTileWidth = mapObject["width"].toInt();
+    int numberTileHeight = mapObject["height"].toInt();
+
+    this->backgroundWidth = numberTileWidth*tileWidth;
+    this->backgroundHeight = numberTileHeight*tileHeight;
+
+    //First we get every tiles to add it into listPixmap
+    QJsonArray tilesets = mapObject["tilesets"].toArray();
+    for(QJsonValue tilesetValue : tilesets){
+        QJsonObject tileset = tilesetValue.toObject();
+
+        int firstGid = tileset["firstgid"].toInt();
+        QString source = tileset["image"].toString();
+       
+        QPixmap tilesetImage(source); //load image
+        if(tilesetImage.isNull()){
+            qWarning() << "Failed to load tileset image:" << source;
+            continue;
         }
+        int numColumns = tilesetImage.width() / tileWidth;
+        int numRows = tilesetImage.height() / tileHeight;
+        for (int row = 0; row < numRows; ++row) {
+            for (int column = 0; column < numColumns; ++column) {
+                int tileID = firstGid + (row * numColumns) + column;
 
-        int speed = 10;     // Vitesse du projectile
+                //We add one by one tiles so we 'cut' the image everytime
+                QRect tileRect(column * tileWidth, row * tileHeight, tileWidth, tileHeight);
+                QPixmap tilePixmap = tilesetImage.copy(tileRect);
+                listPixmap[tileID] = tilePixmap;
+            }
+        }
+    }
 
-        // Création du projectile
-        Projectile* projectile = new Projectile(projStartPos, direction, speed); 
+    QJsonArray layers = mapObject["layers"].toArray();
+    for(QJsonValue layerValue : layers){
+        QJsonObject layer = layerValue.toObject();
 
-        //Ajout du projectile à la scène
-        this->addItem(projectile);
-    }   
+        if(layer["type"] == "tilelayer"){
+            int width = layer["width"].toInt();
+            int height = layer["height"].toInt();
+
+            QJsonArray data = layer["data"].toArray();
+            for(int y = 0; y < height; y++){ //line
+                for(int x = 0; x < width; x++){ //column
+                    int tileID = data[width * y + x].toInt();
+                    if(tileID != 0){
+                        if (!listPixmap.contains(tileID)) {
+                            qWarning() << "TileID" << tileID << "not found in tileset map!";
+                        }
+                        
+                        QGraphicsPixmapItem* tile = new QGraphicsPixmapItem(listPixmap[tileID]);
+                        tile->setPos(x * 16, y * 16);
+                        tile->setOpacity(layer["opacity"].toDouble());
+                        this->addItem(tile);//draw the tile at the right position
+                    }
+                }
+            }
+
+            //Add collisions objects
+        } else if(layer["type"] == "objectgroup" && layer["name"] == "collisions"){
+            QJsonArray objects = layer["objects"].toArray();
+            qDebug() << "Collisions layer found, processing objects...";
+
+            for(QJsonValue objectValue : objects){
+                QJsonObject object = objectValue.toObject();
+
+                qDebug() << "Raw object data:" << object;
+            
+                double x = object["x"].toDouble();
+                double y = object["y"].toDouble();
+                double width = object["width"].toDouble();
+                double height = object["height"].toDouble();
+
+                qDebug() << "Raw coordinates - x:" << x << "y:" << y << "width:" << width << "height:" << height;
+
+                
+
+                if (x == 0 && y == 0) {
+                    qDebug() << "Warning: Collision object has (x=0, y=0)";
+                }
+
+                
+
+                // qDebug() << "Processing object: x=" << x << "y=" << y << "width=" << width << "height=" << height;
+
+                else if (object.contains("polygon")) {
+                    QJsonArray polygonArray = object["polygon"].toArray();
+                    QPolygonF polygon;
+                
+                    // On récupère les coordonnées du polygon dans le tableau
+                    for (const QJsonValue& pointVal : polygonArray) {
+                        QJsonObject pointObj = pointVal.toObject();
+                        qreal x = pointObj["x"].toDouble();
+                        qreal y = pointObj["y"].toDouble();
+                        polygon << QPointF(x, y);
+                    }
+                
+                    // Déplacement du polygon en fonction des coordonnées x et y de l'objet
+                    polygon.translate(object["x"].toDouble(), object["y"].toDouble());
+                
+                    // Création du polygon et ajout à la scène
+                    QGraphicsPolygonItem* polygonItem = new QGraphicsPolygonItem(polygon);
+                    polygonItem->setBrush(Qt::red); // Pour visualiser le polygon
+                    polygonItem->setPen(Qt::NoPen); // Pas de bordure
+                    polygonItem->setData(0, "collision"); // Définir comme objet de collision
+                    polygonItem->setZValue(100); // Derrière les autres objets
+                    this->addItem(polygonItem); // Ajout à la scène
+
+                } else {
+                    // qDebug() << "Creating rect collision at x=" << x << "y=" << y;
+                    QGraphicsRectItem* rect = new QGraphicsRectItem(x, y, width, height);
+                    rect->setBrush(Qt::red);
+                    rect->setPen(Qt::NoPen);
+                    rect->setData(0, "collision");
+                    rect->setZValue(100);
+                    this->addItem(rect);
+                }
+            }
+        }
+    }
+
+    file.close();
 }

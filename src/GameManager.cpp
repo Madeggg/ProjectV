@@ -3,7 +3,7 @@
 
 GameManager::GameManager(MyScene* scene) : scene(scene) {
     player = new Player(); //création du personnage et ajout à la scène
-    connect(player, &Player::playerMoved, this, &GameManager::onPlayerMoved);
+
 
     gameLoopTimer = new QTimer(this); // création d'un timer pour gérer la boucle de jeu
     connect(gameLoopTimer, &QTimer::timeout, this, &GameManager::update);
@@ -48,3 +48,4 @@ Player* GameManager::getPlayer() const {
 }
 
 //SpawnHeros et enemy à refaire
+

@@ -28,7 +28,9 @@ class MyScene : public QGraphicsScene {
 public:
     MyScene(QObject* parent = nullptr);
     virtual ~MyScene();
+
     Player* getPlayer() const;
+    void loadMap();
 
 protected:
     void keyPressEvent(QKeyEvent* event);
@@ -43,6 +45,9 @@ private:
     Player* player;
     QPixmap pixBackground;
     
+
+    int backgroundWidth = 0;
+    int backgroundHeight = 0;
 
 };
 
