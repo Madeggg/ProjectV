@@ -2,9 +2,10 @@
 #include "GameManager.h"
 
 GameManager::GameManager(MyScene* scene) : scene(scene) {
-    player = new Player(); //création du personnage et ajoue à la scène
+    player = new Player(); //création du personnage et ajout à la scène
 
-    
+    connect(player, &Player::playerMoved, this, &GameManager::onPlayerMoved);
+
     gameLoopTimer = new QTimer(this); // création d'un timer pour gérer la boucle de jeu
     connect(gameLoopTimer, &QTimer::timeout, this, &GameManager::update);
 }
@@ -32,8 +33,6 @@ void GameManager::update() {
     // - les collisions
     // - la vérification de la mort du joueur
 
-    int frameCount = 0; // Compteur de frames
-    int heroSpawnTimer = 0; // Compteur pour le spawn des héros
 
     frameCount++;
     heroSpawnTimer++;
@@ -64,7 +63,7 @@ Player* GameManager::getPlayer() const {
 
 
 void GameManager::spawnEnemies() {
-    Enemy* enemy = new Enemy(EnemyType::Soldier);
+    Enemy* enemy = new Enemy(EnemyType::Soldier,player);
     scene->addItem(enemy);
 
     // Positionne l'ennemi en haut de la scène (y=0) à une position aléatoire sur l'axe x:
@@ -78,7 +77,7 @@ void GameManager::spawnEnemies() {
 
 
 void GameManager::spawnHero(){
-    Enemy* hero = new Enemy(EnemyType::Hero);
+    Enemy* hero = new Enemy(EnemyType::Hero,player);
     scene->addItem(hero);
 
     // Positionne le héros en bas de la scène (y=600) à une position aléatoire sur l'axe x:
@@ -87,4 +86,16 @@ void GameManager::spawnHero(){
     QTimer* shootTimer = new QTimer(this);
     connect(shootTimer, &QTimer::timeout, hero, &Enemy::shoot);
     shootTimer->start(1500);                    // Le héros tire plus rapidement (toutes les 1,5 secondes)
+}
+
+void GameManager::onPlayerMoved(QPointF newPos) {
+    qDebug() << "onPlayerMoved appelé. Nouvelle position du joueur : " << newPos;
+
+    // Parcours des ennemis dans la scène pour mettre à jour leur position
+    for (QGraphicsItem* item : scene->items()) {
+        Enemy* enemy = dynamic_cast<Enemy*>(item);
+        if (enemy) {
+            enemy->followPlayer(player); // Met à jour la position de l'ennemi
+        }
+    }
 }

@@ -80,26 +80,22 @@ void Enemy::setWeapon(Weapon* newWeapon) {
 
 void Enemy::followPlayer(Player* player) {
     if (player) {
-        QPointF playerPos = player->pos();
-        QPointF direction = playerPos - pos();
-        qreal length = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());
+        // Crée une ligne entre l'ennemi et le joueur
+        QLineF lineToPlayer(pos(), player->pos());
 
-         // Si l'ennemi est suffisamment proche du joueur, il arrête de bouger
-         if (length < 2.0) { // Seuil de proximité (2 pixels)
-
+        // Si l'ennemi est suffisamment proche du joueur, il arrête de bouger
+        if (lineToPlayer.length() < 2.0) { // Seuil de proximité (2 pixels)
+            qDebug() << "L'ennemi est proche du joueur. Arrêt du mouvement.";
             return;
         }
 
-        // Normalisation du vecteur direction
-        if (length != 0) {
-            direction /= length;
-        }
+        // Réduit la longueur de la ligne à la vitesse de l'ennemi
+        lineToPlayer.setLength(2.0); // Vitesse de l'ennemi (2 pixels par mise à jour)
 
-        // Déplacement de l'ennemi vers le joueur
-        qreal speed = 2; // Vitesse de l'ennemi
-        setPos(pos() + direction * speed);
-        
-       
+        // Déplace l'ennemi en utilisant moveBy
+        moveBy(lineToPlayer.dx(), lineToPlayer.dy());
+
+        qDebug() << "L'ennemi se déplace vers le joueur. Nouvelle position : " << pos();
     }
 }
 

@@ -28,6 +28,8 @@ private:
     MyScene* scene;
     Player* player;
     QTimer* gameLoopTimer;
+    int frameCount = 0; // Compteur de frames
+    int heroSpawnTimer = 0; // Compteur pour le spawn des héros
 
     void spawnEnemies(); // À développer plus tard
     void spawnHero();  // À développer plus tard
