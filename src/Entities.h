@@ -13,6 +13,8 @@
 #include "MyScene.h"
 
 class Player;
+Class Weapon;
+
 
 class Enemy : public QObject{
     Q_OBJECT
@@ -21,11 +23,13 @@ protected:
     int damage;
     int speed;
     bool distance; //Booléen pour savoir si l'ennemi attaque le joueur à distance ou pas
+    Weapon* weapon;
     QString* type;
     QPixmap* sprite_up;
     QPixmap* sprite_down;
     QPixmap* sprite_right;
     QPixmap* sprite_left;
+    QTimer* damageTimer; // Timer pour gérer l'intervalle de temps entre les dégâts infligés au joueur
 
 public:
     //Constructeur
@@ -40,8 +44,18 @@ public:
     void setDamage(int newDamage);
     void setSpeed(int newSpeed);
     void setWeapon(Weapon* newWeapon); // Setter pour l'arme de l'ennemi
-    void attack(Player* player); // Méthode d'attaque de l'ennemi
-    void followPlayer(Player* player); // Méthode de suivi du joueur
+
+    // Méthode d'attaque de l'ennemi si son type est physique
+    void punch(Player* player); 
+
+    //Méthode d'attaque de l'ennemi si son type est distance
+    void shoot(Player* player);
+
+    // Méthode générale pour infliger des dégâts au joueur
+    void doDamage(Player* player); 
+
+    // Méthode de suivi du joueur
+    void followPlayer(Player* player); 
 
 
 };
@@ -49,7 +63,7 @@ public:
 //Classe soldier qui hérite de Enemy
 
 Class Soldier : public Enemy {
-    private:
+    
 
     public:
         // Constructeur
@@ -60,7 +74,7 @@ Class Soldier : public Enemy {
 };
 
 Class Hero : public Enemy {
-    private:
+   
 
     public:
         // Constructeur
@@ -87,5 +101,29 @@ Class Weapon : public QGraphicsPixmapItem {
         // Mutateurs
         void setDamage(int newDamage);
         void setRange(int newRange);
+        void setType(QString newType);
 };
+
+
+class Projectile : public QGraphicsPixmapItem{
+    Q_OBJECT
+    private:
+        QPointF direction
+        int speed;
+        QPixmap* sprite;
+        QTimer* timer;
+    public:
+        Projectile(QPointF startPosition, QPointF direction, int speed, QGraphicsItem* parent = nullptr);
+        void setDirection(QPointF newDirection);
+        void setSpeed(int newSpeed);
+        void setSprite(QPixmap* newSprite);
+        int getSpeed() const;
+        QPointF getDirection() const;
+    public slots:
+        void move(Player* player); // Déplace le projectile vers la position cible
+    
+}
+
+
+
 #endif 
