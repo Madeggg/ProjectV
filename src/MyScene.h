@@ -33,7 +33,6 @@ public:
 protected:
     void keyPressEvent(QKeyEvent* event);
     void mousePressEvent(QMouseEvent* event);
-    void drawBackground(QPainter* painter, const QRectF& rect);
 
 private slots:
     void update();

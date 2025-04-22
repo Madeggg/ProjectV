@@ -16,8 +16,6 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     player = new Player();
     this->addItem(player);
 
-    
-
     //Initialisation du gameManager
     gameManager = new GameManager(this);
 
@@ -28,7 +26,7 @@ MyScene::~MyScene() {
     delete gameManager;
 }
 
-//you can add your own methods here
+
 
 void MyScene::update(){
     //Déplacement de l'objet texte par exemple
@@ -118,14 +116,4 @@ void MyScene::mousePressEvent(QMouseEvent* event){
         //Ajout du projectile à la scène
         this->addItem(projectile);
     }   
-}
-
-void MyScene::drawBackground(QPainter* painter, const QRectF& rect) {
-    Q_UNUSED(rect);
-    if (pixBackground.isNull()) {
-        qDebug() << "Erreur : pixBackground est nul dans drawBackground !";
-        return;
-    }
-    // Redimensionne l'image de fond pour qu'elle corresponde à la taille de la scène
-    painter->drawPixmap(sceneRect(), pixBackground, pixBackground.rect());
 }
