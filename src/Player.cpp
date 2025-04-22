@@ -4,7 +4,7 @@
 #include <QPixmap>
 
 Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), health(100), speed(5) { //appel des constructeur de QObject et QGraphicsPixmapItem
-    setPixmap(QPixmap("img/BillyButcherDeCon.png").scaled(40, 40));
+    setPixmap(QPixmap("img/Sprite_billy_static.png").scaled(40, 40));
 }
 // Méthodes de déplacement 
 void Player::moveLeft() {

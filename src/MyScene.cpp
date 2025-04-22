@@ -60,6 +60,7 @@ void MyScene::keyPressEvent(QKeyEvent* event){
         QPointF newPosition = player->pos() + QPointF(-player->getSpeed(), 0);
         if (player->canMoveTo(newPosition, sceneBounds)) {
             player->moveLeft();
+            player->setPixmap(QPixmap("img/Sprite_billy_left.png").scaled(40, 40));
         }
     }
 
@@ -68,6 +69,8 @@ void MyScene::keyPressEvent(QKeyEvent* event){
         QPointF newPosition = player->pos() + QPointF(player->getSpeed(), 0);
         if (player->canMoveTo(newPosition, sceneBounds)) {
             player->moveRight();
+            player->setPixmap(QPixmap("img/Sprite_billy_right.png").scaled(40, 40));
+
         }
     }
 
@@ -76,6 +79,8 @@ void MyScene::keyPressEvent(QKeyEvent* event){
         QPointF newPosition = player->pos() + QPointF(0, -player->getSpeed());
         if (player->canMoveTo(newPosition, sceneBounds)) {
             player->moveUp();
+            player->setPixmap(QPixmap("img/Sprite_billy_up.png").scaled(40, 40));
+
         }
     }
 
@@ -84,6 +89,7 @@ void MyScene::keyPressEvent(QKeyEvent* event){
         QPointF newPosition = player->pos() + QPointF(0, player->getSpeed());
         if (player->canMoveTo(newPosition, sceneBounds)) {
             player->moveDown();
+            player->setPixmap(QPixmap("img/Sprite_billy_down.png").scaled(40, 40));
         }
     }
 }
