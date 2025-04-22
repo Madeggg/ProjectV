@@ -5,103 +5,87 @@
 
 #include <QGraphicsPixmapItem>
 #include <QObject>
-#include <QTimer>
+#include <QTimer>   
 #include <QString>
 
 #include "GameManager.h"
 #include "Player.h"
 #include "MyScene.h"
 
-class Player;   // Déclaration anticipée de la classe Player
+class Player;
 
-enum class EnemyType{           //On crée une classe à part pour les deux types d'ennemis 
-    Soldier,
-    Hero
-    //+ pour plus tard
-};
-
-enum class WeaponType{           //On crée une classe à part pour les deux types d'armes 
-    Gun,
-    Rifle,
-    Laser
-    //+ pour plus tard
-};
-
-class Weapon{
-    public:
-        //Constructeur par défaut
-        Weapon(); 
-
-        //Constructeur avec paramètres
-        Weapon(QString name, int damage, QString projectileSprite,WeaponType type); //Constructeur de l'arme
-
-        //Accesseurs
-        QString getName() const;
-        int getDamage() const;
-        WeaponType getType() const;
-        QString getProjectileSprite() const;            
-    
-    private:
-        QString name;
-        int damage;
-        WeaponType type; // pour savoir si c'est une arme de type Gun ou Rifle
-        QString projectileSpritePath; // pour les visuels de tirs
-};
-
-
-
-class Enemy: public QObject, public QGraphicsPixmapItem{        
+class Enemy : public QObject{
     Q_OBJECT
-
-public:
-    // Constructeur : crée un ennemi du type spécifié
-    Enemy(EnemyType type, Player* player, QGraphicsItem* parent = nullptr);
-    //Mutateur
-    void setWeapon(Weapon* weapon);
-    //Accesseur
-    Weapon getWeapon() const;
-
-    int getHealth() const;
-    void setHealth(int health); 
-    void attack(Player* player);    //Méthode pour attaquer le joueur
-
-    
-public slots : 
-    void followPlayer(Player* player);      //Méthode pour suivre le joueur
-
-    void shoot();          //Méthode qui permettra à l'ennemi de tirer un projectile
-
-private :
+protected:
     int health;
-    EnemyType type;
-    QTimer* followTimer;    // Timer pour le suivi du joueur
-    Weapon weapon;
-    
-    void setAppearance();       //Cette méthode permettra de donner l'apparence à l'ennemi en fonction de son type 
-
-
-};
-
-
-
-
-
-
-
-//Classe projectile pour gérer les tirs ennemis et du joueur, gérer leur déplacement et leur collision avec les ennemis
-
-class Projectile : public QObject, public QGraphicsPixmapItem {
-    Q_OBJECT
+    int damage;
+    int speed;
+    bool distance; //Booléen pour savoir si l'ennemi attaque le joueur à distance ou pas
+    QString* type;
+    QPixmap* sprite_up;
+    QPixmap* sprite_down;
+    QPixmap* sprite_right;
+    QPixmap* sprite_left;
 
 public:
-    Projectile(QPointF startPosition, QPointF direction, int speed, QGraphicsItem* parent = nullptr);
+    //Constructeur
+    Enemy(QGraphicsItem* parent = nullptr); 
+    //Accesseurs
+    int getHealth() const;
+    int getDamage() const;
+    int getSpeed() const;
+    QString* getType() const; // Getter pour le type d'ennemi
+    //Mutateurs
+    void setHealth(int newHealth);
+    void setDamage(int newDamage);
+    void setSpeed(int newSpeed);
+    void setWeapon(Weapon* newWeapon); // Setter pour l'arme de l'ennemi
+    void attack(Player* player); // Méthode d'attaque de l'ennemi
+    void followPlayer(Player* player); // Méthode de suivi du joueur
 
-public slots:
-    void move();
 
-private:
-    QPointF direction;
-    int speed;
 };
 
+//Classe soldier qui hérite de Enemy
+
+Class Soldier : public Enemy {
+    private:
+
+    public:
+        // Constructeur
+        Soldier(QGraphicsItem* parent = nullptr); // Constructeur
+
+
+
+};
+
+Class Hero : public Enemy {
+    private:
+
+    public:
+        // Constructeur
+        Hero(QGraphicsItem* parent = nullptr); // Constructeur
+        // Méthode d'attaque de l'ennemi
+       
+
+};
+
+Class Weapon : public QGraphicsPixmapItem {
+    Q_OBJECT
+    private:
+        int damage;
+        int range;
+        QString type; // Type d'arme (ex: "gun", "sword", etc.)
+        QPixmap* sprite; // Sprite de l'arme
+    public:
+        // Constructeur
+        Weapon(int damage, int range, QString type, QGraphicsItem* parent = nullptr); // Constructeur
+        // Accesseurs
+        int getDamage() const;
+        int getRange() const;
+        QString getType() const; 
+        // Mutateurs
+        void setDamage(int newDamage);
+        void setRange(int newRange);
+};
 #endif 

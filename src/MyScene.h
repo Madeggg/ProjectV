@@ -40,11 +40,8 @@ private slots:
 
 private:
     QTimer* timer;
-    QGraphicsTextItem* qgti;
-    QGraphicsRectItem* qgri;
     GameManager* gameManager;
     Player* player;
-    Enemy* soldier;
     QPixmap pixBackground;
     
 

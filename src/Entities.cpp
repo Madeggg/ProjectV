@@ -6,142 +6,71 @@
 #include <QRandomGenerator>
 #include <QStringList>
 
-// Méthode de Enemy
+// Méthodes de Enemy
 
-Enemy::Enemy(EnemyType type, Player* player, QGraphicsItem* parent) : QGraphicsPixmapItem(parent), type(type), weapon(), health(100) {
-    setAppearance(); // On définit le sprite + comportement visuel dès la création 
-    followTimer = new QTimer(this); 
-    connect(followTimer, &QTimer::timeout, this, [this, player]() {
-        if (player) {
-            followPlayer(player); // Suit dynamiquement le joueur
-        }
-        else{
-            qDebug() << "Le joueur n'est pas défini ici. L'ennemi ne peut pas le suivre.";
-        }
-    });
-    followTimer->start(30); // On fait en sorte que le timer se déclenche toutes les 100ms
-    qDebug() << "Timer de suivi initialisé pour l'ennemi.";
-}
+Enemy::Enemy(QGraphicsItem* parent) :  QGraphicsPixmapItem(parent), health(100), damage(10), speed(5) {
+    // Initialisation des sprites
+    sprite_up = new QPixmap("img/enemy_up.png");
+    sprite_down = new QPixmap("img/enemy_down.png");
+    sprite_right = new QPixmap("img/enemy_right.png");
+    sprite_left = new QPixmap("img/enemy_left.png");
 
-void Enemy::setAppearance() {
-    QString imagePath; // Déclaration du lien vers l'image comme un objet QString
+    //Par défaut, l'ennemi n'attaque pas à distance
+    distance = false;
 
-    if (type == EnemyType::Soldier) {
-        imagePath = "img/atrain.png";
-        weapon = Weapon("Rifle", 10, "", WeaponType::Rifle); // Sprite unique pour les soldats
-    } else if (type == EnemyType::Hero) {
-        QStringList heroSprites = {
-            "homelander",
-            "a_train",
-            "black_noir", // Exemple d'une liste QStringList contenant les sprites de super héros (des strings vers les liens des sprites)
-            "starlight",
-            "the_deep"
-        };
+    type = nullptr; // Initialisation du type d'ennemi à nullptr
+}   
 
-        // Choix aléatoire d’un héros dans la liste de sprite 
-        int index = QRandomGenerator::global()->bounded(heroSprites.size());
-        QString chosenHero = heroSprites[index];
-        imagePath = ":/img/super_" + chosenHero + ".png";
-        weapon = Weapon("Laser", 20, ":/img/laser.png", WeaponType::Laser); // Exemple d'arme pour un héros
-    }
-
-    QPixmap sprite(imagePath);
-    if (!sprite.isNull()) {
-        setPixmap(sprite.scaled(64, 64)); // La fonction scale permet d'appliquer au pixmap la taille donnée 
-    } else {
-        qDebug("Image introuvable : %s", qPrintable(imagePath));
-    }
-}
-
-void Enemy::shoot() {
-    QPointF direction(0, 1); // Exemple : les projectiles descendent
-    int speed = 5;
-    Projectile* projectile = new Projectile(pos(), direction, speed);
-    scene()->addItem(projectile);
-}
-
-Weapon Enemy::getWeapon() const {
-    return weapon;
-}
 
 int Enemy::getHealth() const {
     return health;
+}
+
+int Enemy::getDamage() const {
+    return damage;
+}
+
+int Enemy::getSpeed() const {
+    return speed;
+}
+
+QString Enemy::getType() const{
+    return type;
 }
 
 void Enemy::setHealth(int newHealth) {
     health = newHealth;
 }
 
+void Enemy::setDamage(int newDamage) {
+    damage = newDamage;
+}
+
+void Enemy::setSpeed(int newSpeed) {
+    speed = newSpeed;
+}
+
 void Enemy::setWeapon(Weapon* newWeapon) {
-    weapon = *newWeapon; 
+    weapon = newWeapon;
 }
 
 
 
-void Enemy::followPlayer(Player* player) {
-    if (player) {
-        // Crée une ligne entre l'ennemi et le joueur
-        QLineF lineToPlayer(pos(), player->pos());
+//Méthodes de Soldier
 
-        // Si l'ennemi est suffisamment proche du joueur, il arrête de bouger
-        if (lineToPlayer.length() < 2.0) { // Seuil de proximité (2 pixels)
-            qDebug() << "L'ennemi est proche du joueur. Arrêt du mouvement.";
-            return;
-        }
-
-        // Réduit la longueur de la ligne à la vitesse de l'ennemi
-        lineToPlayer.setLength(2.0); // Vitesse de l'ennemi (2 pixels par mise à jour)
-
-        // Déplace l'ennemi en utilisant moveBy
-        moveBy(lineToPlayer.dx(), lineToPlayer.dy());
-
-        qDebug() << "L'ennemi se déplace vers le joueur. Nouvelle position : " << pos();
-    }
+Soldier::Soldier(QGraphicsItem* parent,Weapon* w) :  QGraphicsPixmapItem(parent){
+    setHealth(50);
+    setDamage(10);
+    setSpeed(2);
+    setWeapon(w);
 }
 
-void Enemy::attack(Player* player) {
-    if (player) {
-        // Logique d'attaque ici, par exemple, infliger des dégâts au joueur
-        player->takeDamage(weapon.getDamage()); // Utilise l'arme de l'ennemi pour infliger des dégâts au joueur
-        qDebug() << "L'ennemi attaque le joueur ! Dégâts infligés : " << weapon.getDamage();
-    } else {
-        qDebug() << "Aucun joueur à attaquer.";
-    }
 
+//Méthodes de Hero
+
+Hero::Hero(QGraphicsItem* parent,Weapon* w) : QGraphicsPixmapItem(parent){
+    setHealth(100);
+    setDamage(30);
+    setSpeed(5);
+    setWeapon(w);
 }
-// Méthode de Weapon
-
-//Constructeur par défaut
-Weapon::Weapon() : name(""), damage(0), projectileSpritePath(""), type(WeaponType::Rifle) {}
-
-//Constructeur avec paramètres
-Weapon::Weapon(QString name, int damage, QString projectileSprite, WeaponType type)
-    : name(name), damage(damage), projectileSpritePath(projectileSprite), type(type) {}
-
-// Accesseurs
-QString Weapon::getName() const { return name; }
-int Weapon::getDamage() const { return damage; }
-QString Weapon::getProjectileSprite() const { return projectileSpritePath; }
-WeaponType Weapon::getType() const { return type; }
-
-// Méthode de Projectile
-
-Projectile::Projectile(QPointF startPosition, QPointF direction, int speed, QGraphicsItem* parent)
-    : QObject(), QGraphicsPixmapItem(parent), direction(direction), speed(speed) {
-    setPos(startPosition);
-    setPixmap(QPixmap(":/img/projectile.png").scaled(16, 16)); // Exemple de sprite
-    QTimer* moveTimer = new QTimer(this);
-    connect(moveTimer, &QTimer::timeout, this, &Projectile::move);
-    moveTimer->start(16); // 60 FPS
-}
-
-void Projectile::move() {
-    setPos(pos() + direction * speed);
-    // On vérifie si la position actuelle du projectile est contenue dans le rectangle de la scène
-    // Si le projectile sort de la scène, on le supprime
-    if (!scene()->sceneRect().contains(pos())) {
-        scene()->removeItem(this);
-        delete this;
-    }
-}
-

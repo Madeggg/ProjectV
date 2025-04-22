@@ -33,6 +33,7 @@ void Player::moveDown() {
 
 bool Player::canMoveTo(const QPointF& newPosition, const QRectF& sceneRect) const {
     QRectF playerRect(newPosition, QSizeF(boundingRect().width(), boundingRect().height()));
+    //Renvoie true si la scène contient le joueur
     return sceneRect.contains(playerRect);
 }
 
