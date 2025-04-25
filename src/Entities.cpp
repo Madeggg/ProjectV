@@ -9,11 +9,7 @@
 // Méthodes de Enemy
 
 Enemy::Enemy(QGraphicsItem* parent) :  QGraphicsPixmapItem(parent), health(100), damage(10), speed(5) {
-    // Initialisation des sprites
-    sprite_up = new QPixmap("img/enemy_up.png");
-    sprite_down = new QPixmap("img/enemy_down.png");
-    sprite_right = new QPixmap("img/enemy_right.png");
-    sprite_left = new QPixmap("img/enemy_left.png");
+  
 
    setDistance(false); // Par défaut, l'ennemi n'attaque pas à distance
    setType(nullptr);
@@ -64,10 +60,10 @@ void Enemy::setType(QString* newType) {
 void Enemy::setApperance(QString* newType) {
     if (newType == "Physique") {
         //
-        sprite_up = new QPixmap("img/enemy_up.png");
-        sprite_down = new QPixmap("img/enemy_down.png");
-        sprite_right = new QPixmap("img/enemy_right.png");
-        sprite_left = new QPixmap("img/enemy_left.png");
+        sprite_up = new QPixmap("img/sprite_enemy_up.png");
+        sprite_down = new QPixmap("img/sprite_enemy_down.png");
+        sprite_right = new QPixmap("img/sprite_enemy_right.png");
+        sprite_left = new QPixmap("img/sprite_enemy_left.png");
     } else if (newType == "Distance") {
         //
         sprite_up = new QPixmap("img/enemy_distance_up.png");
