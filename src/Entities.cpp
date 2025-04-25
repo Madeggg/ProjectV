@@ -8,17 +8,17 @@
 
 // Méthodes de Enemy
 
-Enemy::Enemy(QGraphicsItem* parent) :  QGraphicsPixmapItem(parent), health(100), damage(10), speed(5) {
-  
-
-   setDistance(false); // Par défaut, l'ennemi n'attaque pas à distance
-   setType(nullptr);
-   setWeapon(nullptr);  // L'ennemi n'a pas d'arme par défaut
+Enemy::Enemy(QGraphicsItem* parent, Player* player) : QGraphicsPixmapItem(parent), targetPlayer(player), health(100), damage(10), speed(5) {
+    setDistance(false); // Par défaut, l'ennemi n'attaque pas à distance
+    setType(nullptr);
+    setWeapon(nullptr); // L'ennemi n'a pas d'arme par défaut
 
     damageTimer = new QTimer(this);
-    connect(damageTimer, &QTimer::timeout, this, &Enemy::doDamage);
-    shootTimer->start(3000); // Toutes les 3 secondes
-}   
+    connect(damageTimer, &QTimer::timeout, this, [this]() {
+        emit damagePlayer(damage); // Émet le signal avec les dégâts
+    });
+    damageTimer->start(3000); // Toutes les 3 secondes
+} 
 
 
 int Enemy::getHealth() const {
@@ -33,7 +33,7 @@ int Enemy::getSpeed() const {
     return speed;
 }
 
-QString Enemy::getType() const{
+QString* Enemy::getType() const{
     return type;
 }
 
@@ -58,18 +58,19 @@ void Enemy::setType(QString* newType) {
 }
 
 void Enemy::setApperance(QString* newType) {
-    if (newType == "Physique") {
-        //
+    if (newType && newType->compare("Physique") == 0) {
         sprite_up = new QPixmap("img/sprite_enemy_up.png");
         sprite_down = new QPixmap("img/sprite_enemy_down.png");
         sprite_right = new QPixmap("img/sprite_enemy_right.png");
         sprite_left = new QPixmap("img/sprite_enemy_left.png");
-    } else if (newType == "Distance") {
-        //
+    } else if (newType && newType->compare("Distance") == 0) {
         sprite_up = new QPixmap("img/enemy_distance_up.png");
-    } else if (newType == "Distance") {
-        //
     }
+}
+
+
+void Enemy::setDistance(bool newDistance) {
+    distance = newDistance;
 }
 
 void Enemy::punch(Player* player){
@@ -80,25 +81,24 @@ void Enemy::shoot(Player* player){
     player->takeDamage(weapon->getDamage()); 
 }
 
-void Ennemy::doDamage(Player* player){
-    if(type == "Physique"){
+void Enemy::doDamage(Player* player) {
+    if (type && type->compare("Physique") == 0) {
         punch(player);
-    }
-    else if(type == "Distance"){
+    } else if (type && type->compare("Distance") == 0) {
         shoot(player);
     }
 }
 
-void Enemy::followPlayerAndAttack(Player* player){
-    if(player){
-        //QLineF crée une ligne entre la position de l'ennemi et celle du joueur
+void Enemy::followPlayerAndAttack(Player* player) {
+    if (player) {
+        // QLineF crée une ligne entre la position de l'ennemi et celle du joueur
         QLineF lineToPlayer(pos(), player->pos());
 
-        if(getType() == "Physique"){
+        if (type && type->compare("Physique") == 0) { // Utilisation de QString::compare
             // Si l'ennemi est suffisamment proche du joueur, il attaque
             if (lineToPlayer.length() < 2.0) { // Seuil de proximité (2 pixels)
                 qDebug() << "L'ennemi de type physique attaque le joueur !";
-                if(player->collidesWithItem(this)){
+                if (player->collidesWithItem(this)) {
                     // Si l'ennemi est en collision avec le joueur, il inflige des dégâts
                     doDamage(player);
                 }
@@ -106,19 +106,16 @@ void Enemy::followPlayerAndAttack(Player* player){
                 return;
             }
 
-             // Réduit la longueur de la ligne à la vitesse de l'ennemi
-             lineToPlayer.setLength(speed);
+            // Réduit la longueur de la ligne à la vitesse de l'ennemi
+            lineToPlayer.setLength(speed);
 
-             // Déplace l'ennemi en utilisant les décalages calculés par QLineF
-             setPos(pos().x() + lineToPlayer.dx(), pos().y() + lineToPlayer.dy());
-
-        }
-
-        else if (getType() == "Distance"){
+            // Déplace l'ennemi en utilisant les décalages calculés par QLineF
+            setPos(pos().x() + lineToPlayer.dx(), pos().y() + lineToPlayer.dy());
+        } else if (type && type->compare("Distance") == 0) { // Utilisation de QString::compare
             // Si l'ennemi est suffisamment proche du joueur, il tire
             if (lineToPlayer.length() <= 100) { // Seuil de proximité (100 pixels)
                 qDebug() << "L'ennemi de type distance tire sur le joueur !";
-               
+
                 doDamage(player);
                 return;
             }
@@ -129,19 +126,17 @@ void Enemy::followPlayerAndAttack(Player* player){
             // Déplace l'ennemi en utilisant les décalages calculés par QLineF
             setPos(pos().x() + lineToPlayer.dx(), pos().y() + lineToPlayer.dy());
         }
-        
     }
-
 }
 
 
 //Méthodes de Soldier
 
-Soldier::Soldier(QGraphicsItem* parent,Weapon* w) :  QGraphicsPixmapItem(parent){
+Soldier::Soldier(QGraphicsItem* parent, Weapon* w) :  QGraphicsPixmapItem(parent){
     setHealth(50);
     setDamage(10);
     setSpeed(2);
-    setWeapon(w);
+    setWeapon(w); // L'ennemi n'a pas d'arme par défaut
 }
 
 
@@ -172,7 +167,7 @@ int Weapon::getRange() const{
     return range;
 }
 
-QString Weapon::getType const{
+QString Weapon::getType() const{
     return type;
 }
 
@@ -184,7 +179,7 @@ void Weapon::setRange(int newRange){
     range = newRange;
 }
 
-void Weapon setType(QString newType){
+void Weapon::setType(QString newType){
     type = newType;
 }
 
@@ -195,7 +190,7 @@ void Weapon setType(QString newType){
 Projectile::Projectile(QPointF startPos, QPointF direction, int speed, QGraphicsItem* parent) : QGraphicsPixmapItem(parent), speed(speed) {
     setPixmap(QPixmap("img/projectile.png").scaled(10, 10));
     setPos(startPos);
-    setDirection(direction)
+    setDirection(direction);
     setSpeed(speed);
     timer = new QTimer(this);
 }
@@ -225,7 +220,6 @@ void Projectile::move(Player* player) {
         // Récupère la position actuelle du joueur
         QPointF playerPos = player->pos();
 
-        
         if (direction.isNull()) {
             QLineF lineToPlayer(pos(), playerPos);
             qreal length = lineToPlayer.length();
@@ -238,13 +232,17 @@ void Projectile::move(Player* player) {
         // Déplace le projectile en fonction de la direction et de la vitesse
         setPos(pos().x() + direction.x() * speed, pos().y() + direction.y() * speed);
 
-         // Vérifie si le projectile entre en collision avec le joueur
-         if (collidesWithItem(player)) {
-            qDebug() << "Le projectile a touché le joueur !";
-            doDamage(player) // Inflige des dégâts au joueur
-            scene()->removeItem(this);
-            delete this; // Supprime le projectile
-            return;
+        // Vérifie si le projectile entre en collision avec un ennemi
+        QList<QGraphicsItem*> collidingItems = scene()->collidingItems(this);
+        for (QGraphicsItem* item : collidingItems) {
+            Enemy* enemy = dynamic_cast<Enemy*>(item); // Vérifie si l'objet est un Enemy
+            if (enemy) {
+                qDebug() << "Le projectile a touché un ennemi !";
+                enemy->doDamage(player); // Appelle doDamage sur l'ennemi
+                scene()->removeItem(this);
+                delete this; // Supprime le projectile
+                return;
+            }
         }
 
         // Vérifie si le projectile sort de la scène
@@ -253,6 +251,5 @@ void Projectile::move(Player* player) {
             scene()->removeItem(this);
             delete this; // Supprime le projectile
         }
-
     }
 }

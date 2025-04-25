@@ -2,7 +2,12 @@
 #include "GameManager.h"
 
 GameManager::GameManager(MyScene* scene) : scene(scene) {
-    player = new Player(); //création du personnage et ajout à la scène
+    // Exemple de création d'un Enemy dans GameManager ou ailleurs
+    Player* player = new Player();
+    Enemy* enemy = new Enemy(nullptr, player);
+
+    // Connecte le signal de l'ennemi au slot du joueur
+    QObject::connect(enemy, &Enemy::damagePlayer, player, &Player::takeDamage);
 
 
     gameLoopTimer = new QTimer(this); // création d'un timer pour gérer la boucle de jeu

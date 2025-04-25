@@ -142,6 +142,8 @@ void MyScene::loadMap(){
     QJsonDocument document = QJsonDocument::fromJson(file.readAll());
     QJsonObject mapObject = document.object();
 
+ 
+
     //listPixmap will contains every tiles
     QMap<int, QPixmap> listPixmap;
 
@@ -150,8 +152,14 @@ void MyScene::loadMap(){
     int numberTileWidth = mapObject["width"].toInt();
     int numberTileHeight = mapObject["height"].toInt();
 
+
+
     this->backgroundWidth = numberTileWidth*tileWidth;
     this->backgroundHeight = numberTileHeight*tileHeight;
+
+
+    QPixmap background (this->backgroundWidth, this->backgroundHeight);
+    QPainter painter(&background);
 
     //First we get every tiles to add it into listPixmap
     QJsonArray tilesets = mapObject["tilesets"].toArray();
@@ -197,10 +205,12 @@ void MyScene::loadMap(){
                             qWarning() << "TileID" << tileID << "not found in tileset map!";
                         }
                         
-                        QGraphicsPixmapItem* tile = new QGraphicsPixmapItem(listPixmap[tileID]);
-                        tile->setPos(x * 16, y * 16);
-                        tile->setOpacity(layer["opacity"].toDouble());
-                        this->addItem(tile);//draw the tile at the right position
+                        // QGraphicsPixmapItem* tile = new QGraphicsPixmapItem(listPixmap[tileID]);
+                        // tile->setPos(x * 16, y * 16);
+                        // tile->setOpacity(layer["opacity"].toDouble());
+                        // this->addItem(tile);//draw the tile at the right position
+                        painter.drawPixmap(x * 16, y * 16, listPixmap[tileID]);
+
                     }
                 }
             }
@@ -267,6 +277,8 @@ void MyScene::loadMap(){
             }
         }
     }
-
+    painter.end(); // Fin de la peinture sur le QPixmap
+    QGraphicsPixmapItem* backgroundItem = new QGraphicsPixmapItem(background); // Crée un item pour le fond
+    this->addItem(backgroundItem); // Ajoute le fond à la scènea
     file.close();
 }

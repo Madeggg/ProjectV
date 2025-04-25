@@ -52,4 +52,5 @@ void Player::setHealth(int newHealth) {
 void Player::takeDamage(int amount) {
     health -= amount;
     if (health < 0) health = 0;
+    qDebug() << "Le joueur a subi des dégâts. Santé restante :" << health;
 }

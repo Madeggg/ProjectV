@@ -13,12 +13,13 @@
 #include "MyScene.h"
 
 class Player;
-Class Weapon;
+class Weapon;
 
 
-class Enemy : public QObject{
+class Enemy : public QObject, public QGraphicsPixmapItem{
     Q_OBJECT
 protected:
+    Player* targetPlayer;
     int health;
     int damage;
     int speed;
@@ -31,9 +32,12 @@ protected:
     QPixmap* sprite_left;
     QTimer* damageTimer; // Timer pour gérer l'intervalle de temps entre les dégâts infligés au joueur
 
+signals:
+    void damagePlayer(int damage); // Signal pour infliger des dégâts au joueur
+
 public:
     //Constructeur
-    Enemy(QGraphicsItem* parent = nullptr); 
+    Enemy(QGraphicsItem* parent = nullptr, Player* player = nullptr); 
     //Accesseurs
     int getHealth() const;
     int getDamage() const;
@@ -46,6 +50,8 @@ public:
     void setWeapon(Weapon* newWeapon); 
     void setType(QString* newType);     
     virtual void setApperance(QString* newType); 
+    void setDistance(bool newDistance); // Setter pour le booléen distance
+    
 
     // Méthode d'attaque de l'ennemi si son type est physique
     void punch(Player* player); 
@@ -57,39 +63,34 @@ public:
     void doDamage(Player* player); 
 
     // Méthode de suivi du joueur
-    void followPlayer(Player* player); 
+    void followPlayerAndAttack(Player* player); 
 
 
 };
 
 //Classe soldier qui hérite de Enemy
 
-Class Soldier : public Enemy {
-    
-
+class Soldier : public Enemy, public virtual QGraphicsPixmapItem {
     public:
         // Constructeur
-        Soldier(QGraphicsItem* parent = nullptr); // Constructeur
+        Soldier(QGraphicsItem* parent = nullptr, Weapon* w = nullptr); // Constructeur
         void setApperance(); 
 
 
 
 };
 
-Class Hero : public Enemy {
-   
-
+class Hero : public Enemy, public virtual QGraphicsPixmapItem {
     public:
         // Constructeur
-        Hero(QGraphicsItem* parent = nullptr); // Constructeur
+        Hero(QGraphicsItem* parent = nullptr, Weapon* w = nullptr); // Constructeur
         void setApperance(); // Méthode pour définir l'apparence du héros
         // Méthode d'attaque de l'ennemi
        
 
 };
 
-Class Weapon : public QGraphicsPixmapItem {
-    Q_OBJECT
+class Weapon : public QGraphicsPixmapItem {
     private:
         int damage;
         int range;
@@ -109,10 +110,10 @@ Class Weapon : public QGraphicsPixmapItem {
 };
 
 
-class Projectile : public QGraphicsPixmapItem{
+class Projectile : public QObject, public QGraphicsPixmapItem{
     Q_OBJECT
     private:
-        QPointF direction
+        QPointF direction;
         int speed;
         QPixmap* sprite;
         QTimer* timer;
@@ -124,9 +125,11 @@ class Projectile : public QGraphicsPixmapItem{
         int getSpeed() const;
         QPointF getDirection() const;
     public slots:
-        void move(Player* player); // Déplace le projectile vers la position cible
+        void move(Player* player); // Déplace le projectile vers la position cibleù
+    signals:
+    void damagePlayer(int damage); // Signal pour infliger des dégâts au joueur
     
-}
+};
 
 
 
