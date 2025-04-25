@@ -43,7 +43,9 @@ public:
     void setHealth(int newHealth);
     void setDamage(int newDamage);
     void setSpeed(int newSpeed);
-    void setWeapon(Weapon* newWeapon); // Setter pour l'arme de l'ennemi
+    void setWeapon(Weapon* newWeapon); 
+    void setType(QString* newType);     
+    virtual void setApperance(QString* newType); 
 
     // Méthode d'attaque de l'ennemi si son type est physique
     void punch(Player* player); 
@@ -68,6 +70,7 @@ Class Soldier : public Enemy {
     public:
         // Constructeur
         Soldier(QGraphicsItem* parent = nullptr); // Constructeur
+        void setApperance(); 
 
 
 
@@ -79,6 +82,7 @@ Class Hero : public Enemy {
     public:
         // Constructeur
         Hero(QGraphicsItem* parent = nullptr); // Constructeur
+        void setApperance(); // Méthode pour définir l'apparence du héros
         // Méthode d'attaque de l'ennemi
        
 

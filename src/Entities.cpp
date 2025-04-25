@@ -15,12 +15,9 @@ Enemy::Enemy(QGraphicsItem* parent) :  QGraphicsPixmapItem(parent), health(100),
     sprite_right = new QPixmap("img/enemy_right.png");
     sprite_left = new QPixmap("img/enemy_left.png");
 
-    //Par défaut, l'ennemi n'attaque pas à distance
-    distance = false;
-
-    type = nullptr; // Initialisation du type d'ennemi à nullptr
-
-    weapon = nullptr; 
+   setDistance(false); // Par défaut, l'ennemi n'attaque pas à distance
+   setType(nullptr);
+   setWeapon(nullptr);  // L'ennemi n'a pas d'arme par défaut
 
     damageTimer = new QTimer(this);
     connect(damageTimer, &QTimer::timeout, this, &Enemy::doDamage);
@@ -60,6 +57,25 @@ void Enemy::setWeapon(Weapon* newWeapon) {
     weapon = newWeapon;
 }
 
+void Enemy::setType(QString* newType) {
+    type = newType;
+}
+
+void Enemy::setApperance(QString* newType) {
+    if (newType == "Physique") {
+        //
+        sprite_up = new QPixmap("img/enemy_up.png");
+        sprite_down = new QPixmap("img/enemy_down.png");
+        sprite_right = new QPixmap("img/enemy_right.png");
+        sprite_left = new QPixmap("img/enemy_left.png");
+    } else if (newType == "Distance") {
+        //
+        sprite_up = new QPixmap("img/enemy_distance_up.png");
+    } else if (newType == "Distance") {
+        //
+    }
+}
+
 void Enemy::punch(Player* player){
     player->takeDamage(damage); 
 }
@@ -86,6 +102,10 @@ void Enemy::followPlayerAndAttack(Player* player){
             // Si l'ennemi est suffisamment proche du joueur, il attaque
             if (lineToPlayer.length() < 2.0) { // Seuil de proximité (2 pixels)
                 qDebug() << "L'ennemi de type physique attaque le joueur !";
+                if(player->collidesWithItem(this)){
+                    // Si l'ennemi est en collision avec le joueur, il inflige des dégâts
+                    doDamage(player);
+                }
                 doDamage(player);
                 return;
             }
@@ -102,6 +122,7 @@ void Enemy::followPlayerAndAttack(Player* player){
             // Si l'ennemi est suffisamment proche du joueur, il tire
             if (lineToPlayer.length() <= 100) { // Seuil de proximité (100 pixels)
                 qDebug() << "L'ennemi de type distance tire sur le joueur !";
+               
                 doDamage(player);
                 return;
             }
@@ -126,6 +147,7 @@ Soldier::Soldier(QGraphicsItem* parent,Weapon* w) :  QGraphicsPixmapItem(parent)
     setSpeed(2);
     setWeapon(w);
 }
+
 
 
 //Méthodes de Hero
@@ -219,6 +241,22 @@ void Projectile::move(Player* player) {
 
         // Déplace le projectile en fonction de la direction et de la vitesse
         setPos(pos().x() + direction.x() * speed, pos().y() + direction.y() * speed);
+
+         // Vérifie si le projectile entre en collision avec le joueur
+         if (collidesWithItem(player)) {
+            qDebug() << "Le projectile a touché le joueur !";
+            doDamage(player) // Inflige des dégâts au joueur
+            scene()->removeItem(this);
+            delete this; // Supprime le projectile
+            return;
+        }
+
+        // Vérifie si le projectile sort de la scène
+        if (!scene()->sceneRect().contains(pos())) {
+            qDebug() << "Projectile hors de la scène. Suppression.";
+            scene()->removeItem(this);
+            delete this; // Supprime le projectile
+        }
 
     }
 }
