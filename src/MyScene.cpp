@@ -131,51 +131,7 @@ void MyScene::keyPressEvent(QKeyEvent* event){
 // }
 
 
-// void MyScene::loadMap(const QString& path) {
-//     QFile file(path);
-//     if (!file.open(QIODevice::ReadOnly)) {
-//         qWarning("Failed to open map file");
-//         return;
-//     }
 
-//     QByteArray data = file.readAll();
-//     file.close();
-
-//     QJsonParseError parseError;
-//     QJsonDocument document = QJsonDocument::fromJson(data, &parseError);
-//     if (parseError.error != QJsonParseError::NoError) {
-//         qWarning("JSON parse error: %s", qUtf8Printable(parseError.errorString()));
-//         return;
-//     }
-
-//     QJsonObject rootObj = document.object();
-//     QJsonArray layers = rootObj["layers"].toArray();
-
-//     for (const QJsonValue& layerVal : layers) {
-//         QJsonObject layerObj = layerVal.toObject();
-
-//         // On cherche le calque nommé "collisions"
-//         if (layerObj["name"].toString() == "collisions" && layerObj["type"].toString() == "objectgroup") {
-//             QJsonArray objects = layerObj["objects"].toArray();
-
-//             for (const QJsonValue& objVal : objects) {
-//                 QJsonObject obj = objVal.toObject();
-//                 double x = obj["x"].toDouble();
-//                 double y = obj["y"].toDouble();
-//                 double width = obj["width"].toDouble();
-//                 double height = obj["height"].toDouble();
-
-//                 QGraphicsRectItem* collisionItem = new QGraphicsRectItem(x, y, width, height);
-//                 collisionItem->setBrush(Qt::red); // Pour le debug
-//                 collisionItem->setPen(Qt::NoPen);
-//                 collisionItem->setZValue(-1); // derrière les entités
-//                 collisionItem->setData(0, "collision");
-
-//                 this->addItem(collisionItem);
-//             }
-//         }
-//     }
-// }
 
 void MyScene::loadMap(){
 
