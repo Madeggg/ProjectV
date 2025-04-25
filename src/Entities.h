@@ -125,7 +125,7 @@ class Projectile : public QObject, public QGraphicsPixmapItem{
         int getSpeed() const;
         QPointF getDirection() const;
     public slots:
-        void move(Player* player); // Déplace le projectile vers la position cibleù
+        void move(); // Déplace le projectile 
     signals:
     void damagePlayer(int damage); // Signal pour infliger des dégâts au joueur
     

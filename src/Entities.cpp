@@ -187,12 +187,20 @@ void Weapon::setType(QString newType){
 
 //Méthodes de Projectile
 
-Projectile::Projectile(QPointF startPos, QPointF direction, int speed, QGraphicsItem* parent) : QGraphicsPixmapItem(parent), speed(speed) {
-    setPixmap(QPixmap("img/projectile.png").scaled(10, 10));
+Projectile::Projectile(QPointF startPos, QPointF direction, int speed, QGraphicsItem* parent)
+    : QGraphicsPixmapItem(parent), speed(speed) {
+    setPixmap(QPixmap("img/bullet1.png").scaled(20, 20)); // Sprite du projectile
     setPos(startPos);
+
+    // Définit la direction normalisée
     setDirection(direction);
-    setSpeed(speed);
-    timer = new QTimer(this);
+
+    // Configure un timer pour déplacer le projectile
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [this]() {
+        move(); // Appelle move sans argument
+    });
+    timer->start(16); // Appelle move toutes les 16 ms (60 FPS)
 }
 
 int Projectile::getSpeed() const {
@@ -215,41 +223,14 @@ void Projectile::setSprite(QPixmap* newSprite) {
     sprite = newSprite;
 }
 
-void Projectile::move(Player* player) {
-    if (player) {
-        // Récupère la position actuelle du joueur
-        QPointF playerPos = player->pos();
+void Projectile::move() {
+    // Déplace le projectile en fonction de la direction et de la vitesse
+    setPos(pos().x() + direction.x() * speed, pos().y() + direction.y() * speed);
 
-        if (direction.isNull()) {
-            QLineF lineToPlayer(pos(), playerPos);
-            qreal length = lineToPlayer.length();
-            if (length != 0) {
-                direction = QPointF(lineToPlayer.dx() / length, lineToPlayer.dy() / length); // Normalisation
-                setDirection(direction); // Définit la direction
-            }
-        }
-
-        // Déplace le projectile en fonction de la direction et de la vitesse
-        setPos(pos().x() + direction.x() * speed, pos().y() + direction.y() * speed);
-
-        // Vérifie si le projectile entre en collision avec un ennemi
-        QList<QGraphicsItem*> collidingItems = scene()->collidingItems(this);
-        for (QGraphicsItem* item : collidingItems) {
-            Enemy* enemy = dynamic_cast<Enemy*>(item); // Vérifie si l'objet est un Enemy
-            if (enemy) {
-                qDebug() << "Le projectile a touché un ennemi !";
-                enemy->doDamage(player); // Appelle doDamage sur l'ennemi
-                scene()->removeItem(this);
-                delete this; // Supprime le projectile
-                return;
-            }
-        }
-
-        // Vérifie si le projectile sort de la scène
-        if (!scene()->sceneRect().contains(pos())) {
-            qDebug() << "Projectile hors de la scène. Suppression.";
-            scene()->removeItem(this);
-            delete this; // Supprime le projectile
-        }
+    // Vérifie si le projectile sort de la scène
+    if (!scene()->sceneRect().contains(pos())) {
+        qDebug() << "Projectile hors de la scène. Suppression.";
+        scene()->removeItem(this);
+        delete this; // Supprime le projectile
     }
 }

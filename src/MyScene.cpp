@@ -104,31 +104,37 @@ void MyScene::keyPressEvent(QKeyEvent* event){
     }
 }
 
-// void MyScene::mousePressEvent(QMouseEvent* event){
-//     if(event->button() == Qt::LeftButton){
-//         //Tirer un projectile
-//         QPointF projStartPos = player->pos();   // Position de départ du projectile sur le joueur
+void MyScene::mousePressEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton) {
+        qDebug() << "mousePressEvent triggered: Left button clicked.";
+        // Récupère la position du curseur dans la scène
+        QPointF mousePos = event->screenPos();
 
-//         QPointF projTargetPos = event->pos(); // Position au clic du joueur
+        // Récupère la position actuelle du joueur
+        QPointF playerPos = player->pos();
 
-//         //Calcul de la direction
-//         QPointF direction = projTargetPos - projStartPos;
-//         qreal length = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());    //Calcul de la norme du vecteur avec la formule connue
-        
-//         //On normalise le vecteur en le divisant par sa longueur, afin que sa norme vale 1 
-//         if(length != 0) {
-//             direction /= length; 
-//         }
+        // Calcule la direction entre le joueur et le curseur
+        QPointF direction = mousePos - playerPos;
 
-//         int speed = 10;     // Vitesse du projectile
+        // Normalise la direction
+        qreal length = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());
+        if (length != 0) {
+            direction /= length; // Normalisation
+        }
 
-//         // Création du projectile
-//         Projectile* projectile = new Projectile(projStartPos, direction, speed); 
+        // Calcule l'angle en radians (si nécessaire pour orienter le sprite)
+        qreal angle = std::atan2(direction.y(), direction.x());
 
-//         //Ajout du projectile à la scène
-//         this->addItem(projectile);
-//     }   
-// }
+        // Crée un nouveau projectile
+        Projectile* projectile = new Projectile(playerPos, direction, 10); // Vitesse = 10
+        projectile->setRotation(angle * 180 / M_PI); // Oriente le sprite du projectile (en degrés)
+
+        // Ajoute le projectile à la scènes
+        addItem(projectile);
+
+        qDebug() << "Projectile tiré vers : " << mousePos << " depuis : " << playerPos;
+    }
+}
 
 
 

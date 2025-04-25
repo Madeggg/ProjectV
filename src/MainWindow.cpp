@@ -10,7 +10,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     this->setCentralWidget(mainView);
     this->setWindowTitle("My main window");
-    this->resize(400, 800);
+    this->resize(400, 800); // Assurez-vous que la taille est suffisante
+
+    // Active les événements de la souris pour la vue
+    mainView->setMouseTracking(true);
+    mainView->setFocusPolicy(Qt::StrongFocus);
 
 
      // Connecte le signal playerMoved au recentrage de la vue
