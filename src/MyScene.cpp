@@ -2,7 +2,6 @@
 
 #include <QTimer>
 #include <QKeyEvent>
-#include <QMouseEvent>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -13,6 +12,9 @@
 
 MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     loadMap(); 
+
+     // Définir les limites de la scène en fonction des dimensions de la map
+     setSceneRect(0, 0, backgroundWidth, backgroundHeight);
 
     // Initialisation du timer
     timer = new QTimer(this);
@@ -104,36 +106,47 @@ void MyScene::keyPressEvent(QKeyEvent* event){
     }
 }
 
-void MyScene::mousePressEvent(QMouseEvent* event) {
+void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
-        qDebug() << "mousePressEvent triggered: Left button clicked.";
+        
         // Récupère la position du curseur dans la scène
-        QPointF mousePos = event->screenPos();
+        QPointF mousePos = event->scenePos();
+        
 
         // Récupère la position actuelle du joueur
+        if (!player) {
+            qDebug() << "Error: Player is null!";
+            return;
+        }
         QPointF playerPos = player->pos();
 
         // Calcule la direction entre le joueur et le curseur
         QPointF direction = mousePos - playerPos;
-
-        // Normalise la direction
         qreal length = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());
         if (length != 0) {
             direction /= length; // Normalisation
         }
 
-        // Calcule l'angle en radians (si nécessaire pour orienter le sprite)
+        // Calcul l'angle en radians
         qreal angle = std::atan2(direction.y(), direction.x());
+    
+
+        // Convertit l'angle en degrés
+        qreal angleInDegrees = angle * 180 / M_PI;
+        
 
         // Crée un nouveau projectile
-        Projectile* projectile = new Projectile(playerPos, direction, 10); // Vitesse = 10
-        projectile->setRotation(angle * 180 / M_PI); // Oriente le sprite du projectile (en degrés)
+        Projectile* projectile = new Projectile(playerPos, direction, 7); 
 
-        // Ajoute le projectile à la scènes
+        // Oriente le projectile en fonction de l'angle
+        projectile->setRotation(angleInDegrees);
+
         addItem(projectile);
 
-        qDebug() << "Projectile tiré vers : " << mousePos << " depuis : " << playerPos;
     }
+
+    // Transmet l'événement à la classe parente
+    QGraphicsScene::mousePressEvent(event);
 }
 
 
@@ -285,6 +298,6 @@ void MyScene::loadMap(){
     }
     painter.end(); // Fin de la peinture sur le QPixmap
     QGraphicsPixmapItem* backgroundItem = new QGraphicsPixmapItem(background); // Crée un item pour le fond
-    this->addItem(backgroundItem); // Ajoute le fond à la scènea
+    this->addItem(backgroundItem); // Ajoute le fond à la scène
     file.close();
 }

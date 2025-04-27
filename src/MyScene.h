@@ -10,7 +10,7 @@
 #include <QRectF>
 #include <QTimer>
 #include <QKeyEvent>
-#include <QMouseEvent>
+#include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include "GameManager.h"
 #include "Player.h"
@@ -34,7 +34,7 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent* event);
-    void mousePressEvent(QMouseEvent* event);
+    void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 
 private slots:
     void update();

@@ -16,6 +16,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     mainView->setMouseTracking(true);
     mainView->setFocusPolicy(Qt::StrongFocus);
 
+    // Désactive les barres de défilement
+    mainView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    mainView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
 
      // Connecte le signal playerMoved au recentrage de la vue
      connect(mainScene->getPlayer(), &Player::playerMoved, this, [this]() {
@@ -50,7 +54,7 @@ void MainWindow::resizeEvent(QResizeEvent* event) {
         mainView->fitInView(mainScene->sceneRect(), Qt::KeepAspectRatioByExpanding);
 
         // Centre la vue sur le joueur
-        Player* player = mainScene->getPlayer(); // Ajoutez une méthode getPlayer() dans MyScene
+        Player* player = mainScene->getPlayer(); 
         if (player) {
             mainView->centerOn(player);
         }

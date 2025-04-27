@@ -227,10 +227,10 @@ void Projectile::move() {
     // Déplace le projectile en fonction de la direction et de la vitesse
     setPos(pos().x() + direction.x() * speed, pos().y() + direction.y() * speed);
 
-    // Vérifie si le projectile sort de la scène
+   
     if (!scene()->sceneRect().contains(pos())) {
         qDebug() << "Projectile hors de la scène. Suppression.";
         scene()->removeItem(this);
-        delete this; // Supprime le projectile
+        delete this; 
     }
 }
