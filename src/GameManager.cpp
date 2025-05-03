@@ -31,8 +31,8 @@ void GameManager::resetGame() {
 
 void GameManager::update() {
     frameCount++; // Incrémente le compteur de frames
-    qDebug() << "Le joueur est dans la scène ?" << (player->scene() != nullptr);
-    qDebug() << "Player position: " << player->pos();
+    // qDebug() << "Le joueur est dans la scène ?" << (player->scene() != nullptr);
+    // qDebug() << "Player position: " << player->pos();
 
     if (!player) {
         qDebug() << "Player is not initialized!";
