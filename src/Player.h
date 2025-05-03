@@ -33,9 +33,14 @@ public:
     void takeDamage(int amount);
     bool canMoveTo(const QPointF& newPos, const QRectF& sceneRect) const;
 
+   
+    void revertToPreviousPosition();
+    QPainterPath shape() const override;
+
 private:
     int health;
     int speed = 5;
+    QPointF previousPosition; // Position précédente pour la restauration
 signals:
     void playerMoved(QPointF newPos); // Signal émis lorsque le joueur se déplace
 

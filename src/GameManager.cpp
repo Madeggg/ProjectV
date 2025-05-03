@@ -1,16 +1,15 @@
 // Cette page, nous sert à gérer la vie, le score, le HUD, mais aussi le système de sauvegarde/chargement du meilleur score et pseudo
 #include "GameManager.h"
 
-GameManager::GameManager(MyScene* scene) : scene(scene) {
-    // Exemple de création d'un Enemy dans GameManager ou ailleurs
-    Player* player = new Player();
+GameManager::GameManager(MyScene* scene, Player* player) : scene(scene), player(player) {
+    // Initialisation des autres objets, comme les ennemis
     Enemy* enemy = new Enemy(nullptr, player);
-
-    // Connecte le signal de l'ennemi au slot du joueur
+    
+    // Connecte le signal de l'ennemi au slot du joueur pour infliger des dégâts
     QObject::connect(enemy, &Enemy::damagePlayer, player, &Player::takeDamage);
 
-
-    gameLoopTimer = new QTimer(this); // création d'un timer pour gérer la boucle de jeu
+    // Initialisation du timer pour la boucle de jeu
+    gameLoopTimer = new QTimer(this);
     connect(gameLoopTimer, &QTimer::timeout, this, &GameManager::update);
 }
 
@@ -31,26 +30,36 @@ void GameManager::resetGame() {
 }
 
 void GameManager::update() {
-    // chose à rajouter quand entités sera fini :
-    // - le déplacement automatique des ennemis
-    // - les tirs
-    // - les collisions
-    // - la vérification de la mort du joueur
-
-
     frameCount++; // Incrémente le compteur de frames
+    qDebug() << "Le joueur est dans la scène ?" << (player->scene() != nullptr);
+    qDebug() << "Player position: " << player->pos();
 
-    if (player->getHealth() <= 0) {
-        gameLoopTimer->stop();
-        // plus tard : afficher "Game Over" ou lancer un reset
+    if (!player) {
+        qDebug() << "Player is not initialized!";
+        return;
     }
+    
+    // if (player->getHealth() <= 0) {
+    //     gameLoopTimer->stop();
+    //     qDebug() << "Game Over";
+    //     return;
+    // }
 
-    // TODO : appel à spawnEnemies() et checkCollisions() plus tard
+    //Gestions des collisions 
+    QList<QGraphicsItem*> collisions = player->collidingItems();
+    for (QGraphicsItem* item : collisions) {
+        if (!item) continue;
+        QVariant typeData = item->data(0); // Récupère le type de l'objet
+        if (typeData.toString() == "collision") {
+            player->revertToPreviousPosition();
+            return; 
+        }
+    }
 }
+
 
 Player* GameManager::getPlayer() const {
     return player;
 }
 
-//SpawnHeros et enemy à refaire
 

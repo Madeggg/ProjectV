@@ -21,17 +21,14 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     connect(timer, &QTimer::timeout, this, &MyScene::update);
     timer->start(30);  // Maj toutes les 30ms
 
-    // Ajout du player
+    // Création du joueur
     player = new Player();
-    this->addItem(player);
+    this->addItem(player);  // Ajout à la scène
     player->setPos(445, 555);
+    player->setZValue(50);
 
-    gameManager = new GameManager(this);
-
-    // Chargement de la map (JSON de Tiled)
-    
-
-    
+    // Création de GameManager en passant le joueur existant
+    gameManager = new GameManager(this, player);
 }
 
 
@@ -45,10 +42,7 @@ MyScene::~MyScene() {
 void MyScene::update(){
     //Déplacement de l'objet texte par exemple
    gameManager->update(); // Appel à la méthode update du GameManager pour gérer les ennemis
-
-    
-
-}
+   }
 
 Player* MyScene::getPlayer() const {
     return player;
@@ -288,7 +282,7 @@ void MyScene::loadMap(){
                     // qDebug() << "Creating rect collision at x=" << x << "y=" << y;
                     QGraphicsRectItem* rect = new QGraphicsRectItem(x, y, width, height);
                     rect->setBrush(Qt::red);
-                    rect->setPen(Qt::NoPen);
+                    rect->setPen(QPen(Qt::transparent));  // ou laisse un fin contour
                     rect->setData(0, "collision");
                     rect->setZValue(100);
                     this->addItem(rect);

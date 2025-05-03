@@ -227,6 +227,23 @@ void Projectile::move() {
     // Déplace le projectile en fonction de la direction et de la vitesse
     setPos(pos().x() + direction.x() * speed, pos().y() + direction.y() * speed);
 
+
+    // Vérification des collisions avec les objets "collision"
+    QList<QGraphicsItem*> collisions = collidingItems(); // Récupère tous les éléments en collision avec le projectile
+
+    for (QGraphicsItem* item : collisions) {
+        if (!item) continue;
+        
+        QVariant typeData = item->data(0);
+        
+        // Si le projectile entre en collision avec un objet de type "collision"
+        if (typeData.toString() == "collision") {
+            qDebug() << "Collision avec un objet de type 'collision' à :" << item->pos();
+            scene()->removeItem(this); // Retirer le projectile de la scène
+            delete this;  // Supprimer le projectile
+            return;  // Quitter la méthode après la suppression
+        }
+    }
    
     if (!scene()->sceneRect().contains(pos())) {
         qDebug() << "Projectile hors de la scène. Suppression.";

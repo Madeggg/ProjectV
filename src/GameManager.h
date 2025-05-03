@@ -16,7 +16,7 @@ class GameManager : public QObject {
     Q_OBJECT
 
 public:
-    GameManager(MyScene* scene); // construit le gestionnaire en lien avec la scène
+    GameManager(MyScene* scene, Player* player); // construit le gestionnaire en lien avec la scène
     void startGame(); // initialise et démarre la partie
     void resetGame(); // redémarre le jeu sans redémarrer le programme
     Player* getPlayer() const;
