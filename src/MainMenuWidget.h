@@ -5,6 +5,9 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QApplication>
+#include <QLabel>
+#include <QSoundEffect>
+
 
 
 
