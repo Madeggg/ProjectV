@@ -5,35 +5,35 @@
 
 Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), health(100), speed(5) {
     setPixmap(QPixmap("img/Sprite_billy_static.png").scaled(40, 40));
-    setShapeMode(QGraphicsPixmapItem::BoundingRectShape); // <-- Ajoute cette ligne ici
+    setShapeMode(QGraphicsPixmapItem::BoundingRectShape); 
     previousPosition = pos();
 }
 // Méthodes de déplacement 
 void Player::moveLeft() {
     previousPosition = pos(); // Sauvegarde la position actuelle
     setPos(x() - speed, y());
-    qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    // qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
     emit playerMoved(pos());
 }
 
 void Player::moveRight() {
     previousPosition = pos(); // Sauvegarde la position actuelle
     setPos(x() + speed, y());
-    qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    // qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
     emit playerMoved(pos());
 }
 
 void Player::moveUp() {
     previousPosition = pos(); // Sauvegarde la position actuelle
     setPos(x(), y() - speed);
-    qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    // qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
     emit playerMoved(pos());
 }
 
 void Player::moveDown() {
     previousPosition = pos(); // Sauvegarde la position actuelle
     setPos(x(), y() + speed);
-     qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    //  qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
     emit playerMoved(pos());
 }
 
@@ -70,6 +70,8 @@ int Player::getHealth() const {
 qreal Player::getSpeed() const {
     return speed; // Retourne la vitesse actuelle du joueur
 }
+
+
 
 void Player::setHealth(int newHealth) {
     health = newHealth;

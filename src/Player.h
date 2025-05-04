@@ -29,7 +29,9 @@ public:
     // Méthodes de gestion de PV
     int getHealth() const;
     qreal getSpeed() const;
+  
     void setHealth(int newHealth);
+    void setDirection(const QString& dir);
     void takeDamage(int amount);
     bool canMoveTo(const QPointF& newPos, const QRectF& sceneRect) const;
 

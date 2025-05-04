@@ -27,6 +27,8 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     player->setPos(445, 555);
     player->setZValue(50);
 
+    
+
     // Création de GameManager en passant le joueur existant
     gameManager = new GameManager(this, player);
 }
@@ -39,10 +41,49 @@ MyScene::~MyScene() {
 
 
 
-void MyScene::update(){
-    //Déplacement de l'objet texte par exemple
-   gameManager->update(); // Appel à la méthode update du GameManager pour gérer les ennemis
-   }
+void MyScene::update() {
+    gameManager->update(); // Appel à la méthode update du GameManager pour gérer les ennemis
+
+    // Récupérer tous les projectiles dans la scène
+    QList<QGraphicsItem*> itemsInScene = items();
+    for (QGraphicsItem* item : itemsInScene) {
+        Projectile* projectile = dynamic_cast<Projectile*>(item);
+        if (projectile) {
+            // 🔒 Sécurité : projectile déjà supprimé de la scène ?
+            if (projectile->scene() == nullptr) continue;
+
+            // Vérifie les collisions pour ce projectile
+            QList<QGraphicsItem*> collisions = projectile->collidingItems();
+            for (QGraphicsItem* collidingItem : collisions) {
+                if (!collidingItem) continue;
+
+                if (collidingItem->data(0).toString() == "enemy") {
+                    Enemy* enemy = dynamic_cast<Enemy*>(collidingItem);
+                    if (enemy && !enemy->getIsDead() && enemy->scene() != nullptr) {
+                        enemy->takeDamage(10);
+                        enemy->setPixmap(QPixmap("img/sprite_ennemi_static_hit.png").scaled(40, 40));
+                        qDebug() << "Projectile hit enemy! Enemy health:" << enemy->getHealth();
+
+                        // Remettre le sprite normal après un court délai
+                        QTimer* timer = new QTimer(enemy);
+                        timer->setSingleShot(true);
+                        QObject::connect(timer, &QTimer::timeout, enemy, [enemy]() {
+                            if (!enemy->getIsDead()) {
+                                enemy->setPixmap(QPixmap("img/sprite_ennemi_static.png").scaled(40, 40));
+                            }
+                        });
+                        timer->start(100);
+
+                        removeItem(projectile);
+                        projectile->deleteLater();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 Player* MyScene::getPlayer() const {
     return player;
@@ -112,7 +153,11 @@ void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
             qDebug() << "Error: Player is null!";
             return;
         }
-        QPointF playerPos = player->pos();
+        //player->pos() donne le coin supérieur gauche du joueur et boundingRect() la taille du sprite du joueur
+        //en ajoutant la moitié largeur + hauteur, on a le centre du sprite, la d'ou on veut faire partir le projectile
+
+        QPointF playerPos = player->pos() + QPointF(player->boundingRect().width() / 2,
+                                            player->boundingRect().height() / 2);
 
         // Calcule la direction entre le joueur et le curseur
         QPointF direction = mousePos - playerPos;
@@ -136,6 +181,7 @@ void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
         projectile->setRotation(angleInDegrees);
 
         addItem(projectile);
+        
 
     }
 

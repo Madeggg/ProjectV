@@ -24,32 +24,34 @@ protected:
     int damage;
     int speed;
     bool distance; //Booléen pour savoir si l'ennemi attaque le joueur à distance ou pas
+    bool isDead = false; // Booléen pour savoir si l'ennemi est mort
     Weapon* weapon;
-    QString* type;
+    QString type;
     QPixmap* sprite_up;
     QPixmap* sprite_down;
     QPixmap* sprite_right;
     QPixmap* sprite_left;
-    QTimer* damageTimer; // Timer pour gérer l'intervalle de temps entre les dégâts infligés au joueur
+    QTimer* movementTimer; // Timer pour le mouvement de l'ennemi
 
 signals:
     void damagePlayer(int damage); // Signal pour infliger des dégâts au joueur
 
 public:
     //Constructeur
-    Enemy(QGraphicsItem* parent = nullptr, Player* player = nullptr); 
+    Enemy(QString type,QGraphicsItem* parent = nullptr, Player* player = nullptr); 
     //Accesseurs
     int getHealth() const;
     int getDamage() const;
     int getSpeed() const;
-    QString* getType() const; // Getter pour le type d'ennemi
+    QString getType() const; // Getter pour le type d'ennemi
+    bool getIsDead() const; // Getter pour le booléen isDead
     //Mutateurs
     void setHealth(int newHealth);
     void setDamage(int newDamage);
     void setSpeed(int newSpeed);
     void setWeapon(Weapon* newWeapon); 
-    void setType(QString* newType);     
-    virtual void setApperance(QString* newType); 
+    void setType(QString newType);     
+    virtual void setApperance(QString newType); 
     void setDistance(bool newDistance); // Setter pour le booléen distance
     
 
@@ -63,38 +65,40 @@ public:
     void doDamage(Player* player); 
 
     // Méthode de suivi du joueur
-    void followPlayerAndAttack(Player* player); 
+    void moveTowardsPlayer(const QPointF& playerPos);
 
+    void takeDamage(int amount);    // Méthode pour infliger des dégâts à l'ennemi
 
-};
-
-//Classe soldier qui hérite de Enemy
-
-class Soldier : public Enemy, public virtual QGraphicsPixmapItem {
-    public:
-        // Constructeur
-        Soldier(QGraphicsItem* parent = nullptr, Weapon* w = nullptr); // Constructeur
-        void setApperance(); 
-
-
+    
 
 };
 
-class Hero : public Enemy, public virtual QGraphicsPixmapItem {
-    public:
-        // Constructeur
-        Hero(QGraphicsItem* parent = nullptr, Weapon* w = nullptr); // Constructeur
-        void setApperance(); // Méthode pour définir l'apparence du héros
-        // Méthode d'attaque de l'ennemi
+// //Classe soldier qui hérite de Enemy
+
+// class Soldier : public Enemy, public virtual QGraphicsPixmapItem {
+//     public:
+//         // Constructeur
+//         Soldier(QString type,QGraphicsItem* parent = nullptr, Weapon* w = nullptr); // Constructeur
+
+
+
+// };
+
+// class Hero : public Enemy, public virtual QGraphicsPixmapItem {
+//     public:
+//         // Constructeur
+//         Hero(QString type,QGraphicsItem* parent = nullptr, Weapon* w = nullptr); // Constructeur
+//         void setApperance(); // Méthode pour définir l'apparence du héros
+        
        
 
-};
+// };
 
 class Weapon : public QGraphicsPixmapItem {
     private:
         int damage;
         int range;
-        QString type; // Type d'arme (ex: "gun", "sword", etc.)
+        QString type; // Type d'arme 
         QPixmap* sprite; // Sprite de l'arme
     public:
         // Constructeur
@@ -128,6 +132,7 @@ class Projectile : public QObject, public QGraphicsPixmapItem{
         void move(); // Déplace le projectile 
     signals:
     void damagePlayer(int damage); // Signal pour infliger des dégâts au joueur
+    void hitEnemy(Enemy* enemy);
     
 };
 

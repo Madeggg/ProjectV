@@ -26,10 +26,13 @@ public slots:
 private:
     MyScene* scene;
     Player* player;
+    Enemy* enemy;
     QTimer* gameLoopTimer;
+    QTimer* enemySpawnTimer; // Timer pour le spawn des ennemis
     int frameCount = 0; // Compteur de frames
 
     void checkCollisions(); // À développer plus tard
+    void spawnEnemies();
 };
 
 #endif 

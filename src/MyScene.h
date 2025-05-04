@@ -43,6 +43,7 @@ private:
     QTimer* timer;
     GameManager* gameManager;
     Player* player;
+    Enemy* enemy;
     QPixmap pixBackground;
     
 

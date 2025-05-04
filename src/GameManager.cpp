@@ -2,11 +2,10 @@
 #include "GameManager.h"
 
 GameManager::GameManager(MyScene* scene, Player* player) : scene(scene), player(player) {
-    // Initialisation des autres objets, comme les ennemis
-    Enemy* enemy = new Enemy(nullptr, player);
     
-    // Connecte le signal de l'ennemi au slot du joueur pour infliger des dégâts
-    QObject::connect(enemy, &Enemy::damagePlayer, player, &Player::takeDamage);
+    
+        // // Connecte le signal de l'ennemi au slot du joueur pour infliger des dégâts
+        //QObject::connect(enemy, &Enemy::damagePlayer, player, &Player::takeDamage);
 
     // Initialisation du timer pour la boucle de jeu
     gameLoopTimer = new QTimer(this);
@@ -55,7 +54,23 @@ void GameManager::update() {
             return; 
         }
     }
+
+    if (frameCount % 300 == 0) { // toutes les 5 secondes à 60 FPS
+        spawnEnemies(); 
+    }
+
+   
 }
+
+void GameManager::spawnEnemies() {
+  
+    Enemy* enemy = new Enemy("Physique", nullptr, player); // Crée un ennemi de type "Physique"
+    scene->addItem(enemy);
+    enemy->setPos(QRandomGenerator::global()->bounded(980),QRandomGenerator::global()->bounded(980)); //Position initale aléatoire dans la scène
+    
+    
+}
+
 
 
 Player* GameManager::getPlayer() const {
