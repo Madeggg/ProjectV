@@ -1,43 +1,15 @@
 #include "MainWindow.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
-{
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+    mainMenu = new MainMenuWidget(this);
+    setCentralWidget(mainMenu);
+    setWindowTitle("Menu Principal");
+    resize(600, 800);
 
-    this->mainScene = new MyScene;
-
-    this->mainView = new QGraphicsView;
-    this->mainView->setScene(mainScene);
-
-    this->setCentralWidget(mainView);
-    this->setWindowTitle("My main window");
-    this->resize(400, 800); // Assurez-vous que la taille est suffisante
-
-    // Active les événements de la souris pour la vue
-    mainView->setMouseTracking(true);
-    mainView->setFocusPolicy(Qt::StrongFocus);
-
-    // Désactive les barres de défilement
-    mainView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    mainView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-
-     // Connecte le signal playerMoved au recentrage de la vue
-     connect(mainScene->getPlayer(), &Player::playerMoved, this, [this]() {
-        mainView->centerOn(mainScene->getPlayer());
-    });
-
-    mainView->scale(5,5);
-
-
-    helpMenu = menuBar()->addMenu(tr("&Help"));
-    QAction* actionHelp = new QAction(tr("&About"), this);
-    connect(actionHelp, SIGNAL(triggered()), this, SLOT(slot_aboutMenu()));
-    helpMenu->addAction(actionHelp);
-
+    connect(mainMenu, &MainMenuWidget::startGameRequested, this, &MainWindow::startGame);
 }
 
 MainWindow::~MainWindow(){
-    delete mainScene;
 }
 
 void MainWindow::slot_aboutMenu(){
@@ -59,5 +31,25 @@ void MainWindow::resizeEvent(QResizeEvent* event) {
             mainView->centerOn(player);
         }
     }
+}
+
+
+void MainWindow::startGame() {
+    mainScene = new MyScene;
+    mainView = new QGraphicsView;
+    mainView->setScene(mainScene);
+
+    setCentralWidget(mainView);
+    mainView->setMouseTracking(true);
+    mainView->setFocusPolicy(Qt::StrongFocus);
+    mainView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    mainView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    mainView->scale(5, 5);
+
+    connect(mainScene->getPlayer(), &Player::playerMoved, this, [this]() {
+        mainView->centerOn(mainScene->getPlayer());
+    });
+
+    resize(600, 800);
 }
 

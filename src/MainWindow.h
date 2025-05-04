@@ -9,6 +9,10 @@
 #include <QMessageBox>
 
 #include "MyScene.h"
+#include "MainMenuWidget.h"
+
+class MainMenuWidget; // Déclaration anticipée
+class MyScene; // Déclaration anticipée
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -20,10 +24,13 @@ private :
     QGraphicsView* mainView;
     QMenu* helpMenu;
 
+    MainMenuWidget* mainMenu;
+
 
 public:
     MainWindow(QWidget* parent = nullptr);
     virtual ~MainWindow();
+    void startGame();
 
 public slots:
     void slot_aboutMenu();
