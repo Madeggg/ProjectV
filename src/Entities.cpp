@@ -9,13 +9,19 @@
 // Méthodes de Enemy
 
 Enemy::Enemy(QString type,QGraphicsItem* parent, Player* player) : QGraphicsPixmapItem(parent), targetPlayer(player), health(100), damage(10), speed(6) {
-    setPixmap(QPixmap("img/sprite_ennemi_static.png").scaled(40, 40)); // Sprite de l'ennemi
+    setApperance(type);     // Définit l'apparence de l'ennemi en fonction de son type
     setShapeMode(QGraphicsPixmapItem::BoundingRectShape); 
     setDistance(false); // Par défaut, l'ennemi n'attaque pas à distance
     setType(type); 
     setWeapon(nullptr); // L'ennemi n'a pas d'arme par défaut
     setData(0,"enemy"); //Pour les collisions
   
+    attackTimer = new QTimer(this);
+    attackTimer->setInterval(1000); // 1 seconde entre deux attaques
+    attackTimer->setSingleShot(true);
+    connect(attackTimer, &QTimer::timeout, this, [this]() {
+        canAttack = true;
+    });
 
     // Initialiser le timer de mise à jour toutes les 100 ms
     movementTimer = new QTimer(this);
@@ -70,10 +76,7 @@ void Enemy::setType(QString newType) {
 
 void Enemy::setApperance(QString type) {
     if(type == "Physique"){
-        sprite_up = new QPixmap("img/sprite_ennemi_up.png");
-        sprite_down = new QPixmap("img/sprite_ennemi_down.png");
-        sprite_right = new QPixmap("img/sprite_ennemi_right.png");
-        sprite_left = new QPixmap("img/sprite_ennemi_left.png");
+        setPixmap(QPixmap("img/sprite_ennemi_static.png").scaled(40, 40));
     }
 }
 
@@ -84,6 +87,16 @@ void Enemy::setDistance(bool newDistance) {
 
 void Enemy::punch(Player* player){
     player->takeDamage(damage); 
+    qDebug()<<"Le joueur a pris des dégats ! PV restants : "<<player->getHealth();  
+    player->setPixmap(QPixmap("img/billyTriste.jpg").scaled(40, 40));
+
+    // Rétablir le sprite normal après 100 ms
+    QTimer::singleShot(100, player, [player]() {
+        QString dir = player->getDirection();
+        QString path = QString("img/Sprite_billy_%1.png").arg(dir);  // par ex: Sprite_billy_left.png
+        player->setPixmap(QPixmap(path).scaled(40, 40));
+    });
+                    
 }
 
 void Enemy::shoot(Player* player){
@@ -91,10 +104,15 @@ void Enemy::shoot(Player* player){
 }
 
 void Enemy::doDamage(Player* player) {
-    if(getType() == "Physique"){
+    if (!canAttack) return;
+
+    canAttack = false;
+    attackTimer->start();
+
+    if (getType() == "Physique") {
         punch(player);
     } else if (getType() == "Distance") {
-        shoot(player); 
+        shoot(player);
     }
 }
 
@@ -117,9 +135,13 @@ void Enemy::moveTowardsPlayer(const QPointF& playerPos) {
     qreal distance = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());  // Distance
 
     // Ne pas se déplacer si on est déjà assez proche
-    if (distance < 40){
-        return;
+    if(getType() == "Physique"){
+        if (distance < 40){
+            doDamage(targetPlayer);     // Infliger des dégâts au joueur
+            return;
+        }
     }
+    
 
     if (distance > 0) {
         direction /= distance;  // Normalisation de la direction

@@ -32,6 +32,8 @@ protected:
     QPixmap* sprite_right;
     QPixmap* sprite_left;
     QTimer* movementTimer; // Timer pour le mouvement de l'ennemi
+    QTimer* attackTimer;    // Timer pour l'attaque de l'ennemi
+    bool canAttack = true;
 
 signals:
     void damagePlayer(int damage); // Signal pour infliger des dégâts au joueur

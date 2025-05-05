@@ -7,6 +7,10 @@ Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), 
     setPixmap(QPixmap("img/Sprite_billy_static.png").scaled(40, 40));
     setShapeMode(QGraphicsPixmapItem::BoundingRectShape); 
     previousPosition = pos();
+
+    walkTimer = new QTimer(this);
+    walkTimer->setInterval(150);  // vitesse de l'animation
+    connect(walkTimer, &QTimer::timeout, this, &Player::updateWalkAnimation);
 }
 // Méthodes de déplacement 
 void Player::moveLeft() {
@@ -62,6 +66,12 @@ bool Player::canMoveTo(const QPointF& newPosition, const QRectF& sceneRect) cons
     return true;  // Le déplacement est possible si aucune collision n'est détectée
 }
 
+void Player::updateWalkAnimation() {
+    walkframe = (walkframe + 1) % 2;        //Pour alterner entre 0 et 1
+    QString spritePath = QString("img/Sprite_billy_%1_%2.png").arg(direction).arg(walkframe + 1);
+    setPixmap(QPixmap(spritePath).scaled(40, 40));
+}
+
 
 int Player::getHealth() const {
     return health;
@@ -71,12 +81,17 @@ qreal Player::getSpeed() const {
     return speed; // Retourne la vitesse actuelle du joueur
 }
 
-
+QString Player::getDirection() const {
+    return direction;   // Retourne la direction actuelle du joueur
+}
 
 void Player::setHealth(int newHealth) {
     health = newHealth;
 }
 
+void Player::setDirection(const QString& dir){
+    direction = dir;
+}
 void Player::takeDamage(int amount) {
     health -= amount;
     if (health < 0) health = 0;

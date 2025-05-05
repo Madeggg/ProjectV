@@ -29,7 +29,10 @@ public:
     // Méthodes de gestion de PV
     int getHealth() const;
     qreal getSpeed() const;
-  
+    QString getDirection() const;
+    
+    QTimer* walkTimer;
+    
     void setHealth(int newHealth);
     void setDirection(const QString& dir);
     void takeDamage(int amount);
@@ -37,12 +40,16 @@ public:
 
    
     void revertToPreviousPosition();
+    void updateWalkAnimation();            // Méthode pour mettre à jour l'animation de marche
     QPainterPath shape() const override;
 
 private:
     int health;
     int speed = 5;
     QPointF previousPosition; // Position précédente pour la restauration
+    QString direction;      // Direction actuelle du joueur (gauche, droite, haut, bas)
+    int walkframe = 0;
+
 signals:
     void playerMoved(QPointF newPos); // Signal émis lorsque le joueur se déplace
 

@@ -107,17 +107,31 @@ void MyScene::keyPressEvent(QKeyEvent* event){
         QPointF newPosition = player->pos() + QPointF(-player->getSpeed(), 0);
         if (player->canMoveTo(newPosition, sceneBounds)) {
             player->moveLeft();
+            player->setDirection("left"); 
             player->setPixmap(QPixmap("img/Sprite_billy_left.png").scaled(40, 40));
         }
     }
 
     // Déplacement vers la droite
+    // else if (event->key() == Qt::Key_D) {
+    //     QPointF newPosition = player->pos() + QPointF(player->getSpeed(), 0);
+    //     if (player->canMoveTo(newPosition, sceneBounds)) {
+    //         player->moveRight();
+    //         player->setDirection("right"); // Met à jour la direction
+    
+    //         if (!player->walkTimer->isActive())
+    //             player->walkTimer->start();
+    
+    //         player->updateWalkAnimation();  // lance la première image
+    //     }
+    // }
+    
     else if (event->key() == Qt::Key_D) {
-        QPointF newPosition = player->pos() + QPointF(player->getSpeed(), 0);
+        QPointF newPosition = player->pos() + QPointF(-player->getSpeed(), 0);
         if (player->canMoveTo(newPosition, sceneBounds)) {
             player->moveRight();
+            player->setDirection("right"); 
             player->setPixmap(QPixmap("img/Sprite_billy_right.png").scaled(40, 40));
-
         }
     }
 
@@ -126,6 +140,7 @@ void MyScene::keyPressEvent(QKeyEvent* event){
         QPointF newPosition = player->pos() + QPointF(0, -player->getSpeed());
         if (player->canMoveTo(newPosition, sceneBounds)) {
             player->moveUp();
+            player->setDirection("up"); 
             player->setPixmap(QPixmap("img/Sprite_billy_up.png").scaled(40, 40));
 
         }
@@ -136,9 +151,14 @@ void MyScene::keyPressEvent(QKeyEvent* event){
         QPointF newPosition = player->pos() + QPointF(0, player->getSpeed());
         if (player->canMoveTo(newPosition, sceneBounds)) {
             player->moveDown();
+            player->setDirection("down"); 
             player->setPixmap(QPixmap("img/Sprite_billy_down.png").scaled(40, 40));
         }
     }
+}
+
+void MyScene::keyReleaseEvent(QKeyEvent* event) {
+    player->walkTimer->stop();
 }
 
 void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {

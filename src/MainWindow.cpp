@@ -3,7 +3,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     mainMenu = new MainMenuWidget(this);
     setCentralWidget(mainMenu);
-    setWindowTitle("Menu Principal");
+    setWindowTitle("Project V");
     resize(600, 800);
 
     connect(mainMenu, &MainMenuWidget::startGameRequested, this, &MainWindow::startGame);

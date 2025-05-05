@@ -34,6 +34,7 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event) override;
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 
 private slots:
