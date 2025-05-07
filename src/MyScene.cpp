@@ -104,7 +104,7 @@ void MyScene::keyPressEvent(QKeyEvent* event){
 
     // Déplacement vers la gauche
     if (event->key() == Qt::Key_Q) {
-        QPointF newPosition = player->pos() + QPointF(-player->getSpeed(), 0);
+        QPointF newPosition = player->pos() + QPointF(player->getSpeed(), 0);
         if (player->canMoveTo(newPosition, sceneBounds)) {
             player->moveLeft();
             player->setDirection("left"); 
