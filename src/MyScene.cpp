@@ -27,6 +27,40 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     player->setPos(445, 555);
     player->setZValue(50);
 
+    //Setup HUD
+    // SCORE
+    scoreText = new QGraphicsTextItem("Score : 0");
+    scoreText->setDefaultTextColor(Qt::white);
+    scoreText->setFont(QFont("Arial", 14));
+    scoreText->setPos(10, 10);
+    addItem(scoreText);
+
+    // TIMER
+    timerText = new QGraphicsTextItem("Temps : 0 s");
+    timerText->setDefaultTextColor(Qt::white);
+    timerText->setFont(QFont("Arial", 14));
+    timerText->setPos(10, 30);
+    addItem(timerText);
+
+    // BARRE DE VIE
+    healthBarBack = new QGraphicsRectItem(10, 50, 100, 10);
+    healthBarBack->setBrush(Qt::red);
+    addItem(healthBarBack);
+
+    healthBarFront = new QGraphicsRectItem(10, 50, 100, 10);
+    healthBarFront->setBrush(Qt::green);
+    addItem(healthBarFront);
+
+    // TIMER DE MISE À JOUR
+    gameTimer = new QTimer(this);
+    connect(gameTimer, &QTimer::timeout, this, &MyScene::updateHUD);
+    gameTimer->start(1000);  // chaque seconde
+
+    scoreText->setZValue(1000);
+    timerText->setZValue(1000);
+    healthBarFront->setZValue(1001);
+
+
     
 
     // Création de GameManager en passant le joueur existant
@@ -360,4 +394,37 @@ void MyScene::loadMap(){
     QGraphicsPixmapItem* backgroundItem = new QGraphicsPixmapItem(background); // Crée un item pour le fond
     this->addItem(backgroundItem); // Ajoute le fond à la scène
     file.close();
+}
+
+void MyScene::updateHUD() {
+    elapsedTime++;
+    timerText->setPlainText(QString("Temps : %1 s").arg(elapsedTime));
+    scoreText->setPlainText(QString("Score : %1").arg(score));
+
+    // Récupère la position du coin haut-gauche de la vue
+    QPointF viewTopLeft = views().first()->mapToScene(0, 0);
+
+    // Espacements
+    const int margin = 20;
+    const int lineSpacing = 25;
+
+    // Positionnement du texte
+    scoreText->setPos(viewTopLeft.x() + margin, viewTopLeft.y() + margin);
+    timerText->setPos(viewTopLeft.x() + margin, viewTopLeft.y() + margin + lineSpacing);
+
+    // Mise à jour de la barre de vie
+    if (player) {
+        qreal healthPercent = static_cast<qreal>(player->getHealth()) / 100.0;
+        healthBarFront->setRect(0, 0, 100 * healthPercent, 10);
+        healthBarFront->setPos(viewTopLeft.x() + margin, viewTopLeft.y() + margin + 2 * lineSpacing);
+    }
+}
+
+
+
+void MyScene::addScore(int points) {
+    score += points;
+    if (scoreText) {
+        scoreText->setPlainText(QString("Score : %1").arg(score));
+    }
 }

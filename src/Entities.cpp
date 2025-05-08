@@ -117,16 +117,23 @@ void Enemy::doDamage(Player* player) {
 }
 
 void Enemy::takeDamage(int amount) {
-    if(isDead) return;
+    if (isDead) return;
 
     health -= amount;
     if (health <= 0) {
         isDead = true; 
-        qDebug() << "L'ennemi est mort. Supression de la scène";
+        qDebug() << "L'ennemi est mort. Suppression de la scène";
+
+        // Ajouter des points au score du joueur lorsque l'ennemi meurt
+        MyScene* myScene = dynamic_cast<MyScene*>(scene());
+        if (myScene) {
+            myScene->addScore(10);
+        }
         scene()->removeItem(this);
         deleteLater();
     }
 }
+
 
 void Enemy::moveTowardsPlayer(const QPointF& playerPos) {
     

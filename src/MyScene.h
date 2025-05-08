@@ -4,6 +4,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
 #include <QGraphicsRectItem>
+#include <QGraphicsView>
 #include <QGraphicsPixmapItem>
 #include <QPixmap>
 #include <QPainter>
@@ -31,6 +32,8 @@ public:
 
     Player* getPlayer() const;
     void loadMap();
+    void updateHUD(); // Met à jour l'interface utilisateur (score, timer, barre de vie)
+    void addScore(int points); // Ajoute des points au score
 
 protected:
     void keyPressEvent(QKeyEvent* event);
@@ -46,6 +49,16 @@ private:
     Player* player;
     Enemy* enemy;
     QPixmap pixBackground;
+
+
+    //TEST HUD 
+    QGraphicsTextItem* scoreText;
+    QGraphicsTextItem* timerText;
+    QGraphicsRectItem* healthBarBack;
+    QGraphicsRectItem* healthBarFront;
+    QTimer* gameTimer;
+    int elapsedTime = 0;
+    int score = 0;
     
 
     int backgroundWidth = 0;
