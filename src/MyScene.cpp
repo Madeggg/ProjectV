@@ -94,25 +94,27 @@ void MyScene::update() {
                 if (collidingItem->data(0).toString() == "enemy") {
                     Enemy* enemy = dynamic_cast<Enemy*>(collidingItem);
                     if (enemy && !enemy->getIsDead() && enemy->scene() != nullptr) {
-                        enemy->takeDamage(10);
+                        enemy->takeDamage(projectile->getDamage());
                         enemy->setPixmap(QPixmap("img/sprite_ennemi_static_hit.png").scaled(40, 40));
                         qDebug() << "Projectile hit enemy! Enemy health:" << enemy->getHealth();
 
-                        // Remettre le sprite normal après un court délai
-                        QTimer* timer = new QTimer(enemy);
-                        timer->setSingleShot(true);
-                        QObject::connect(timer, &QTimer::timeout, enemy, [enemy]() {
-                            if (!enemy->getIsDead()) {
-                                enemy->setPixmap(QPixmap("img/sprite_ennemi_static.png").scaled(40, 40));
-                            }
-                        });
-                        timer->start(100);
+                        enemy->showHitEffect(); // Affiche l'effet de coup
 
                         removeItem(projectile);
                         projectile->deleteLater();
                         return;
                     }
                 }
+            }
+        }
+        Weapon* weapon = dynamic_cast<Weapon*>(item);
+        if (weapon && weapon->scene() != nullptr) {
+            if (weapon->collidesWithItem(player)) {
+                qDebug() << "Player picked up a weapon!";
+                player->setHasWeapon(true);
+                removeItem(weapon);
+                weapon->deleteLater();
+                continue; // On passe à l'objet suivant
             }
         }
     }
@@ -196,51 +198,24 @@ void MyScene::keyReleaseEvent(QKeyEvent* event) {
 }
 
 void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
-    if (event->button() == Qt::LeftButton) {
-        
-        // Récupère la position du curseur dans la scène
-        QPointF mousePos = event->scenePos();
-        
-
-        // Récupère la position actuelle du joueur
-        if (!player) {
-            qDebug() << "Error: Player is null!";
-            return;
-        }
-        //player->pos() donne le coin supérieur gauche du joueur et boundingRect() la taille du sprite du joueur
-        //en ajoutant la moitié largeur + hauteur, on a le centre du sprite, la d'ou on veut faire partir le projectile
-
-        QPointF playerPos = player->pos() + QPointF(player->boundingRect().width() / 2,
-                                            player->boundingRect().height() / 2);
-
-        // Calcule la direction entre le joueur et le curseur
-        QPointF direction = mousePos - playerPos;
-        qreal length = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());
-        if (length != 0) {
-            direction /= length; // Normalisation
-        }
-
-        // Calcul l'angle en radians
-        qreal angle = std::atan2(direction.y(), direction.x());
-    
-
-        // Convertit l'angle en degrés
-        qreal angleInDegrees = angle * 180 / M_PI;
-        
-
-        // Crée un nouveau projectile
-        Projectile* projectile = new Projectile(playerPos, direction, 7); 
-
-        // Oriente le projectile en fonction de l'angle
-        projectile->setRotation(angleInDegrees);
-
-        addItem(projectile);
-        
-
+    if (!player) {
+        qDebug() << "Error: Player is null!";
+        return;
     }
 
+    if(event->button() == Qt::LeftButton){
+        if (player->getHasWeapon()) {
+            player->shoot(event->scenePos());
+        }
+    //Sinon, le joueur n'a pas d'arme donc il va taper à la mano
+        else{
+            player->punch();
+        }
+    
     // Transmet l'événement à la classe parente
     QGraphicsScene::mousePressEvent(event);
+    }
+    
 }
 
 

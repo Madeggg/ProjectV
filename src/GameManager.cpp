@@ -63,13 +63,20 @@ void GameManager::update() {
 }
 
 void GameManager::spawnEnemies() {
-  
-    Enemy* enemy = new Enemy("Physique", nullptr, player); // Crée un ennemi de type "Physique"
+    static QVector<QPointF> safeSpawnPoints = {
+        {625,50}, {970,295}, {15,575}, {15,265},        
+        {70,390}, {445,970}, {10,800}, {970,570},       //liste de points de spawns hors collisions pour les ennemis
+        {685,590}, {965,790}, {970,600}, {175,870}  
+    };
+
+    int index = QRandomGenerator::global()->bounded(safeSpawnPoints.size());
+    QPointF spawnPos = safeSpawnPoints[index];
+
+    Enemy* enemy = new Enemy("Physique", nullptr, player);
+    enemy->setPos(spawnPos);
     scene->addItem(enemy);
-    enemy->setPos(QRandomGenerator::global()->bounded(980),QRandomGenerator::global()->bounded(980)); //Position initale aléatoire dans la scène
-    
-    
 }
+
 
 
 

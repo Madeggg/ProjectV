@@ -78,6 +78,7 @@ void Enemy::setApperance(QString type) {
     if(type == "Physique"){
         setPixmap(QPixmap("img/sprite_ennemi_static.png").scaled(40, 40));
     }
+    
 }
 
 
@@ -128,35 +129,101 @@ void Enemy::takeDamage(int amount) {
         MyScene* myScene = dynamic_cast<MyScene*>(scene());
         if (myScene) {
             myScene->addScore(10);
+           
         }
         scene()->removeItem(this);
         deleteLater();
+        
+        if(targetPlayer){
+            targetPlayer->incrementKillCount();     // Incrémente le compteur de kills du joueur
+        }
     }
+}
+
+bool Enemy::canMoveInDirection(const QPointF& direction){
+     // Calcul de la nouvelle position après le déplacement
+    QPointF newPos = pos() + direction * speed;
+
+    // Créer un rectangle de collision pour la position suivante
+    QRectF nextBoundingRect(newPos, QSizeF(boundingRect().width(), boundingRect().height()));
+
+    // Vérifier les collisions dans la direction souhaitée
+    QList<QGraphicsItem*> collisions = collidingItems();
+    for (QGraphicsItem* item : collisions) {
+        // Si un élément de type "collision" est trouvé, l'ennemi ne peut pas se déplacer dans cette direction
+        QVariant typeData = item->data(0);
+        if (typeData.toString() == "collision") {
+            return false;  // L'ennemi rencontre un obstacle
+        }
+    }
+
+    // Vérifier si la nouvelle position est hors de la scène
+    if (!scene()->sceneRect().contains(newPos)) {
+        return false;  // L'ennemi serait hors de la scène
+    }
+
+    return true;  // L'ennemi peut se déplacer dans cette direction
 }
 
 
 void Enemy::moveTowardsPlayer(const QPointF& playerPos) {
-    
     // Utiliser la position absolue du joueur dans la scène
     QPointF direction = playerPos - pos(); // position actuelle de l'ennemi
     qreal distance = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());  // Distance
 
-    // Ne pas se déplacer si on est déjà assez proche
-    if(getType() == "Physique"){
-        if (distance < 40){
-            doDamage(targetPlayer);     // Infliger des dégâts au joueur
-            return;
-        }
+    // Si l'ennemi est trop proche du joueur, on inflige des dégâts
+    if(getType() == "Physique" && distance < 40) {
+        doDamage(targetPlayer);  // Infliger des dégâts au joueur
+        return;
     }
-    
 
+    // Si l'ennemi n'est pas trop proche, il doit éviter les obstacles et se déplacer
     if (distance > 0) {
         direction /= distance;  // Normalisation de la direction
-        setPos(x() + direction.x() * speed, y() + direction.y() * speed);  // Déplacer l'ennemi
-    }
-    
 
+        // On crée une variable pour savoir si l'ennemi a trouvé une direction libre
+        bool canMove = false;
+        
+        // Essayer différentes directions (haut, bas, gauche, droite)
+        if (canMoveInDirection(direction)) {
+            setPos(x() + direction.x() * speed, y() + direction.y() * speed);  // Déplacer l'ennemi
+            canMove = true;
+        } else {
+            // Si la direction vers le joueur est bloquée, l'ennemi va tenter de se déplacer latéralement ou verticalement
+            // Tester une direction alternative (haut, bas, gauche, droite)
+            if (canMoveInDirection(QPointF(1, 0))) {  // Droite
+                setPos(x() + speed, y());
+                canMove = true;
+            } else if (canMoveInDirection(QPointF(-1, 0))) {  // Gauche
+                setPos(x() - speed, y());
+                canMove = true;
+            } else if (canMoveInDirection(QPointF(0, 1))) {  // Bas
+                setPos(x(), y() + speed);
+                canMove = true;
+            } else if (canMoveInDirection(QPointF(0, -1))) {  // Haut
+                setPos(x(), y() - speed);
+                canMove = true;
+            }
+        }
+
+        // Si aucune direction n'est libre, l'ennemi ne bouge pas
+        // if (!canMove) {
+        //     qDebug() << "Aucune direction libre trouvée pour l'ennemi.";
+        // }
+    }
 }
+
+ QRectF Enemy::boundingRect() const {
+    return QRectF(0, 0, 40, 40);  // Utiliser la taille réelle de l'ennemi
+}
+
+ QPainterPath Enemy::shape() const{
+        QPainterPath path;
+        path.addRect(boundingRect());  // Forme de collision = rectangle de l'image
+        return path;
+    
+ }
+
 
 
 
@@ -186,9 +253,8 @@ void Enemy::moveTowardsPlayer(const QPointF& playerPos) {
 
 //Méthodes de Weapon
 
-Weapon::Weapon(int damage, int range, QString type, QGraphicsItem* parent) : QGraphicsPixmapItem(parent){
+Weapon::Weapon(int damage, QString type, QGraphicsItem* parent) : QGraphicsPixmapItem(parent){
     setDamage(damage);
-    setRange(range);
     setType(type);
 }
 
@@ -196,9 +262,6 @@ int Weapon::getDamage() const{
     return damage;
 }
 
-int Weapon::getRange() const{
-    return range;
-}
 
 QString Weapon::getType() const{
     return type;
@@ -208,25 +271,44 @@ void Weapon::setDamage(int newDamage){
     damage = newDamage;
 }
 
-void Weapon::setRange(int newRange){
-    range = newRange;
-}
 
 void Weapon::setType(QString newType){
     type = newType;
 }
 
+void Weapon::setSprite(QPixmap* newSprite){
+    sprite = newSprite;
+}
+
+void Enemy::showHitEffect() {
+
+  
+    this->setPixmap(QPixmap("img/sprite_ennemi_static_hit.png").scaled(40, 40));
+
+    QTimer* timer = new QTimer(this);
+    timer->setSingleShot(true);
+    QObject::connect(timer, &QTimer::timeout, this, [this]() {
+        if (!this->getIsDead()) {
+            this->setPixmap(QPixmap("img/sprite_ennemi_static.png").scaled(40, 40));
+        }
+    });
+    timer->start(100); // 100ms d'effet visuel
+}
+
+
 
 
 //Méthodes de Projectile
 
-Projectile::Projectile(QPointF startPos, QPointF direction, int speed, QGraphicsItem* parent)
+Projectile::Projectile(QPointF startPos, QPointF direction, int speed, int damage, QGraphicsItem* parent)
     : QGraphicsPixmapItem(parent), speed(speed) {
     setPixmap(QPixmap("img/bullet1.png").scaled(20, 20)); // Sprite du projectile
     setPos(startPos);
 
     // Définit la direction normalisée
     setDirection(direction);
+
+    setDamage(damage);
 
     // Configure un timer pour déplacer le projectile
     QTimer* timer = new QTimer(this);
@@ -254,6 +336,14 @@ void Projectile::setSpeed(int newSpeed) {
 
 void Projectile::setSprite(QPixmap* newSprite) {
     sprite = newSprite;
+}
+
+void Projectile::setDamage(int newDamage) {
+    damage = newDamage;
+}
+
+int Projectile::getDamage() const {
+    return damage;
 }
 
 void Projectile::move() {

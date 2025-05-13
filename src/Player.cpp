@@ -8,6 +8,8 @@ Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), 
     setShapeMode(QGraphicsPixmapItem::BoundingRectShape); 
     previousPosition = pos();
 
+    hasWeapon = false; // Par défaut, le joueur n'a pas d'arme
+
     walkTimer = new QTimer(this);
     walkTimer->setInterval(150);  // vitesse de l'animation
     connect(walkTimer, &QTimer::timeout, this, &Player::updateWalkAnimation);
@@ -46,6 +48,21 @@ void Player::revertToPreviousPosition() {
     qDebug() << "Position restaurée à :" << previousPosition;
 }
 
+void Player::incrementKillCount() {
+    killCount++;
+    qDebug() << "Kill count = " << killCount;
+
+    if (killCount == 3) {
+        // Fait apparaître l'arme dans la scène
+        Weapon* pistol = new Weapon(20,"Pistol");
+        pistol->setPixmap(QPixmap("img/pistol.png").scaled(30,30)); 
+        pistol->setPos(450, 380);   
+        scene()->addItem(pistol);
+        
+    }
+}
+
+
 bool Player::canMoveTo(const QPointF& newPosition, const QRectF& sceneRect) const {
     QRectF playerRect(newPosition, QSizeF(boundingRect().width(), boundingRect().height()));
 
@@ -66,11 +83,49 @@ bool Player::canMoveTo(const QPointF& newPosition, const QRectF& sceneRect) cons
     return true;  // Le déplacement est possible si aucune collision n'est détectée
 }
 
+void Player::setHasWeapon(bool newHasWeapon) {
+    hasWeapon = newHasWeapon;
+}
+
+void Player::punch() {
+    for (QGraphicsItem* item : scene()->items()) {
+        Enemy* enemy = dynamic_cast<Enemy*>(item);
+        if (enemy) {
+            qreal distance = QLineF(pos(), enemy->pos()).length();
+            if (distance < 40) {
+                enemy->takeDamage(10);
+                enemy->showHitEffect(); 
+                qDebug() << "L'ennemi a été frappé à la mano ! PV restants :" << enemy->getHealth();
+                return;
+            }
+        }
+    }
+}
+
+
+
+void Player::shoot(QPointF targetPos) {
+    QPointF start = pos() + QPointF(boundingRect().width()/2, boundingRect().height()/2); // départ du projectiel au centre du joueur
+    QPointF direction = targetPos - start;
+
+    qreal length = std::sqrt(direction.x()*direction.x() + direction.y()*direction.y());
+    if (length == 0) return;
+    direction /= length;
+
+    qreal angle = std::atan2(direction.y(), direction.x());
+    qreal degrees = angle * 180 / M_PI;
+
+    Projectile* p = new Projectile(start, direction, 7,20);
+    p->setRotation(degrees);
+    scene()->addItem(p);
+}
+
 void Player::updateWalkAnimation() {
     walkframe = (walkframe + 1) % 2;        //Pour alterner entre 0 et 1
     QString spritePath = QString("img/Sprite_billy_%1_%2.png").arg(direction).arg(walkframe + 1);
     setPixmap(QPixmap(spritePath).scaled(40, 40));
 }
+
 
 
 int Player::getHealth() const {
@@ -83,6 +138,14 @@ qreal Player::getSpeed() const {
 
 QString Player::getDirection() const {
     return direction;   // Retourne la direction actuelle du joueur
+}
+
+int Player::getKillCount() const {
+    return killCount; // Retourne le nombre de kills du joueur
+}
+
+bool Player::getHasWeapon() const {
+    return hasWeapon; // Retourne si le joueur a une arme
 }
 
 void Player::setHealth(int newHealth) {
