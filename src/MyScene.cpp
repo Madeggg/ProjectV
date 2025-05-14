@@ -27,6 +27,8 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     player->setPos(445, 555);
     player->setZValue(50);
 
+    connect(player, &Player::ammoBoxNeeded, this, &MyScene::spawnAmmoBox);
+
     //Setup HUD
     // SCORE
     scoreText = new QGraphicsTextItem("Score : 0");
@@ -73,54 +75,72 @@ MyScene::~MyScene() {
     delete gameManager;
 }
 
-
-
 void MyScene::update() {
-    gameManager->update(); // Appel à la méthode update du GameManager pour gérer les ennemis
+    gameManager->update(); // Mise à jour logique du jeu (ennemis, etc.)
 
-    // Récupérer tous les projectiles dans la scène
     QList<QGraphicsItem*> itemsInScene = items();
-    for (QGraphicsItem* item : itemsInScene) {
-        Projectile* projectile = dynamic_cast<Projectile*>(item);
-        if (projectile) {
-            // 🔒 Sécurité : projectile déjà supprimé de la scène ?
-            if (projectile->scene() == nullptr) continue;
 
-            // Vérifie les collisions pour ce projectile
+    for (QGraphicsItem* item : itemsInScene) {
+        // ----- 🔫 Gestion des projectiles -----
+        Projectile* projectile = dynamic_cast<Projectile*>(item);
+        if (projectile && projectile->scene() != nullptr) {
             QList<QGraphicsItem*> collisions = projectile->collidingItems();
+
             for (QGraphicsItem* collidingItem : collisions) {
                 if (!collidingItem) continue;
 
-                if (collidingItem->data(0).toString() == "enemy") {
+                // 🎯 Projectile du joueur → touche un ennemi
+                if (projectile->getSource() == "player" && collidingItem->data(0).toString() == "enemy") {
                     Enemy* enemy = dynamic_cast<Enemy*>(collidingItem);
                     if (enemy && !enemy->getIsDead() && enemy->scene() != nullptr) {
                         enemy->takeDamage(projectile->getDamage());
-                        enemy->setPixmap(QPixmap("img/sprite_ennemi_static_hit.png").scaled(40, 40));
+                        enemy->showHitEffect();
                         qDebug() << "Projectile hit enemy! Enemy health:" << enemy->getHealth();
-
-                        enemy->showHitEffect(); // Affiche l'effet de coup
 
                         removeItem(projectile);
                         projectile->deleteLater();
-                        return;
+                        break;
                     }
+                }
+
+                // ☠️ Projectile d'ennemi → touche le joueur
+                if (projectile->getSource() == "enemy" && collidingItem == player) {
+                    player->takeDamage(projectile->getDamage());
+                    qDebug() << "Le joueur a été touché par un tir ennemi ! PV restants :" << player->getHealth();
+
+                    removeItem(projectile);
+                    projectile->deleteLater();
+                    break;
                 }
             }
         }
+
+        // ----- 🪖 Récupération d'une arme -----
         Weapon* weapon = dynamic_cast<Weapon*>(item);
-        if (weapon && weapon->scene() != nullptr) {
-            if (weapon->collidesWithItem(player)) {
-                qDebug() << "Player picked up a weapon!";
-                player->setHasWeapon(true);
-                removeItem(weapon);
-                weapon->deleteLater();
-                continue; // On passe à l'objet suivant
+        if (weapon && weapon->scene() != nullptr && weapon->collidesWithItem(player)) {
+            qDebug() << "Player picked up a weapon!";
+            player->setHasWeapon(true);
+            player->setWeapon(weapon);
+            removeItem(weapon);
+            continue;
+        }
+
+        // ----- 📦 Récupération de munitions -----
+        if (item->data(0).toString() == "ammo" && item->scene() != nullptr && item->collidesWithItem(player)) {
+            if (player->getHasWeapon()) {
+                Weapon* currentWeapon = player->getWeapon();
+                currentWeapon->setAmmo(currentWeapon->getAmmo() + 10);
+                qDebug() << "Player picked up ammo. New ammo count:" << currentWeapon->getAmmo();
             }
+            removeItem(item);
+            delete item;
+            continue;
         }
     }
 }
 
 
+ 
 Player* MyScene::getPlayer() const {
     return player;
 }
@@ -204,12 +224,12 @@ void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     }
 
     if(event->button() == Qt::LeftButton){
-        if (player->getHasWeapon()) {
-            player->shoot(event->scenePos());
+        if (!player->getHasWeapon() || player->getWeapon()->getAmmo() <= 0) {
+            player->punch(); // Si le joueur n'a pas d'arme ou pas de munitions, il tape
         }
-    //Sinon, le joueur n'a pas d'arme donc il va taper à la mano
+        //Sinon, le joueur tire
         else{
-            player->punch();
+            player->shoot(event->scenePos());
         }
     
     // Transmet l'événement à la classe parente
@@ -402,4 +422,14 @@ void MyScene::addScore(int points) {
     if (scoreText) {
         scoreText->setPlainText(QString("Score : %1").arg(score));
     }
+}
+    
+void MyScene::spawnAmmoBox() {
+    QGraphicsPixmapItem* ammoBox = new QGraphicsPixmapItem(QPixmap("img/ammo_box.png").scaled(40, 40));
+    ammoBox->setData(0, "ammo");
+
+    ammoBox->setPos(445,555); 
+
+    addItem(ammoBox);
+    
 }

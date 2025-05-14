@@ -9,6 +9,7 @@ Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), 
     previousPosition = pos();
 
     hasWeapon = false; // Par défaut, le joueur n'a pas d'arme
+    weapon = nullptr; 
 
     walkTimer = new QTimer(this);
     walkTimer->setInterval(150);  // vitesse de l'animation
@@ -48,17 +49,22 @@ void Player::revertToPreviousPosition() {
     qDebug() << "Position restaurée à :" << previousPosition;
 }
 
-void Player::incrementKillCount() {
+void Player::checkKillCount() {
     killCount++;
     qDebug() << "Kill count = " << killCount;
 
     if (killCount == 3) {
         // Fait apparaître l'arme dans la scène
         Weapon* pistol = new Weapon(20,"Pistol");
-        pistol->setPixmap(QPixmap("img/pistol.png").scaled(30,30)); 
+        pistol->setSprite(new QPixmap("img/pistol.png")); 
+        pistol->setAmmo(10);        // 10 balles par défaut
         pistol->setPos(450, 380);   
         scene()->addItem(pistol);
         
+    }
+
+    if(killCount % 5 == 0){
+        emit ammoBoxNeeded();
     }
 }
 
@@ -87,6 +93,14 @@ void Player::setHasWeapon(bool newHasWeapon) {
     hasWeapon = newHasWeapon;
 }
 
+void Player::setWeapon(Weapon* newWeapon) {
+    weapon = newWeapon;
+    if (weapon) {
+        hasWeapon = true; // Le joueur a maintenant une arme
+        qDebug() << "Le joueur a récupéré une arme de type :" << weapon->getType();
+    }
+}
+
 void Player::punch() {
     for (QGraphicsItem* item : scene()->items()) {
         Enemy* enemy = dynamic_cast<Enemy*>(item);
@@ -105,6 +119,7 @@ void Player::punch() {
 
 
 void Player::shoot(QPointF targetPos) {
+
     QPointF start = pos() + QPointF(boundingRect().width()/2, boundingRect().height()/2); // départ du projectile au centre du joueur
     QPointF direction = targetPos - start;
 
@@ -118,7 +133,12 @@ void Player::shoot(QPointF targetPos) {
     Projectile* p = new Projectile(start, direction, 7,20);
     p->setSprite(new QPixmap("img/bullet1.png")); 
     p->setRotation(degrees);
+    p->setSource("player");         // Définit la source du projectile
     scene()->addItem(p);
+
+     // Diminue les munitions
+    weapon->setAmmo(weapon->getAmmo() - 1);
+    qDebug() << "Tir ! Munitions restantes:" << weapon->getAmmo();
 }
 
 void Player::updateWalkAnimation() {
@@ -147,6 +167,10 @@ int Player::getKillCount() const {
 
 bool Player::getHasWeapon() const {
     return hasWeapon; // Retourne si le joueur a une arme
+}
+
+Weapon* Player::getWeapon() const {
+    return weapon; // Retourne l'arme du joueur
 }
 
 void Player::setHealth(int newHealth) {

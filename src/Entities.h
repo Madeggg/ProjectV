@@ -103,18 +103,19 @@ class Weapon : public QObject, public QGraphicsPixmapItem {
     private:
         int damage;
         QString type; // Type d'arme 
-        QPixmap* sprite; // Sprite de l'arme
+        int ammo;
     public:
         // Constructeur
         Weapon(int damage, QString type, QGraphicsItem* parent = nullptr); // Constructeur
         // Accesseurs
         int getDamage() const;
         QString getType() const; 
+        int getAmmo() const;
         // Mutateurs
         void setDamage(int newDamage);
-        void setRange(int newRange);
         void setType(QString newType);
         void setSprite(QPixmap* newSprite);     
+        void setAmmo(int newAmmo);
 };
 
 
@@ -126,16 +127,19 @@ class Projectile : public QObject, public QGraphicsPixmapItem{
         int damage;
         QString* sprite;
         QTimer* timer;
+        QString source; // Source du projectile (ennemi ou joueur)
     public:
         Projectile(QPointF startPosition, QPointF direction, int speed, int damage, QGraphicsItem* parent = nullptr);
         void setDirection(QPointF newDirection);
         void setSpeed(int newSpeed);
         void setSprite(QPixmap* newSprite);
         void setDamage(int newDamage);
+        void setSource(QString newSource);
 
         int getSpeed() const;
         int getDamage() const;
         QPointF getDirection() const;
+        QString getSource() const;
     public slots:
         void move(); // Déplace le projectile 
     signals:

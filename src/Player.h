@@ -8,10 +8,11 @@
     #include <QTimer>
 
     #include "GameManager.h"
-    #include "Entities.h"
+   
 
     // Déclaration anticipée
     class MyScene;
+    class Weapon;
 
 
 
@@ -32,11 +33,13 @@
         QString getDirection() const;
         int getKillCount() const;
         bool getHasWeapon() const;
+        Weapon* getWeapon() const;
         
         QTimer* walkTimer;
         
         void setHealth(int newHealth);
         void setDirection(const QString& dir);
+        void setWeapon(Weapon* newWeapon);
         void takeDamage(int amount);
         bool canMoveTo(const QPointF& newPos, const QRectF& sceneRect) const;
         void setHasWeapon(bool newHasWeapon) ;
@@ -47,12 +50,13 @@
     
         void revertToPreviousPosition();
         void updateWalkAnimation();            // Méthode pour mettre à jour l'animation de marche
-        void incrementKillCount();          // Incrémente le compteur de kills et fait spawn une arme 
+        void checkKillCount();          // Incrémente le compteur de kills et fait spawn une arme 
         QPainterPath shape() const override;
 
     private:
         int health;
         int speed = 5;
+        Weapon* weapon;
         QPointF previousPosition; // Position précédente pour la restauration
         QString direction;      // Direction actuelle du joueur (gauche, droite, haut, bas)
         int walkframe = 0;
@@ -61,6 +65,7 @@
 
     signals:
         void playerMoved(QPointF newPos); // Signal émis lorsque le joueur se déplace
+        void ammoBoxNeeded(); //Signal envoyé tous les 5 kills
 
     };
 

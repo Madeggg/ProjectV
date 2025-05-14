@@ -24,7 +24,7 @@ void GameManager::resetGame() {
     }
 
     player->setPos(200, 400);
-    player->setHealth(100);
+    player->setHealth(10000);
     startGame(); // Redémarre la partie
 }
 
@@ -62,7 +62,7 @@ void GameManager::update() {
     if (frameCount % 300 == 0) { // toutes les 5 secondes à 60 FPS
         spawnEnemiesPhysique();
         
-        if(player->getKillCount() % 5 == 0) { // Si le joueur a tué 5 ennemis
+        if(player->getKillCount() > 5) { // Si le joueur a tué 5 ennemis
             spawnEnemiesDistance();
         }
     }

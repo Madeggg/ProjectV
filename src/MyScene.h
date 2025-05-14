@@ -34,13 +34,14 @@ public:
     void loadMap();
     void updateHUD(); // Met à jour l'interface utilisateur (score, timer, barre de vie)
     void addScore(int points); // Ajoute des points au score
+    void spawnAmmoBox(); // Fait apparaître une boîte de munitions
 
     GameManager* getGameManager() const { return gameManager; }
 
 
 protected:
     void keyPressEvent(QKeyEvent* event);
-    void keyReleaseEvent(QKeyEvent* event) override;
+    void keyReleaseEvent(QKeyEvent* event);
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 
 private slots:
