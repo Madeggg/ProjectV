@@ -32,7 +32,8 @@ private:
     int frameCount = 0; // Compteur de frames
 
     void checkCollisions(); // À développer plus tard
-    void spawnEnemies();
+    void spawnEnemiesPhysique();
+    void spawnEnemiesDistance();
 };
 
 #endif 

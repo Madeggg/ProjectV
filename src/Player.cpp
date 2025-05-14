@@ -105,7 +105,7 @@ void Player::punch() {
 
 
 void Player::shoot(QPointF targetPos) {
-    QPointF start = pos() + QPointF(boundingRect().width()/2, boundingRect().height()/2); // départ du projectiel au centre du joueur
+    QPointF start = pos() + QPointF(boundingRect().width()/2, boundingRect().height()/2); // départ du projectile au centre du joueur
     QPointF direction = targetPos - start;
 
     qreal length = std::sqrt(direction.x()*direction.x() + direction.y()*direction.y());
@@ -116,6 +116,7 @@ void Player::shoot(QPointF targetPos) {
     qreal degrees = angle * 180 / M_PI;
 
     Projectile* p = new Projectile(start, direction, 7,20);
+    p->setSprite(new QPixmap("img/bullet1.png")); 
     p->setRotation(degrees);
     scene()->addItem(p);
 }

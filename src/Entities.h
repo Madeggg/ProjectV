@@ -124,7 +124,7 @@ class Projectile : public QObject, public QGraphicsPixmapItem{
         QPointF direction;
         int speed;
         int damage;
-        QPixmap* sprite;
+        QString* sprite;
         QTimer* timer;
     public:
         Projectile(QPointF startPosition, QPointF direction, int speed, int damage, QGraphicsItem* parent = nullptr);

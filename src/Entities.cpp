@@ -78,6 +78,9 @@ void Enemy::setApperance(QString type) {
     if(type == "Physique"){
         setPixmap(QPixmap("img/sprite_ennemi_static.png").scaled(40, 40));
     }
+    else if(type == "Distance"){
+        setPixmap(QPixmap("img/sprite_homelander_static.png").scaled(40, 40));
+    }
     
 }
 
@@ -100,8 +103,26 @@ void Enemy::punch(Player* player){
                     
 }
 
-void Enemy::shoot(Player* player){
-    player->takeDamage(weapon->getDamage()); 
+void Enemy::shoot(Player* player) {
+    if (!scene() || !player) return;
+
+    qDebug()<<"appel a shoot de enemy";
+
+    QPointF start = pos() + QPointF(boundingRect().width()/2, boundingRect().height()/2);
+    QPointF direction = player->pos() - start;
+
+    qreal length = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());
+    if (length == 0) return;
+    direction /= length;
+
+    qreal angle = std::atan2(direction.y(), direction.x());
+    qreal degrees = angle * 180 / M_PI;
+
+    Projectile* p = new Projectile(start, direction, 5,20); 
+    p->setSprite(new QPixmap("img/laser.png"));
+    p->setRotation(degrees);
+
+    scene()->addItem(p);
 }
 
 void Enemy::doDamage(Player* player) {
@@ -177,6 +198,9 @@ void Enemy::moveTowardsPlayer(const QPointF& playerPos) {
         return;
     }
 
+    if(getType() == "Distance" && distance < 100) {
+        doDamage(targetPlayer);  // Infliger des dégâts au joueur
+    }
     // Si l'ennemi n'est pas trop proche, il doit éviter les obstacles et se déplacer
     if (distance > 0) {
         direction /= distance;  // Normalisation de la direction
@@ -282,14 +306,25 @@ void Weapon::setSprite(QPixmap* newSprite){
 
 void Enemy::showHitEffect() {
 
-  
-    this->setPixmap(QPixmap("img/sprite_ennemi_static_hit.png").scaled(40, 40));
+    if(getType() == "Physique"){
+         this->setPixmap(QPixmap("img/sprite_ennemi_static_hit.png").scaled(40, 40));
+    }
+    else if (getType() == "Distance"){
+        this->setPixmap(QPixmap("img/sprite_homelander_static_hit.png").scaled(40, 40));
+    }
+   
 
     QTimer* timer = new QTimer(this);
     timer->setSingleShot(true);
     QObject::connect(timer, &QTimer::timeout, this, [this]() {
         if (!this->getIsDead()) {
-            this->setPixmap(QPixmap("img/sprite_ennemi_static.png").scaled(40, 40));
+            if(getType() == "Physique"){
+                this->setPixmap(QPixmap("img/sprite_ennemi_static.png").scaled(40, 40));
+            }
+            else if(getType() == "Distance"){
+                this->setPixmap(QPixmap("img/sprite_homelander_static.png").scaled(40, 40));
+            }
+            
         }
     });
     timer->start(100); // 100ms d'effet visuel
@@ -302,7 +337,7 @@ void Enemy::showHitEffect() {
 
 Projectile::Projectile(QPointF startPos, QPointF direction, int speed, int damage, QGraphicsItem* parent)
     : QGraphicsPixmapItem(parent), speed(speed) {
-    setPixmap(QPixmap("img/bullet1.png").scaled(20, 20)); // Sprite du projectile
+    
     setPos(startPos);
 
     // Définit la direction normalisée
@@ -335,7 +370,7 @@ void Projectile::setSpeed(int newSpeed) {
 }   
 
 void Projectile::setSprite(QPixmap* newSprite) {
-    sprite = newSprite;
+    setPixmap(newSprite->scaled(20, 20));
 }
 
 void Projectile::setDamage(int newDamage) {
