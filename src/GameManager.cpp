@@ -56,7 +56,11 @@ void GameManager::update() {
     }
 
     if (frameCount % 300 == 0) { // toutes les 5 secondes à 60 FPS
-        spawnEnemies(); 
+        spawnEnemiesPhysique();
+        
+        if(player->getKillCount() % 5 == 0) { // Si le joueur a tué 5 ennemis
+            spawnEnemiesDistance();
+        }
     }
 
    

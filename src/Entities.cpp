@@ -198,8 +198,9 @@ void Enemy::moveTowardsPlayer(const QPointF& playerPos) {
         return;
     }
 
-    if(getType() == "Distance" && distance < 100) {
+    if(getType() == "Distance" && distance < 500) {
         doDamage(targetPlayer);  // Infliger des dégâts au joueur
+        return;
     }
     // Si l'ennemi n'est pas trop proche, il doit éviter les obstacles et se déplacer
     if (distance > 0) {
