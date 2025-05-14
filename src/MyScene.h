@@ -35,6 +35,9 @@ public:
     void updateHUD(); // Met à jour l'interface utilisateur (score, timer, barre de vie)
     void addScore(int points); // Ajoute des points au score
 
+    GameManager* getGameManager() const { return gameManager; }
+
+
 protected:
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event) override;

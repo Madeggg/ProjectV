@@ -29,6 +29,10 @@ void GameManager::resetGame() {
 }
 
 void GameManager::update() {
+
+
+    if (paused) return;
+
     frameCount++; // Incrémente le compteur de frames
     // qDebug() << "Le joueur est dans la scène ?" << (player->scene() != nullptr);
     // qDebug() << "Player position: " << player->pos();
@@ -38,11 +42,11 @@ void GameManager::update() {
         return;
     }
     
-    // if (player->getHealth() <= 0) {
-    //     gameLoopTimer->stop();
-    //     qDebug() << "Game Over";
-    //     return;
-    // }
+    if (player->getHealth() <= 0) {
+        gameLoopTimer->stop();
+        emit gameOver(); // envoie le signal
+        return;
+    }
 
     //Gestions des collisions 
     QList<QGraphicsItem*> collisions = player->collidingItems();
@@ -106,3 +110,14 @@ Player* GameManager::getPlayer() const {
 }
 
 
+
+
+void GameManager::setPause(bool pause) {
+    paused = pause;
+
+    if (paused) {
+        gameLoopTimer->stop(); // Arrêter la boucle de jeu
+    } else {
+        gameLoopTimer->start(16); // Redémarrer la boucle de jeu à 60 FPS
+    }
+}

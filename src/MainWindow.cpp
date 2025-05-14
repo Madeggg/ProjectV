@@ -50,6 +50,56 @@ void MainWindow::startGame() {
         mainView->centerOn(mainScene->getPlayer());
     });
 
+    connect(mainScene->getGameManager(), &GameManager::gameOver, this, &MainWindow::showGameOverMenu);
+
     resize(600, 800);
 }
+
+
+void MainWindow::showGameOverMenu() {
+    if (!gameOverWidget) {
+        gameOverWidget = new GameOverWidget(mainView);
+        gameOverWidget->move((mainView->width() - gameOverWidget->width()) / 2,
+                             (mainView->height() - gameOverWidget->height()) / 2);
+        connect(gameOverWidget, &GameOverWidget::restartClicked, this, &MainWindow::restartGame);
+    }
+    gameOverWidget->show();
+
+    if (mainScene) {
+        mainScene->getGameManager()->setPause(true);
+    }
+}
+
+void MainWindow::restartGame() {
+    if (gameOverWidget) {
+        gameOverWidget->hide();
+        delete gameOverWidget;
+        gameOverWidget = nullptr;
+    }
+
+    // Réinitialiser la scène et la vue
+    if (mainView) {
+        delete mainView;
+        mainView = nullptr;
+    }
+    if (mainScene) {
+        delete mainScene;
+        mainScene = nullptr;
+    }
+
+    // Retourner au menu principal
+    mainMenu = new MainMenuWidget(this); // Créer un nouveau menu
+    setCentralWidget(mainMenu);
+    mainMenu->setGeometry(this->geometry()); // Assure-toi que le menu occupe toute la fenêtre
+
+    // Connecter à nouveau l'événement de démarrage du jeu
+    connect(mainMenu, &MainMenuWidget::startGameRequested, this, &MainWindow::startGame);
+
+
+    if (mainScene) {
+        mainScene->getGameManager()->setPause(false);
+    }
+
+}
+
 

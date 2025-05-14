@@ -20,10 +20,12 @@ public:
     void startGame(); // initialise et démarre la partie
     void resetGame(); // redémarre le jeu sans redémarrer le programme
     Player* getPlayer() const;
+    void setPause(bool pause);
 
 public slots:
     void update(); // appelée régulièrement par QTimer pour faire tourner le jeu
 private:
+    bool paused = false;  
     MyScene* scene;
     Player* player;
     Enemy* enemy;
@@ -34,6 +36,8 @@ private:
     void checkCollisions(); // À développer plus tard
     void spawnEnemiesPhysique();
     void spawnEnemiesDistance();
+signals:
+    void gameOver();
 };
 
 #endif 

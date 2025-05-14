@@ -7,12 +7,19 @@
 #include <QMenuBar>
 #include <QAction>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QLabel>
+
+
 
 #include "MyScene.h"
 #include "MainMenuWidget.h"
+#include "GameOverWidget.h"
 
 class MainMenuWidget; // Déclaration anticipée
 class MyScene; // Déclaration anticipée
+class GameOverWidget;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -25,6 +32,11 @@ private :
     QMenu* helpMenu;
 
     MainMenuWidget* mainMenu;
+
+    GameOverWidget* gameOverWidget = nullptr;
+
+    void showGameOverMenu();
+    void restartGame();
 
 
 public:
