@@ -102,18 +102,15 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
 class Weapon : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
     private:
-        int damage;
         QString type; // Type d'arme 
         int ammo;
     public:
         // Constructeur
-        Weapon(int damage, QString type, QGraphicsItem* parent = nullptr); // Constructeur
+        Weapon(QString type, QGraphicsItem* parent = nullptr); // Constructeur
         // Accesseurs
-        int getDamage() const;
         QString getType() const; 
         int getAmmo() const;
         // Mutateurs
-        void setDamage(int newDamage);
         void setType(QString newType);
         void setSprite(QPixmap* newSprite);     
         void setAmmo(int newAmmo);
@@ -124,7 +121,7 @@ signals:
 };
 
 
-class Projectile : public QObject, public QGraphicsPixmapItem{
+class Projectile : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
     private:
         QPointF direction;
@@ -133,6 +130,8 @@ class Projectile : public QObject, public QGraphicsPixmapItem{
         QString* sprite;
         QTimer* timer;
         QString source; // Source du projectile (ennemi ou joueur)
+        qreal distanceTraveled = 0; // Distance parcourue par le projectile
+        qreal maxDistance = 300; // Distance maximale que le projectile peut parcourir
     public:
         Projectile(QPointF startPosition, QPointF direction, int speed, int damage, QGraphicsItem* parent = nullptr);
         void setDirection(QPointF newDirection);
@@ -140,6 +139,7 @@ class Projectile : public QObject, public QGraphicsPixmapItem{
         void setSprite(QPixmap* newSprite);
         void setDamage(int newDamage);
         void setSource(QString newSource);
+        void setMaxDistance(qreal newMaxDistance);
 
         int getSpeed() const;
         int getDamage() const;

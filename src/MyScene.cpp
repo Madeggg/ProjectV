@@ -87,7 +87,7 @@ void MyScene::update() {
         // ----- 🪖 Récupération d'une arme -----
         Weapon* weapon = dynamic_cast<Weapon*>(item);
         if (weapon && weapon->scene() != nullptr && weapon->collidesWithItem(player)) {
-            qDebug() << "Player picked up a weapon!";
+            qDebug() << "Le joueur a récupéré une arme de type :" << weapon->getType();
             player->setHasWeapon(true);
             player->setWeapon(weapon);
             removeItem(weapon);
@@ -378,7 +378,7 @@ void MyScene::spawnAmmoBox() {
 void MyScene::spawnWeapon() {
    if (player->getKillCount() == 3 && !pistolSpawned) {
         // Fait apparaître l'arme dans la scène
-        Weapon* pistol = new Weapon(20,"Pistol");
+        Weapon* pistol = new Weapon("Pistol");
         pistol->setSprite(new QPixmap("img/pistol.png")); 
         pistol->setAmmo(10);        // 10 balles par défaut
         pistol->setPos(450, 380);   
@@ -387,9 +387,9 @@ void MyScene::spawnWeapon() {
         
     }
 
-    if(player->getKillCount() == 15 && !shotgunSpawned){
+    if(player->getKillCount() == 5 && !shotgunSpawned){
         // Fait apparaître l'arme dans la scène
-        Weapon* shotgun = new Weapon(50,"Shotgun");
+        Weapon* shotgun = new Weapon("Shotgun");
         shotgun->setSprite(new QPixmap("img/shotgun.png")); 
         shotgun->setAmmo(5);        // 5 balles par défaut
         shotgun->setPos(450, 380);   
@@ -416,4 +416,23 @@ void MyScene::addProjectile(QPointF targetPos) {
     p->setSource("player");         // Définit la source du projectile
     this->addItem(p);
 
+}
+
+void MyScene::addProjectileDir(QPointF direction, int speed, int damage, int maxDistance) {
+    QPointF start = player->pos() + QPointF(player->boundingRect().width()/2, player->boundingRect().height()/2);
+
+    qreal length = std::sqrt(direction.x()*direction.x() + direction.y()*direction.y());
+    if (length == 0) return;
+    direction /= length;
+
+    qreal angle = std::atan2(direction.y(), direction.x());
+    qreal degrees = angle * 180 / M_PI;
+
+    Projectile* p = new Projectile(start, direction, speed, damage);
+    p->setSprite(new QPixmap("img/bullet1.png"));  // ✅ ici aussi tu avais oublié le point-virgule
+    p->setRotation(degrees);
+    p->setSource("player");
+    p->setMaxDistance(maxDistance);
+
+    this->addItem(p);
 }

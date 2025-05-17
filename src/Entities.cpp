@@ -301,23 +301,17 @@ void Enemy::showHitEffect() {
 
 //Méthodes de Weapon
 
-Weapon::Weapon(int damage, QString type, QGraphicsItem* parent) : QGraphicsPixmapItem(parent){
-    setDamage(damage);
+Weapon::Weapon(QString type, QGraphicsItem* parent) : QGraphicsPixmapItem(parent){
     setType(type);
 }
 
-int Weapon::getDamage() const{
-    return damage;
-}
 
 
 QString Weapon::getType() const{
     return type;
 }
 
-void Weapon::setDamage(int newDamage){
-    damage = newDamage;
-}
+
 
 
 void Weapon::setType(QString newType){
@@ -325,7 +319,7 @@ void Weapon::setType(QString newType){
 }
 
 void Weapon::setSprite(QPixmap* newSprite){
-    setPixmap(newSprite->scaled(20, 20));
+    setPixmap(newSprite->scaled(30, 30));
 }
 
 void Weapon::setAmmo(int newAmmo) {
@@ -390,6 +384,10 @@ void Projectile::setSource(QString newSource) {
     source = newSource;
 }
 
+void Projectile::setMaxDistance(qreal newMaxDistance) {
+    maxDistance = newMaxDistance;
+}
+
 int Projectile::getDamage() const {
     return damage;
 }
@@ -399,35 +397,43 @@ QString Projectile::getSource() const {
 }
 
 void Projectile::move() {
+    if (!scene()) return;
 
-    if (!scene()) return; 
+    // Calcul du déplacement
+    QPointF delta = direction * speed;
+    setPos(pos() + delta);
 
-    // Déplace le projectile en fonction de la direction et de la vitesse
-    setPos(pos().x() + direction.x() * speed, pos().y() + direction.y() * speed);
+    // 🔁 Mise à jour de la distance parcourue
+    distanceTraveled += std::sqrt(delta.x() * delta.x() + delta.y() * delta.y());
 
+    // ❌ Si le projectile a dépassé sa portée maximale, on le supprime
+    if (distanceTraveled >= maxDistance) {
+        qDebug() << "Projectile supprimé (portée max atteinte)";
+        scene()->removeItem(this);
+        deleteLater();
+        return;
+    }
 
-    // Vérification des collisions avec les objets "collision"
-    QList<QGraphicsItem*> collisions = collidingItems(); // Récupère tous les éléments en collision avec le projectile
-
+    // 🔎 Vérification des collisions
+    QList<QGraphicsItem*> collisions = collidingItems();
     for (QGraphicsItem* item : collisions) {
         if (!item) continue;
-        
+
         QVariant typeData = item->data(0);
-        
-        // Si le projectile entre en collision avec un objet de type "collision"
+
         if (typeData.toString() == "collision") {
             qDebug() << "Collision avec un objet de type 'collision' à :" << item->pos();
-            scene()->removeItem(this); // Retirer le projectile de la scène
-            deleteLater();  // Supprimer le projectile
-            return;  // Quitter la méthode après la suppression
+            scene()->removeItem(this);
+            deleteLater();
+            return;
         }
-
     }
-   
+
+    // ❌ Si le projectile sort de la scène, on le supprime aussi
     if (!scene()->sceneRect().contains(pos())) {
         qDebug() << "Projectile hors de la scène. Suppression.";
         scene()->removeItem(this);
-        deleteLater(); 
+        deleteLater();
     }
 }
 

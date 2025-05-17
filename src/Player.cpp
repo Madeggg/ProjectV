@@ -89,7 +89,6 @@ void Player::setWeapon(Weapon* newWeapon) {
     weapon = newWeapon;
     if (weapon) {
         hasWeapon = true; // Le joueur a maintenant une arme
-        qDebug() << "Le joueur a récupéré une arme de type :" << weapon->getType();
     }
 }
 
@@ -108,15 +107,45 @@ void Player::punch() {
     }
 }
 
-void Player::shoot(QPointF targetPos) {
-    MyScene* myScene = dynamic_cast<MyScene*>(scene());
-    if (myScene) {
-        myScene->addProjectile(targetPos);
+void Player::shoot(QPointF mouseScenePos) {
+    Weapon* weapon = getWeapon();
+    if (!weapon || weapon->getAmmo() <= 0) return;
+
+    MyScene* sc = dynamic_cast<MyScene*>(scene());
+    if (!sc) return;
+
+    QString type = weapon->getType();
+
+    if (type == "Shotgun") {
+        QList<QPointF> dirs;
+
+        // Détermine la direction principale et les deux décalées
+        if (direction == "right") {
+            dirs << QPointF(1, 0) << QPointF(1, -0.5) << QPointF(1, 0.5);
+        } else if (direction == "left") {
+            dirs << QPointF(-1, 0) << QPointF(-1, -0.5) << QPointF(-1, 0.5);
+        } else if (direction == "up") {
+            dirs << QPointF(0, -1) << QPointF(-0.5, -1) << QPointF(0.5, -1);
+        } else if (direction == "down") {
+            dirs << QPointF(0, 1) << QPointF(-0.5, 1) << QPointF(0.5, 1);
+        }
+
+        // Tire les 3 projectiles
+        for (const QPointF& d : dirs) {
+            QPointF norm = d / std::hypot(d.x(), d.y());
+            sc->addProjectileDir(norm, 6, 30, 100);
+        }
+
+    } else if(type == "Pistol") {
+        // Arme classique : tir vers la souris
+        sc->addProjectile(mouseScenePos);
     }
 
+    // Décrémenter les munitions
     weapon->setAmmo(weapon->getAmmo() - 1);
-    qDebug() << "Tir ! Munitions restantes:" << weapon->getAmmo();
+    qDebug() << "Le joueur a tiré ! Munitions restantes :" << weapon->getAmmo();
 }
+
 
 
 void Player::updateWalkAnimation() {

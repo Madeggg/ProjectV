@@ -36,6 +36,10 @@ public:
     void spawnWeapon(); // Fait apparaître une arme
     void addProjectile(QPointF targetPos);
 
+    //Pour les armes qui tirent en direction fixe (shotgun)
+    void addProjectileDir(QPointF direction, int speed, int damage, int maxDistance);
+
+
 
 
 
