@@ -77,6 +77,7 @@ MyScene::~MyScene() {
 
 void MyScene::update() {
     gameManager->update(); // Mise à jour logique du jeu (ennemis, etc.)
+    spawnWeapon();
 
     QList<QGraphicsItem*> itemsInScene = items();
 
@@ -432,4 +433,48 @@ void MyScene::spawnAmmoBox() {
 
     addItem(ammoBox);
     
+}
+
+
+void MyScene::spawnWeapon() {
+   if (player->getKillCount() == 3 && !pistolSpawned) {
+        // Fait apparaître l'arme dans la scène
+        Weapon* pistol = new Weapon(20,"Pistol");
+        pistol->setSprite(new QPixmap("img/pistol.png")); 
+        pistol->setAmmo(10);        // 10 balles par défaut
+        pistol->setPos(450, 380);   
+        this->addItem(pistol);
+        pistolSpawned = true; // Marque l'arme comme déjà spawnée
+        
+    }
+
+    if(player->getKillCount() == 15 && !shotgunSpawned){
+        // Fait apparaître l'arme dans la scène
+        Weapon* shotgun = new Weapon(50,"Shotgun");
+        shotgun->setSprite(new QPixmap("img/shotgun.png")); 
+        shotgun->setAmmo(5);        // 5 balles par défaut
+        shotgun->setPos(450, 380);   
+        this->addItem(shotgun);
+        shotgunSpawned = true; // Marque l'arme comme déjà spawnée
+    }
+}
+
+void MyScene::addProjectile(QPointF targetPos) {
+    QPointF start = player->pos() + QPointF(player->boundingRect().width()/2, player->boundingRect().height()/2); // départ du projectile au centre du joueur
+    QPointF direction = targetPos - start;
+
+    qreal length = std::sqrt(direction.x()*direction.x() + direction.y()*direction.y());
+    if (length == 0) return;
+    direction /= length;
+
+    qreal angle = std::atan2(direction.y(), direction.x());
+    qreal degrees = angle * 180 / M_PI;
+
+
+    Projectile* p = new Projectile(start, direction, 7,20);
+    p->setSprite(new QPixmap("img/bullet1.png")); 
+    p->setRotation(degrees);
+    p->setSource("player");         // Définit la source du projectile
+    this->addItem(p);
+
 }

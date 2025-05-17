@@ -53,15 +53,6 @@ void Player::checkKillCount() {
     killCount++;
     qDebug() << "Kill count = " << killCount;
 
-    if (killCount == 3) {
-        // Fait apparaître l'arme dans la scène
-        Weapon* pistol = new Weapon(20,"Pistol");
-        pistol->setSprite(new QPixmap("img/pistol.png")); 
-        pistol->setAmmo(10);        // 10 balles par défaut
-        pistol->setPos(450, 380);   
-        scene()->addItem(pistol);
-        
-    }
 
     if(killCount % 5 == 0){
         emit ammoBoxNeeded();
@@ -116,30 +107,16 @@ void Player::punch() {
     }
 }
 
-
-
 void Player::shoot(QPointF targetPos) {
+    MyScene* myScene = dynamic_cast<MyScene*>(scene());
+    if (myScene) {
+        myScene->addProjectile(targetPos);
+    }
 
-    QPointF start = pos() + QPointF(boundingRect().width()/2, boundingRect().height()/2); // départ du projectile au centre du joueur
-    QPointF direction = targetPos - start;
-
-    qreal length = std::sqrt(direction.x()*direction.x() + direction.y()*direction.y());
-    if (length == 0) return;
-    direction /= length;
-
-    qreal angle = std::atan2(direction.y(), direction.x());
-    qreal degrees = angle * 180 / M_PI;
-
-    Projectile* p = new Projectile(start, direction, 7,20);
-    p->setSprite(new QPixmap("img/bullet1.png")); 
-    p->setRotation(degrees);
-    p->setSource("player");         // Définit la source du projectile
-    scene()->addItem(p);
-
-     // Diminue les munitions
     weapon->setAmmo(weapon->getAmmo() - 1);
     qDebug() << "Tir ! Munitions restantes:" << weapon->getAmmo();
 }
+
 
 void Player::updateWalkAnimation() {
     walkframe = (walkframe + 1) % 2;        //Pour alterner entre 0 et 1

@@ -35,6 +35,10 @@ public:
     void updateHUD(); // Met à jour l'interface utilisateur (score, timer, barre de vie)
     void addScore(int points); // Ajoute des points au score
     void spawnAmmoBox(); // Fait apparaître une boîte de munitions
+    void spawnWeapon(); // Fait apparaître une arme
+    void addProjectile(QPointF targetPos);
+   
+
 
     GameManager* getGameManager() const { return gameManager; }
 
@@ -53,6 +57,8 @@ private:
     Player* player;
     Enemy* enemy;
     QPixmap pixBackground;
+    bool pistolSpawned = false;
+    bool shotgunSpawned = false;
 
 
     //TEST HUD 
