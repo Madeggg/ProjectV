@@ -32,16 +32,14 @@ public:
 
     Player* getPlayer() const;
     void loadMap();
-    void updateHUD(); // Met à jour l'interface utilisateur (score, timer, barre de vie)
-    void addScore(int points); // Ajoute des points au score
     void spawnAmmoBox(); // Fait apparaître une boîte de munitions
     void spawnWeapon(); // Fait apparaître une arme
     void addProjectile(QPointF targetPos);
-   
+
+
 
 
     GameManager* getGameManager() const { return gameManager; }
-
 
 protected:
     void keyPressEvent(QKeyEvent* event);
@@ -60,19 +58,15 @@ private:
     bool pistolSpawned = false;
     bool shotgunSpawned = false;
 
+    int elapsedSeconds;     
 
-    //TEST HUD 
-    QGraphicsTextItem* scoreText;
-    QGraphicsTextItem* timerText;
-    QGraphicsRectItem* healthBarBack;
-    QGraphicsRectItem* healthBarFront;
-    QTimer* gameTimer;
-    int elapsedTime = 0;
-    int score = 0;
+
+
     
 
     int backgroundWidth = 0;
     int backgroundHeight = 0;
+
 
 };
 

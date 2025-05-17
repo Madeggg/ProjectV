@@ -37,6 +37,7 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
 
     signals:
         void damagePlayer(int damage); // Signal pour infliger des dégâts au joueur
+    
 
     public:
         //Constructeur
@@ -116,6 +117,10 @@ class Weapon : public QObject, public QGraphicsPixmapItem {
         void setType(QString newType);
         void setSprite(QPixmap* newSprite);     
         void setAmmo(int newAmmo);
+
+        
+signals:
+    void ammoChanged(int newAmmo);
 };
 
 

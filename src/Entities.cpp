@@ -144,23 +144,18 @@ void Enemy::takeDamage(int amount) {
 
     health -= amount;
     if (health <= 0) {
-        isDead = true; 
+        isDead = true;
         qDebug() << "L'ennemi est mort. Suppression de la scène";
 
-        // Ajouter des points au score du joueur lorsque l'ennemi meurt
-        MyScene* myScene = dynamic_cast<MyScene*>(scene());
-        if (myScene) {
-            myScene->addScore(10);
-           
-        }
         scene()->removeItem(this);
         deleteLater();
-        
+
         if(targetPlayer){
-            targetPlayer->checkKillCount();     // Incrémente le compteur de kills du joueur
+            targetPlayer->checkKillCount();
         }
     }
 }
+
 
 bool Enemy::canMoveInDirection(const QPointF& direction){
      // Calcul de la nouvelle position après le déplacement
@@ -333,8 +328,11 @@ void Weapon::setSprite(QPixmap* newSprite){
     setPixmap(newSprite->scaled(20, 20));
 }
 
-void Weapon::setAmmo(int newAmmo){
-    ammo = newAmmo;
+void Weapon::setAmmo(int newAmmo) {
+    if (ammo != newAmmo) {
+        ammo = newAmmo;
+        emit ammoChanged(ammo);  // Notification
+    }
 }
 
 int Weapon::getAmmo() const{

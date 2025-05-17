@@ -16,10 +16,12 @@
 #include "MyScene.h"
 #include "MainMenuWidget.h"
 #include "GameOverWidget.h"
+#include "hud.h"
 
 class MainMenuWidget; // Déclaration anticipée
 class MyScene; // Déclaration anticipée
 class GameOverWidget;
+class HUD;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -31,6 +33,8 @@ private :
     QGraphicsView* mainView;
     QMenu* helpMenu;
 
+    HUD* hud = nullptr;
+
     MainMenuWidget* mainMenu;
 
     GameOverWidget* gameOverWidget = nullptr;
@@ -38,6 +42,7 @@ private :
     void showGameOverMenu();
     void restartGame();
 
+    
 
 public:
     MainWindow(QWidget* parent = nullptr);

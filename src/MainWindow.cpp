@@ -46,9 +46,30 @@ void MainWindow::startGame() {
     mainView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mainView->scale(5, 5);
 
+
+    // --- Création du HUD ---
+    hud = new HUD(mainView);
+    hud->move(10, 10);  // fixe le HUD en haut à gauche
+    hud->setAttribute(Qt::WA_TransparentForMouseEvents); // clics passent à la vue dessous
+    hud->show();
+
+    connect(mainScene->getPlayer(), &Player::scoreChanged, hud, &HUD::setScore);
+    connect(mainScene->getPlayer(), &Player::healthChanged, hud, &HUD::updateHealth);
+    
+
+
+
+
+
     connect(mainScene->getPlayer(), &Player::playerMoved, this, [this]() {
-        mainView->centerOn(mainScene->getPlayer());
+        mainView->centerOn(mainScene->getPlayer());    
     });
+
+
+    Weapon* weapon = mainScene->getPlayer()->getWeapon();
+    if (weapon) {
+        connect(weapon, &Weapon::ammoChanged, hud, &HUD::updateAmmo);
+    }
 
     connect(mainScene->getGameManager(), &GameManager::gameOver, this, &MainWindow::showGameOverMenu);
 
