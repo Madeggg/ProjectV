@@ -53,8 +53,9 @@ void Player::checkKillCount() {
     killCount++;
     qDebug() << "Kill count = " << killCount;
 
+    emit scoreChanged(killCount * 10); 
 
-    if(killCount % 5 == 0){
+    if (killCount % 5 == 0) {
         emit ammoBoxNeeded();
     }
 }
@@ -161,6 +162,8 @@ void Player::takeDamage(int amount) {
     health -= amount;
     if (health < 0) health = 0;
     qDebug() << "Le joueur a subi des dégâts. Santé restante :" << health;
+
+    emit healthChanged(health);  
 }
 
 

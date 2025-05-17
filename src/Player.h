@@ -66,6 +66,8 @@
     signals:
         void playerMoved(QPointF newPos); // Signal émis lorsque le joueur se déplace
         void ammoBoxNeeded(); //Signal envoyé tous les 5 kills
+        void healthChanged(int newHealth);
+        void scoreChanged(int newScore); //     Signal émis lorsque le score change
 
     };
 
