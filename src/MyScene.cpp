@@ -88,16 +88,20 @@ void MyScene::update() {
         Weapon* weapon = dynamic_cast<Weapon*>(item);
         if (weapon && weapon->scene() != nullptr && weapon->collidesWithItem(player)) {
             qDebug() << "Le joueur a récupéré une arme de type :" << weapon->getType();
-            player->setHasWeapon(true);
-            player->setWeapon(weapon);
-            removeItem(weapon);
+            player->switchTo(player->pickWeapon(weapon)); // change d'arm  
+            weapon->setParentItem(player);      // plus de parent graphique
+            removeItem(weapon);         // retire de la scène
+            player->setHasWeapon(true); // le joueur a une arme
+            
+        // Qt ne le détruira PAS car il a maintenant un parent QObject (Player) par héritage
+            
             continue;
         }
 
         // ----- 📦 Récupération de munitions -----
         if (item->data(0).toString() == "ammo" && item->scene() != nullptr && item->collidesWithItem(player)) {
             if (player->getHasWeapon()) {
-                Weapon* currentWeapon = player->getWeapon();
+                Weapon* currentWeapon = player->getCurrentWeapon();
                 currentWeapon->setAmmo(currentWeapon->getAmmo() + 10);
                 qDebug() << "Player picked up ammo. New ammo count:" << currentWeapon->getAmmo();
             }
@@ -114,73 +118,99 @@ Player* MyScene::getPlayer() const {
     return player;
 }
 
-void MyScene::keyPressEvent(QKeyEvent* event){
-    QRectF sceneBounds = sceneRect(); // Récupère les limites de la scène
-    //Pour mettre le jeu en pause en appuyant P par exemple
-    if(event->key() == Qt::Key_P){
-        if(timer->isActive()){
+void MyScene::keyPressEvent(QKeyEvent* event)
+{
+    // ────────────────────── 1. Pause / Reprise ──────────────────────
+    if (event->key() == Qt::Key_P) {
+        if (timer->isActive()) {
             timer->stop();
             qDebug() << "Game paused";
         } else {
-            timer->start();             // Reprend le timer
+            timer->start();
             qDebug() << "Game resumed";
         }
+        return;                         // on ne traite rien d’autre
     }
 
-    // Déplacement vers la gauche
-    if (event->key() == Qt::Key_Q) {
-        QPointF newPosition = player->pos() + QPointF(player->getSpeed(), 0);
-        if (player->canMoveTo(newPosition, sceneBounds)) {
+    // ────────────────────── 2. Changement d’arme ─────────────────────
+    // (&, é, ") sur clavier AZERTY  =>  Qt::Key_1, Qt::Key_2, Qt::Key_3
+    if (event->key() == Qt::Key_1) {      // &
+        if (!player->selectSlot(Player::Melee)) {
+            qDebug() << "Pas d’arme de mêlée équipée.";
+            return;
+        }
+        player->switchTo(Player::Melee);
+        qDebug() << "Arme de type " << player->getCurrentWeapon()->getType() << " équipée.";
+    }
+    if (event->key() == Qt::Key_2) {      // é
+        if (!player->selectSlot(Player::Pistol)){
+            qDebug() << "Pas de pistolet dans l’inventaire.";
+            return;
+        }
+        player->switchTo(Player::Pistol);
+        qDebug() << "Arme de type " << player->getCurrentWeapon()->getType() << " équipée.";
+    }
+    if (event->key() == Qt::Key_3) {      // "
+        if (!player->selectSlot(Player::Shotgun)){
+            qDebug() << "Pas de shotgun dans l’inventaire.";
+            return;
+        }
+        player->switchTo(Player::Shotgun);
+        qDebug() << "Arme de type " << player->getCurrentWeapon()->getType() << " équipée.";
+    }
+
+    // ────────────────────── 3. Déplacements ─────────────────────────
+    QRectF sceneBounds = sceneRect();   // limites de la scène
+
+    switch (event->key()) {
+
+    case Qt::Key_Q: {                   // Gauche
+        QPointF newPos = player->pos() + QPointF(player->getSpeed(), 0);
+        if (player->canMoveTo(newPos, sceneBounds)) {
             player->moveLeft();
-            player->setDirection("left"); 
+            player->setDirection("left");
             player->setPixmap(QPixmap("img/Sprite_billy_left.png").scaled(40, 40));
         }
+        break;
     }
 
-    // Déplacement vers la droite
-    // else if (event->key() == Qt::Key_D) {
-    //     QPointF newPosition = player->pos() + QPointF(player->getSpeed(), 0);
-    //     if (player->canMoveTo(newPosition, sceneBounds)) {
-    //         player->moveRight();
-    //         player->setDirection("right"); // Met à jour la direction
-    
-    //         if (!player->walkTimer->isActive())
-    //             player->walkTimer->start();
-    
-    //         player->updateWalkAnimation();  // lance la première image
-    //     }
-    // }
-    
-    else if (event->key() == Qt::Key_D) {
-        QPointF newPosition = player->pos() + QPointF(-player->getSpeed(), 0);
-        if (player->canMoveTo(newPosition, sceneBounds)) {
+    case Qt::Key_D: {                   // Droite
+        QPointF newPos = player->pos() + QPointF(-player->getSpeed(), 0);
+        if (player->canMoveTo(newPos, sceneBounds)) {
             player->moveRight();
-            player->setDirection("right"); 
+            player->setDirection("right");
             player->setPixmap(QPixmap("img/Sprite_billy_right.png").scaled(40, 40));
         }
+        break;
     }
 
-    // Déplacement vers le haut
-    else if (event->key() == Qt::Key_Z) {
-        QPointF newPosition = player->pos() + QPointF(0, -player->getSpeed());
-        if (player->canMoveTo(newPosition, sceneBounds)) {
+    case Qt::Key_Z: {                   // Haut
+        QPointF newPos = player->pos() + QPointF(0, -player->getSpeed());
+        if (player->canMoveTo(newPos, sceneBounds)) {
             player->moveUp();
-            player->setDirection("up"); 
+            player->setDirection("up");
             player->setPixmap(QPixmap("img/Sprite_billy_up.png").scaled(40, 40));
-
         }
+        break;
     }
 
-    // Déplacement vers le bas
-    else if (event->key() == Qt::Key_S) {
-        QPointF newPosition = player->pos() + QPointF(0, player->getSpeed());
-        if (player->canMoveTo(newPosition, sceneBounds)) {
+    case Qt::Key_S: {                   // Bas
+        QPointF newPos = player->pos() + QPointF(0, player->getSpeed());
+        if (player->canMoveTo(newPos, sceneBounds)) {
             player->moveDown();
-            player->setDirection("down"); 
+            player->setDirection("down");
             player->setPixmap(QPixmap("img/Sprite_billy_down.png").scaled(40, 40));
         }
+        break;
+    }
+
+    default:
+        // touches non gérées ici → appel au comportement par défaut
+        QGraphicsScene::keyPressEvent(event);
+        break;
     }
 }
+
 
 void MyScene::keyReleaseEvent(QKeyEvent* event) {
     player->walkTimer->stop();
@@ -193,12 +223,13 @@ void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     }
 
     if(event->button() == Qt::LeftButton){
-        if (!player->getHasWeapon() || player->getWeapon()->getAmmo() <= 0) {
+        if (!player->getHasWeapon() || player->getCurrentWeapon()->getAmmo() <= 0) {
             player->punch(); // Si le joueur n'a pas d'arme ou pas de munitions, il tape
         }
         //Sinon, le joueur tire
         else{
             player->shoot(event->scenePos());
+            
         }
     
     // Transmet l'événement à la classe parente
@@ -391,7 +422,7 @@ void MyScene::spawnWeapon() {
         // Fait apparaître l'arme dans la scène
         Weapon* shotgun = new Weapon("Shotgun");
         shotgun->setSprite(new QPixmap("img/shotgun.png")); 
-        shotgun->setAmmo(5);        // 5 balles par défaut
+        shotgun->setAmmo(10);        // 10 balles par défaut
         shotgun->setPos(450, 380);   
         this->addItem(shotgun);
         shotgunSpawned = true; // Marque l'arme comme déjà spawnée
@@ -414,6 +445,7 @@ void MyScene::addProjectile(QPointF targetPos) {
     p->setSprite(new QPixmap("img/bullet1.png")); 
     p->setRotation(degrees);
     p->setSource("player");         // Définit la source du projectile
+    p->setMaxDistance(500);        
     this->addItem(p);
 
 }

@@ -33,15 +33,20 @@
         QString getDirection() const;
         int getKillCount() const;
         bool getHasWeapon() const;
-        Weapon* getWeapon() const;
+        Weapon* getCurrentWeapon() const;
+        
+        enum Slot {Melee = 0, Pistol = 1, Shotgun = 2};     // Enumération pour les types d'armes
+        int getAmmo(Slot s) const; //Pour avoir les munitions de l'arme actuelle (au slot s)
         
         QTimer* walkTimer;
         
         void setHealth(int newHealth);
         void setDirection(const QString& dir);
-        void setWeapon(Weapon* newWeapon);
         void takeDamage(int amount);
         bool canMoveTo(const QPointF& newPos, const QRectF& sceneRect) const;
+        bool selectSlot(Slot s);
+        Slot pickWeapon(Weapon* w); // Méthode pour placer une arme dans l'inventaire, renvoie le slot occupé par cette arme
+        void switchTo(Slot s);      // Méthode pour changer d'arme
         void setHasWeapon(bool newHasWeapon) ;
         void punch();                           // Méthode pour frapper un ennemi
         void shoot(QPointF targetPos);           // Méthode pour tirer un projectile 
@@ -62,12 +67,15 @@
         int walkframe = 0;
         int killCount = 0;
         bool hasWeapon;
+        Weapon* inventory[3] = {nullptr,nullptr,nullptr};   // Tableau d'armes pour l'inventaire
+        Slot currentSlot = Melee;   //Par défaut, le joueur utilise l'arme de mêlée
 
     signals:
         void playerMoved(QPointF newPos); // Signal émis lorsque le joueur se déplace
         void ammoBoxNeeded(); //Signal envoyé tous les 5 kills
         void healthChanged(int newHealth);
         void scoreChanged(int newScore); //     Signal émis lorsque le score change
+        void weaponChanged(Weapon* newWeapon); // Signal émis lorsque l'arme change
 
     };
 

@@ -81,16 +81,62 @@ bool Player::canMoveTo(const QPointF& newPosition, const QRectF& sceneRect) cons
     return true;  // Le déplacement est possible si aucune collision n'est détectée
 }
 
+bool Player::selectSlot(Slot s){
+    if (inventory[s] == nullptr){
+        return false;   // rien dans ce slot
+    }
+    else{
+        currentSlot = s;
+        emit weaponChanged(inventory[s]);            // pour le HUD
+        return true;
+    }
+    
+}
+
 void Player::setHasWeapon(bool newHasWeapon) {
     hasWeapon = newHasWeapon;
 }
 
-void Player::setWeapon(Weapon* newWeapon) {
-    weapon = newWeapon;
-    if (weapon) {
-        hasWeapon = true; // Le joueur a maintenant une arme
+
+Player::Slot Player::pickWeapon(Weapon* w){
+    if (!w) return Melee; // pas d'arme à ramasser
+
+    // Détermine le slot cible
+    Slot pickedSlot = Melee;           // valeur par défaut (au cas où)
+
+    if (w->getType() == "Pistol") {
+        pickedSlot          = Pistol;
+        inventory[Pistol]   = w;
     }
+    else if (w->getType() == "Shotgun") {
+        pickedSlot          = Shotgun;
+        inventory[Shotgun]  = w;
+    }
+    else {
+        // autres types éventuels à ajouter
+    }
+
+    // --- debug ------------------------------------------------------------
+    qDebug() << ">> Weapon picked =" << w->getType()
+             << "| placed in slot" << pickedSlot;
+
+    for (int i = 0; i < 3; ++i) {
+        qDebug() << "slot" << i << ":"
+                 << (inventory[i] ? inventory[i]->getType() : "null");
+    }
+
+    // Éventuel signal pour le HUD
+    emit weaponChanged(inventory[pickedSlot]);
+
+    return pickedSlot;  // renvoie le slot occupé par cette arme
 }
+
+void Player::switchTo(Slot s)
+{
+    currentSlot = s;
+    emit weaponChanged(inventory[s]);    // signal pour le HUD
+}
+
 
 void Player::punch() {
     for (QGraphicsItem* item : scene()->items()) {
@@ -107,45 +153,54 @@ void Player::punch() {
     }
 }
 
-void Player::shoot(QPointF mouseScenePos) {
-    Weapon* weapon = getWeapon();
-    if (!weapon || weapon->getAmmo() <= 0) return;
+void Player::shoot(QPointF mouseScenePos){
+    
+    Weapon* weapon = getCurrentWeapon();
+    MyScene* sc = qobject_cast<MyScene*>(scene());
 
-    MyScene* sc = dynamic_cast<MyScene*>(scene());
-    if (!sc) return;
+    if (!weapon || !sc) return;
 
-    QString type = weapon->getType();
+    // --- PISTOL -------------------------------------------------------------
+    if (weapon->getType() == "Pistol") {
 
-    if (type == "Shotgun") {
+        if (weapon->getAmmo() < 1 || !sc) return;               // pas de balle ou pas de scène
+        
+        else{
+            sc->addProjectile(mouseScenePos);
+            weapon->setAmmo(weapon->getAmmo() - 1);
+            emit weapon->ammoChanged(weapon->getAmmo());
+            qDebug() << "Tir pistolet - munitions restantes:" << weapon->getAmmo();
+        }
+        return;
+    }
+
+    // --- SHOTGUN ------------------------------------------------------------
+    if (weapon->getType() == "Shotgun") {
+        if (weapon->getAmmo() < 3 || !sc) return;               // il faut au moins 3 balles pour tirer au shotgun
+
+        // directions : 0°, +30°, -30° (facile à ajuster)
         QList<QPointF> dirs;
-
-        // Détermine la direction principale et les deux décalées
         if (direction == "right") {
             dirs << QPointF(1, 0) << QPointF(1, -0.5) << QPointF(1, 0.5);
         } else if (direction == "left") {
             dirs << QPointF(-1, 0) << QPointF(-1, -0.5) << QPointF(-1, 0.5);
         } else if (direction == "up") {
             dirs << QPointF(0, -1) << QPointF(-0.5, -1) << QPointF(0.5, -1);
-        } else if (direction == "down") {
+        } else { // down
             dirs << QPointF(0, 1) << QPointF(-0.5, 1) << QPointF(0.5, 1);
         }
 
-        // Tire les 3 projectiles
+        // Crée les 3 projectiles
         for (const QPointF& d : dirs) {
             QPointF norm = d / std::hypot(d.x(), d.y());
-            sc->addProjectileDir(norm, 6, 30, 100);
+            sc->addProjectileDir(norm, 6, 30, 100); 
+
         }
-
-    } else if(type == "Pistol") {
-        // Arme classique : tir vers la souris
-        sc->addProjectile(mouseScenePos);
+        weapon->setAmmo(weapon->getAmmo() - 3);
+        emit weapon->ammoChanged(weapon->getAmmo());
+        qDebug() << "Tir shotgun - munitions restantes:" << weapon->getAmmo();
     }
-
-    // Décrémenter les munitions
-    weapon->setAmmo(weapon->getAmmo() - 1);
-    qDebug() << "Le joueur a tiré ! Munitions restantes :" << weapon->getAmmo();
 }
-
 
 
 void Player::updateWalkAnimation() {
@@ -176,8 +231,14 @@ bool Player::getHasWeapon() const {
     return hasWeapon; // Retourne si le joueur a une arme
 }
 
-Weapon* Player::getWeapon() const {
-    return weapon; // Retourne l'arme du joueur
+Weapon* Player::getCurrentWeapon() const{
+    return inventory[currentSlot];
+}
+
+int Player::getAmmo(Slot s) const{
+
+    return inventory[s] ? inventory[s]->getAmmo() : -1;
+
 }
 
 void Player::setHealth(int newHealth) {

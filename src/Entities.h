@@ -131,7 +131,7 @@ class Projectile : public QObject, public QGraphicsPixmapItem {
         QTimer* timer;
         QString source; // Source du projectile (ennemi ou joueur)
         qreal distanceTraveled = 0; // Distance parcourue par le projectile
-        qreal maxDistance = 300; // Distance maximale que le projectile peut parcourir
+        qreal maxDistance; // Distance maximale que le projectile peut parcourir
     public:
         Projectile(QPointF startPosition, QPointF direction, int speed, int damage, QGraphicsItem* parent = nullptr);
         void setDirection(QPointF newDirection);

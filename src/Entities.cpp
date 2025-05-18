@@ -121,6 +121,7 @@ void Enemy::shoot(Player* player) {
     Projectile* p = new Projectile(start, direction, 5,20); 
     p->setSprite(new QPixmap("img/laserBeam.png"));
     p->setRotation(degrees);
+    p->setMaxDistance(500); // Distance maximale du projectile
     p->setSource("enemy");  // Définit la source du projectile
 
     scene()->addItem(p);

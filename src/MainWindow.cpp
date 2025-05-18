@@ -66,7 +66,7 @@ void MainWindow::startGame() {
     });
 
 
-    Weapon* weapon = mainScene->getPlayer()->getWeapon();
+    Weapon* weapon = mainScene->getPlayer()->getCurrentWeapon();
     if (weapon) {
         connect(weapon, &Weapon::ammoChanged, hud, &HUD::updateAmmo);
     }
