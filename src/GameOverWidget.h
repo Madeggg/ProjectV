@@ -5,6 +5,8 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QPainter>
+#include <QPixmap>
 
 class GameOverWidget : public QWidget {
     Q_OBJECT

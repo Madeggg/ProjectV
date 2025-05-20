@@ -8,7 +8,7 @@
 
 // Méthodes de Enemy
 
-Enemy::Enemy(QString type,QGraphicsItem* parent, Player* player) : QGraphicsPixmapItem(parent), targetPlayer(player), health(10), damage(0), speed(6) {
+Enemy::Enemy(QString type,QGraphicsItem* parent, Player* player) : QGraphicsPixmapItem(parent), targetPlayer(player), health(10), damage(20), speed(6) {
     setShapeMode(QGraphicsPixmapItem::BoundingRectShape); 
     setDistance(false); // Par défaut, l'ennemi n'attaque pas à distance
     setType(type); 
@@ -202,9 +202,6 @@ void Enemy::punch(Player* player){
 
     player->takeDamage(damage); 
     qDebug() << "Le joueur a pris des dégats ! PV restants : " << player->getHealth();  
-
-
-   
 }
 
 
