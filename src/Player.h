@@ -38,6 +38,11 @@
         
         enum Slot {Melee = 0, Pistol = 1, Shotgun = 2};     // Enumération pour les types d'armes
         int getAmmo(Slot s) const; //Pour avoir les munitions de l'arme actuelle (au slot s)
+
+       
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override; // Méthode pour afficher la hitbox du joueur
+    QRectF boundingRect() const override; // Méthode pour changer la hitbox du player
+
         
         
         

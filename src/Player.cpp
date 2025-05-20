@@ -372,3 +372,23 @@ QPainterPath Player::shape() const {
     path.addRect(boundingRect()); // Utilise la même forme que le rectangle de collision
     return path;
 }
+
+
+
+QRectF Player::boundingRect() const {
+    QRectF rect = QGraphicsPixmapItem::boundingRect();
+    return rect.adjusted(6, 5, -6, -2);
+}
+
+
+
+void Player::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
+    // Appelle le paint d'origine pour afficher le sprite
+    QGraphicsPixmapItem::paint(painter, option, widget);
+
+    // Dessine la hitbox en vert semi-transparent
+    painter->setPen(QPen(Qt::green, 2));
+    painter->setBrush(Qt::NoBrush);
+    painter->drawRect(boundingRect());
+}
+
