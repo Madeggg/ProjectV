@@ -139,13 +139,17 @@ void MyScene::keyPressEvent(QKeyEvent* event)
         if (gameManager->getPause()) {
             gameManager->setPause(false);
             timer->start(30);
+            if (hud) hud->resumeTimer(); 
+            hidePauseOverlay();
             qDebug() << "Game resumed";
         } else {
             gameManager->setPause(true);
             timer->stop();
+            if (hud) hud->pauseTimer(); 
+            showPauseOverlay();
             qDebug() << "Game paused";
         }
-        return;
+    return;
     }
 
     
@@ -464,4 +468,58 @@ void MyScene::addProjectileDir(QPointF direction, int speed, int damage, int max
     p->setMaxDistance(maxDistance);
 
     this->addItem(p);
+}
+
+
+//Gestion des pauses
+void MyScene::showPauseOverlay() {
+    if (!pauseOverlay) {
+        pauseOverlay = new QGraphicsRectItem(sceneRect());
+        pauseOverlay->setBrush(QColor(0, 0, 0, 180));
+        pauseOverlay->setZValue(1000);
+        addItem(pauseOverlay);
+
+        QWidget* widget = new QWidget;
+        QVBoxLayout* layout = new QVBoxLayout(widget);
+        QLabel* label = new QLabel("Jeu en pause");
+        label->setStyleSheet("color: white; font-size: 32px; font-weight: bold;");
+        label->setAlignment(Qt::AlignCenter);
+        resumeButton = new QPushButton("Reprendre");
+        resumeButton->setStyleSheet("font-size: 24px; padding: 10px; color: white; background: black; border-radius: 10px;");
+        layout->addWidget(label);
+        layout->addWidget(resumeButton);
+        widget->setLayout(layout);
+        widget->setStyleSheet("background: transparent;");
+
+        pauseProxy = addWidget(widget);
+        pauseProxy->setZValue(1001);
+
+        connect(resumeButton, &QPushButton::clicked, this, [this]() {
+            if (gameManager->getPause()) {
+                gameManager->setPause(false);
+                timer->start(30);
+                hidePauseOverlay();
+            }
+        });
+    }
+    if (views().size() > 0) {
+        QGraphicsView* view = views().first();
+        QPoint viewCenter = QPoint(view->viewport()->width() / 2, view->viewport()->height() / 2);
+        QPointF sceneCenter = view->mapToScene(viewCenter);
+        pauseProxy->setPos(sceneCenter - QPointF(pauseProxy->widget()->width() / 2, pauseProxy->widget()->height() / 2));
+    } else {
+        pauseProxy->setPos(sceneRect().center() - QPointF(pauseProxy->widget()->width() / 2, pauseProxy->widget()->height() / 2));
+    }
+
+    pauseOverlay->setVisible(true);
+    if (pauseProxy) pauseProxy->setVisible(true);
+}
+
+void MyScene::hidePauseOverlay() {
+    if (pauseOverlay) pauseOverlay->setVisible(false);
+    if (pauseProxy) pauseProxy->setVisible(false);
+}
+
+void MyScene::setHUD(HUD* hudWidget) {
+    hud = hudWidget;
 }

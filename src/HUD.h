@@ -21,6 +21,10 @@ public:
 
     void setWeapon(Weapon* weapon);
 
+    //Timer
+    void pauseTimer();
+    void resumeTimer();
+
 private slots:
     void updateTime();
 

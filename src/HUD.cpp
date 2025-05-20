@@ -88,3 +88,11 @@ void HUD::setWeapon(Weapon* weapon) {
         updateAmmo(weapon->getAmmo()); // Met à jour l'affichage immédiatement
     }
 }
+
+
+void HUD::pauseTimer() {
+    if (timer) timer->stop();
+}
+void HUD::resumeTimer() {
+    if (timer) timer->start(1000);
+}

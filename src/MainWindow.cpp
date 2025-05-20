@@ -54,6 +54,7 @@ void MainWindow::startGame() {
     hud->move(10, 10);  // fixe le HUD en haut à gauche
     hud->setAttribute(Qt::WA_TransparentForMouseEvents); // clics passent à la vue dessous
     hud->show();
+    mainScene->setHUD(hud); 
 
     connect(mainScene->getPlayer(), &Player::scoreChanged, hud, &HUD::setScore);
     connect(mainScene->getPlayer(), &Player::healthChanged, hud, &HUD::updateHealth);

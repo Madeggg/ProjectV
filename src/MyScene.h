@@ -15,13 +15,19 @@
 #include <QDebug>
 #include <QSoundEffect>
 #include <QRandomGenerator>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QGraphicsProxyWidget>
 #include "GameManager.h"
 #include "Player.h"
 #include "Entities.h"
+#include "HUD.h"
 
 // Déclaration anticipée
 class GameManager;
 class Player;
+class HUD;
 class Enemy;
 
 
@@ -45,6 +51,14 @@ public:
     QSoundEffect* knifeSounds[4];
     QSoundEffect* moveSound;
 
+    //pause
+
+    void showPauseOverlay();
+    void hidePauseOverlay();
+    void setHUD(HUD* hudWidget);
+
+   
+
 
 
 
@@ -67,6 +81,12 @@ private:
     QPixmap pixBackground;
     bool pistolSpawned = false;
     bool shotgunSpawned = false;
+
+     //Pause 
+    QGraphicsRectItem* pauseOverlay = nullptr;
+    QGraphicsProxyWidget* pauseProxy = nullptr;
+    QPushButton* resumeButton = nullptr;
+    HUD* hud = nullptr;
 
     int elapsedSeconds;     
 
