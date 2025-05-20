@@ -4,6 +4,9 @@
 #include <QWidget>
 #include <QLabel>
 #include <QTimer>
+#include "Entities.h" // Pour Weapon
+
+
 
 class Weapon; // Déclaration anticipée
 

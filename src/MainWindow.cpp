@@ -46,6 +46,8 @@ void MainWindow::startGame() {
     mainView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mainView->scale(2.5, 2.5);
 
+    this->showFullScreen();
+
 
     // --- Création du HUD ---
     hud = new HUD(mainView);
@@ -55,7 +57,7 @@ void MainWindow::startGame() {
 
     connect(mainScene->getPlayer(), &Player::scoreChanged, hud, &HUD::setScore);
     connect(mainScene->getPlayer(), &Player::healthChanged, hud, &HUD::updateHealth);
-    
+    connect(mainScene->getPlayer(), &Player::weaponChanged, hud, &HUD::setWeapon);
 
 
 

@@ -6,6 +6,8 @@ MainMenuWidget::MainMenuWidget(QWidget* parent) : QWidget(parent) {
     auto* layout = new QVBoxLayout(this);
     layout->setAlignment(Qt::AlignCenter);
 
+    
+
 
      // Créer un objet QSoundEffect pour la musique
      QSoundEffect* musicEffect = new QSoundEffect(this);
@@ -39,4 +41,5 @@ MainMenuWidget::MainMenuWidget(QWidget* parent) : QWidget(parent) {
     connect(quitButton, &QPushButton::clicked, qApp, &QApplication::quit);
     
     this->setStyleSheet("background-color: #f0f0f0;"); // Fond de couleur claire
+
 }

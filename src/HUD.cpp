@@ -2,14 +2,14 @@
 #include <QVBoxLayout>
 #include <QFont>
 
-HUD::HUD(QWidget* parent) : QWidget(parent), score(0), ammo(10), timeElapsed(0) {
+HUD::HUD(QWidget* parent) : QWidget(parent), score(0), ammo(0), timeElapsed(0) {
     setFixedSize(200, 120);
 
     // Police simple et lisible
     QFont font("Arial", 14, QFont::Bold);
 
     scoreLabel = new QLabel("Score: 0", this);
-    ammoLabel = new QLabel("Munitions: 10", this);
+    ammoLabel = new QLabel("Munitions: 0", this);
     timeLabel = new QLabel("Temps: 00:00", this);
     healthLabel = new QLabel("Vie: 100", this);
 
@@ -78,4 +78,13 @@ void HUD::addPoints(int points) {
 void HUD::setScore(int newScore) {
     score = newScore;
     scoreLabel->setText("Score: " + QString::number(score));
+}
+
+
+void HUD::setWeapon(Weapon* weapon) {
+    this->weapon = weapon;
+    if (weapon) {
+        connect(weapon, &Weapon::ammoChanged, this, &HUD::updateAmmo);
+        updateAmmo(weapon->getAmmo()); // Met à jour l'affichage immédiatement
+    }
 }
