@@ -21,6 +21,7 @@ public:
     void resetGame(); // redémarre le jeu sans redémarrer le programme
     Player* getPlayer() const;
     void setPause(bool pause);
+    bool getPause() const { return paused; };
 
 public slots:
     void update(); // appelée régulièrement par QTimer pour faire tourner le jeu

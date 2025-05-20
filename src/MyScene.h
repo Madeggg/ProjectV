@@ -13,6 +13,8 @@
 #include <QKeyEvent>
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
+#include <QSoundEffect>
+#include <QRandomGenerator>
 #include "GameManager.h"
 #include "Player.h"
 #include "Entities.h"
@@ -38,6 +40,8 @@ public:
 
     //Pour les armes qui tirent en direction fixe (shotgun)
     void addProjectileDir(QPointF direction, int speed, int damage, int maxDistance);
+
+    QSoundEffect* knifeSounds[4];
 
 
 

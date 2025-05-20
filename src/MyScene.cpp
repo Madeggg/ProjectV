@@ -36,6 +36,12 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
 
     elapsedSeconds = 0;
 
+    for (int i = 0; i < 4; ++i) {
+    knifeSounds[i] = new QSoundEffect(this);
+    knifeSounds[i]->setSource(QUrl::fromLocalFile(QString("sound/knife%1.wav").arg(i+1)));
+    knifeSounds[i]->setVolume(0.7);
+}
+
 
 }
 
@@ -124,15 +130,15 @@ void MyScene::keyPressEvent(QKeyEvent* event)
 {
     // ────────────────────── 1. Pause / Reprise ──────────────────────
     if (event->key() == Qt::Key_P) {
-        if (timer->isActive()) {
-            timer->stop();
-            qDebug() << "Game paused";
-        } else {
-            timer->start();
-            qDebug() << "Game resumed";
-        }
-        return;                         // on ne traite rien d’autre
+    if (gameManager->getPause()) {
+        gameManager->setPause(false);
+        qDebug() << "Game resumed";
+    } else {
+        gameManager->setPause(true);
+        qDebug() << "Game paused";
     }
+    return;
+}
 
     // ────────────────────── 2. Changement d’arme ─────────────────────
     // (&, é, ") sur clavier AZERTY  =>  Qt::Key_1, Qt::Key_2, Qt::Key_3
@@ -218,6 +224,8 @@ void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
         if (!player->getHasWeapon() || player->getCurrentWeapon()->getAmmo() <= 0) {
             player->punch(); // Si le joueur n'a pas d'arme ou pas de munitions, il tape
             player->playAttackAnimation(); // Joue l'animation d'attaque
+            int soundIndex = QRandomGenerator::global()->bounded(4); // Choisit un son aléatoire
+            knifeSounds[soundIndex]->play(); // Joue le son d'attaque
         }
         //Sinon, le joueur tire
         else{
