@@ -4,22 +4,131 @@
 #include <QPixmap>
 
 Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), health(100), speed(5) {
-    setPixmap(QPixmap("img/Sprite_billy_static.png").scaled(40, 40));
     setShapeMode(QGraphicsPixmapItem::BoundingRectShape); 
     previousPosition = pos();
 
+    
     hasWeapon = false; // Par défaut, le joueur n'a pas d'arme
-    weapon = nullptr; 
+    weapon = inventory[0]; //Arme de melee par défaut
+
+    setDirection("down"); // Direction par défaut
 
     walkTimer = new QTimer(this);
-    walkTimer->setInterval(150);  // vitesse de l'animation
     connect(walkTimer, &QTimer::timeout, this, &Player::updateWalkAnimation);
+    loadWalkAnimations();
+    setPixmap(*walkFront[0]);
 }
+
+void Player::loadWalkAnimations() {
+    QPixmap sheet("img/Walk.png");
+    QPixmap meleeSheet("img/Stab.png");
+    QPixmap pistolSheet("img/Shoot.png");
+    QPixmap deathSheet("img/Death.png");
+
+    //Tous nos sprites sont en taille 32*32
+    int frameWidth = 32;
+    int frameHeight = 32;
+
+    for (int i = 0; i < 4; ++i) {
+        walkFront.append(new QPixmap(sheet.copy(i * frameWidth, 0 * frameHeight, frameWidth, frameHeight))); // down
+        walkBack.append(new QPixmap(sheet.copy(i * frameWidth, 1 * frameHeight, frameWidth, frameHeight))); // right
+        walkRight.append(new QPixmap(sheet.copy(i * frameWidth, 2 * frameHeight, frameWidth, frameHeight)));  // left
+        walkLeft.append(new QPixmap(sheet.copy(i * frameWidth, 3 * frameHeight, frameWidth, frameHeight)));  // up
+
+        meleeFront.append(new QPixmap(meleeSheet.copy(i * frameWidth, 0 * frameHeight, frameWidth, frameHeight))); // down
+        meleeBack.append(new QPixmap(meleeSheet.copy(i * frameWidth, 1 * frameHeight, frameWidth, frameHeight))); // right
+        meleeRight.append(new QPixmap(meleeSheet.copy(i * frameWidth, 2 * frameHeight, frameWidth, frameHeight)));  // left
+        meleeLeft.append(new QPixmap(meleeSheet.copy(i * frameWidth, 3 * frameHeight, frameWidth, frameHeight)));  // up
+
+        pistolFront.append(new QPixmap(pistolSheet.copy(i * frameWidth, 0 * frameHeight, frameWidth, frameHeight))); // down
+        pistolBack.append(new QPixmap(pistolSheet.copy(i * frameWidth, 1 * frameHeight, frameWidth, frameHeight))); // right
+        pistolRight.append(new QPixmap(pistolSheet.copy(i * frameWidth, 2 * frameHeight, frameWidth, frameHeight)));  // left
+        pistolLeft.append(new QPixmap(pistolSheet.copy(i * frameWidth, 3 * frameHeight, frameWidth, frameHeight)));  // up
+
+        deathFront.append(new QPixmap(deathSheet.copy(i * frameWidth, 0 * frameHeight, frameWidth, frameHeight))); // down
+        deathBack.append(new QPixmap(deathSheet.copy(i * frameWidth, 1 * frameHeight, frameWidth, frameHeight))); // right
+        deathRight.append(new QPixmap(deathSheet.copy(i * frameWidth, 2 * frameHeight, frameWidth, frameHeight)));  // left
+        deathLeft.append(new QPixmap(deathSheet.copy(i * frameWidth, 3 * frameHeight, frameWidth, frameHeight)));  // up
+
+    }
+}
+
+void Player::updateWalkAnimation() {
+    QVector<QPixmap*>* currentAnim = nullptr;
+
+    if (direction == "down") {
+        currentAnim = &walkFront;
+    } else if (direction == "up") {
+        currentAnim = &walkBack;
+    } else if (direction == "left") {
+        currentAnim = &walkLeft;
+    } else if (direction == "right") {
+        currentAnim = &walkRight;
+    }
+
+    if (currentAnim && !currentAnim->isEmpty()) {
+        currentFrame = (currentFrame + 1) % currentAnim->size();
+        setPixmap(*(*currentAnim)[currentFrame]);
+    }
+}
+
+void Player::playAttackAnimation() {
+    QVector<QPixmap*>* currentAnim = nullptr;
+    QString type = getCurrentWeapon() ? getCurrentWeapon()->getType() : "Melee";
+
+    if (type == "Pistol") {
+        if (direction == "down") currentAnim = &pistolFront;
+        else if (direction == "up") currentAnim = &pistolBack;
+        else if (direction == "left") currentAnim = &pistolLeft;
+        else if (direction == "right") currentAnim = &pistolRight;
+    } else { // Melee (no weapon)
+        if (direction == "down") currentAnim = &meleeFront;
+        else if (direction == "up") currentAnim = &meleeBack;
+        else if (direction == "left") currentAnim = &meleeLeft;
+        else if (direction == "right") currentAnim = &meleeRight;
+    }
+
+    if (currentAnim && !currentAnim->isEmpty()) {
+        for (int i = 0; i < currentAnim->size(); ++i) {
+            QTimer::singleShot(i * 100, this, [this, currentAnim, i]() {
+                setPixmap(*(*currentAnim)[i]);
+            });
+        }
+    }
+}
+
+void Player::playDeathAnimation() {
+    QVector<QPixmap*>* currentAnim = nullptr;
+
+    if (direction == "down") {
+        currentAnim = &deathFront;
+    } else if (direction == "up") {
+        currentAnim = &deathBack;
+    } else if (direction == "left") {
+        currentAnim = &deathLeft;
+    } else if (direction == "right") {
+        currentAnim = &deathRight;
+    }
+
+    if (currentAnim && !currentAnim->isEmpty()) {
+        for (int i = 0; i < currentAnim->size(); ++i) {
+            QTimer::singleShot(i * 100, this, [this, currentAnim, i]() {
+                setPixmap(*(*currentAnim)[i]);
+            });
+        }
+    }
+}
+
+
+
+
 // Méthodes de déplacement 
 void Player::moveLeft() {
     previousPosition = pos(); // Sauvegarde la position actuelle
     setPos(x() - speed, y());
     // qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    direction = "left"; // Met à jour la direction
+    if (!walkTimer->isActive()) walkTimer->start(100);
     emit playerMoved(pos());
 }
 
@@ -27,6 +136,8 @@ void Player::moveRight() {
     previousPosition = pos(); // Sauvegarde la position actuelle
     setPos(x() + speed, y());
     // qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    direction = "right"; // Met à jour la direction
+    if (!walkTimer->isActive()) walkTimer->start(100);
     emit playerMoved(pos());
 }
 
@@ -34,6 +145,8 @@ void Player::moveUp() {
     previousPosition = pos(); // Sauvegarde la position actuelle
     setPos(x(), y() - speed);
     // qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    direction = "up"; // Met à jour la direction
+    if (!walkTimer->isActive()) walkTimer->start(100);
     emit playerMoved(pos());
 }
 
@@ -41,6 +154,8 @@ void Player::moveDown() {
     previousPosition = pos(); // Sauvegarde la position actuelle
     setPos(x(), y() + speed);
     //  qDebug() << "Signal playerMoved émis. Nouvelle position : " << pos();
+    direction = "down"; // Met à jour la direction
+    if (!walkTimer->isActive()) walkTimer->start(100);
     emit playerMoved(pos());
 }
 
@@ -203,11 +318,6 @@ void Player::shoot(QPointF mouseScenePos){
 }
 
 
-void Player::updateWalkAnimation() {
-    walkframe = (walkframe + 1) % 2;        //Pour alterner entre 0 et 1
-    QString spritePath = QString("img/Sprite_billy_%1_%2.png").arg(direction).arg(walkframe + 1);
-    setPixmap(QPixmap(spritePath).scaled(40, 40));
-}
 
 
 

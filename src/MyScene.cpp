@@ -168,8 +168,6 @@ void MyScene::keyPressEvent(QKeyEvent* event)
         QPointF newPos = player->pos() + QPointF(player->getSpeed(), 0);
         if (player->canMoveTo(newPos, sceneBounds)) {
             player->moveLeft();
-            player->setDirection("left");
-            player->setPixmap(QPixmap("img/Sprite_billy_left.png").scaled(40, 40));
         }
         break;
     }
@@ -177,9 +175,7 @@ void MyScene::keyPressEvent(QKeyEvent* event)
     case Qt::Key_D: {                   // Droite
         QPointF newPos = player->pos() + QPointF(-player->getSpeed(), 0);
         if (player->canMoveTo(newPos, sceneBounds)) {
-            player->moveRight();
-            player->setDirection("right");
-            player->setPixmap(QPixmap("img/Sprite_billy_right.png").scaled(40, 40));
+            player->moveRight();  
         }
         break;
     }
@@ -188,8 +184,6 @@ void MyScene::keyPressEvent(QKeyEvent* event)
         QPointF newPos = player->pos() + QPointF(0, -player->getSpeed());
         if (player->canMoveTo(newPos, sceneBounds)) {
             player->moveUp();
-            player->setDirection("up");
-            player->setPixmap(QPixmap("img/Sprite_billy_up.png").scaled(40, 40));
         }
         break;
     }
@@ -198,8 +192,6 @@ void MyScene::keyPressEvent(QKeyEvent* event)
         QPointF newPos = player->pos() + QPointF(0, player->getSpeed());
         if (player->canMoveTo(newPos, sceneBounds)) {
             player->moveDown();
-            player->setDirection("down");
-            player->setPixmap(QPixmap("img/Sprite_billy_down.png").scaled(40, 40));
         }
         break;
     }
@@ -212,9 +204,7 @@ void MyScene::keyPressEvent(QKeyEvent* event)
 }
 
 
-void MyScene::keyReleaseEvent(QKeyEvent* event) {
-    player->walkTimer->stop();
-}
+
 
 void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if (!player) {
@@ -225,10 +215,12 @@ void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if(event->button() == Qt::LeftButton){
         if (!player->getHasWeapon() || player->getCurrentWeapon()->getAmmo() <= 0) {
             player->punch(); // Si le joueur n'a pas d'arme ou pas de munitions, il tape
+            player->playAttackAnimation(); // Joue l'animation d'attaque
         }
         //Sinon, le joueur tire
         else{
             player->shoot(event->scenePos());
+            player->playAttackAnimation(); // Joue l'animation d'attaque
             
         }
     

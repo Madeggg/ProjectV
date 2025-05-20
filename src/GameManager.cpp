@@ -43,6 +43,7 @@ void GameManager::update() {
     }
     
     if (player->getHealth() <= 0) {
+        player->playDeathAnimation();
         gameLoopTimer->stop();
         emit gameOver(); // envoie le signal
         return;

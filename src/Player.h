@@ -6,7 +6,8 @@
     #include <QObject>
     #include <QKeyEvent>
     #include <QTimer>
-
+    #include <QVector>
+    #include <QPixmap>
     #include "GameManager.h"
    
 
@@ -38,7 +39,7 @@
         enum Slot {Melee = 0, Pistol = 1, Shotgun = 2};     // Enumération pour les types d'armes
         int getAmmo(Slot s) const; //Pour avoir les munitions de l'arme actuelle (au slot s)
         
-        QTimer* walkTimer;
+        
         
         void setHealth(int newHealth);
         void setDirection(const QString& dir);
@@ -50,13 +51,16 @@
         void setHasWeapon(bool newHasWeapon) ;
         void punch();                           // Méthode pour frapper un ennemi
         void shoot(QPointF targetPos);           // Méthode pour tirer un projectile 
-        
-
+        void loadWalkAnimations();
+        void playAttackAnimation();     // Méthode pour jouer l'animation d'attaque
+        void playDeathAnimation();      // Méthode pour jouer l'animation de mort
     
         void revertToPreviousPosition();
-        void updateWalkAnimation();            // Méthode pour mettre à jour l'animation de marche
+       
         void checkKillCount();          // Incrémente le compteur de kills et fait spawn une arme 
         QPainterPath shape() const override;
+
+
 
     private:
         int health;
@@ -64,11 +68,38 @@
         Weapon* weapon;
         QPointF previousPosition; // Position précédente pour la restauration
         QString direction;      // Direction actuelle du joueur (gauche, droite, haut, bas)
-        int walkframe = 0;
+        int currentFrame = 0;
         int killCount = 0;
         bool hasWeapon;
         Weapon* inventory[3] = {nullptr,nullptr,nullptr};   // Tableau d'armes pour l'inventaire
         Slot currentSlot = Melee;   //Par défaut, le joueur utilise l'arme de mêlée
+
+        //Déplacements classiques
+        QVector<QPixmap*> walkFront;
+        QVector<QPixmap*> walkBack;
+        QVector<QPixmap*> walkRight;
+        QVector<QPixmap*> walkLeft;
+
+        //Quand le joueur attaque sans arme à distance
+        QVector<QPixmap*> meleeFront;
+        QVector<QPixmap*> meleeBack;
+        QVector<QPixmap*> meleeRight;
+        QVector<QPixmap*> meleeLeft;
+
+        //Quand le joueur attaque avec une arme à distance
+        QVector<QPixmap*> pistolFront;
+        QVector<QPixmap*> pistolBack;
+        QVector<QPixmap*> pistolRight;
+        QVector<QPixmap*> pistolLeft;
+
+        // Quand le joueur meurt
+        QVector<QPixmap*> deathFront;
+        QVector<QPixmap*> deathBack;
+        QVector<QPixmap*> deathRight;
+        QVector<QPixmap*> deathLeft;
+
+
+        QTimer* walkTimer;
 
     signals:
         void playerMoved(QPointF newPos); // Signal émis lorsque le joueur se déplace
@@ -76,6 +107,10 @@
         void healthChanged(int newHealth);
         void scoreChanged(int newScore); //     Signal émis lorsque le score change
         void weaponChanged(Weapon* newWeapon); // Signal émis lorsque l'arme change
+
+
+    public slots:
+         void updateWalkAnimation();            // Méthode pour mettre à jour l'animation de marche
 
     };
 
