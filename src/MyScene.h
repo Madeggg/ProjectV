@@ -41,7 +41,9 @@ public:
     //Pour les armes qui tirent en direction fixe (shotgun)
     void addProjectileDir(QPointF direction, int speed, int damage, int maxDistance);
 
+    //Sound effects
     QSoundEffect* knifeSounds[4];
+    QSoundEffect* moveSound;
 
 
 

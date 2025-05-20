@@ -36,11 +36,17 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
 
     elapsedSeconds = 0;
 
+    //Sounds effects
     for (int i = 0; i < 4; ++i) {
     knifeSounds[i] = new QSoundEffect(this);
     knifeSounds[i]->setSource(QUrl::fromLocalFile(QString("sound/knife%1.wav").arg(i+1)));
     knifeSounds[i]->setVolume(0.7);
-}
+    }
+
+    moveSound = new QSoundEffect(this);
+    moveSound->setSource(QUrl::fromLocalFile("sound/move.wav")); 
+    moveSound->setVolume(1.0);
+
 
 
 }
@@ -176,6 +182,8 @@ void MyScene::keyPressEvent(QKeyEvent* event)
         QPointF newPos = player->pos() + QPointF(player->getSpeed(), 0);
         if (player->canMoveTo(newPos, sceneBounds)) {
             player->moveLeft();
+            moveSound->stop();
+            moveSound->play(); 
         }
         break;
     }
@@ -183,7 +191,9 @@ void MyScene::keyPressEvent(QKeyEvent* event)
     case Qt::Key_D: {                   // Droite
         QPointF newPos = player->pos() + QPointF(-player->getSpeed(), 0);
         if (player->canMoveTo(newPos, sceneBounds)) {
-            player->moveRight();  
+            player->moveRight();
+            moveSound->stop(); 
+            moveSound->play();  
         }
         break;
     }
@@ -192,6 +202,8 @@ void MyScene::keyPressEvent(QKeyEvent* event)
         QPointF newPos = player->pos() + QPointF(0, -player->getSpeed());
         if (player->canMoveTo(newPos, sceneBounds)) {
             player->moveUp();
+            moveSound->stop();
+            moveSound->play(); 
         }
         break;
     }
@@ -200,6 +212,8 @@ void MyScene::keyPressEvent(QKeyEvent* event)
         QPointF newPos = player->pos() + QPointF(0, player->getSpeed());
         if (player->canMoveTo(newPos, sceneBounds)) {
             player->moveDown();
+            moveSound->stop();
+            moveSound->play(); 
         }
         break;
     }
