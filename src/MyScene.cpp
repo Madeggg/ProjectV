@@ -136,15 +136,23 @@ void MyScene::keyPressEvent(QKeyEvent* event)
 {
     // ────────────────────── 1. Pause / Reprise ──────────────────────
     if (event->key() == Qt::Key_P) {
-    if (gameManager->getPause()) {
-        gameManager->setPause(false);
-        qDebug() << "Game resumed";
-    } else {
-        gameManager->setPause(true);
-        qDebug() << "Game paused";
+        if (gameManager->getPause()) {
+            gameManager->setPause(false);
+            timer->start(30);
+            qDebug() << "Game resumed";
+        } else {
+            gameManager->setPause(true);
+            timer->stop();
+            qDebug() << "Game paused";
+        }
+        return;
     }
-    return;
-}
+
+    
+    if(gameManager->getPause()) {
+        return; // si il y a pause, on ne fait rien
+    }
+
 
     // ────────────────────── 2. Changement d’arme ─────────────────────
     // (&, é, ") sur clavier AZERTY  =>  Qt::Key_1, Qt::Key_2, Qt::Key_3

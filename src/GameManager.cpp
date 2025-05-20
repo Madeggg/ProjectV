@@ -115,7 +115,6 @@ Player* GameManager::getPlayer() const {
 
 void GameManager::setPause(bool pause) {
     paused = pause;
-
     if (paused) {
         gameLoopTimer->stop(); // Arrêter la boucle de jeu
     } else {
