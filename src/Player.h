@@ -98,6 +98,12 @@
         QVector<QPixmap*> deathRight;
         QVector<QPixmap*> deathLeft;
 
+        //Quand le joueur ne bouge pas
+        QVector<QPixmap*> idleFront;
+        QVector<QPixmap*> idleBack;
+        QVector<QPixmap*> idleRight;
+        QVector<QPixmap*> idleLeft;
+
 
         QTimer* walkTimer;
 
