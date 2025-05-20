@@ -340,34 +340,7 @@ void MyScene::loadMap(){
                     qDebug() << "Warning: Collision object has (x=0, y=0)";
                 }
 
-                
-
-                // qDebug() << "Processing object: x=" << x << "y=" << y << "width=" << width << "height=" << height;
-
-                else if (object.contains("polygon")) {
-                    QJsonArray polygonArray = object["polygon"].toArray();
-                    QPolygonF polygon;
-                
-                    // On récupère les coordonnées du polygon dans le tableau
-                    for (const QJsonValue& pointVal : polygonArray) {
-                        QJsonObject pointObj = pointVal.toObject();
-                        qreal x = pointObj["x"].toDouble();
-                        qreal y = pointObj["y"].toDouble();
-                        polygon << QPointF(x, y);
-                    }
-                
-                    // Déplacement du polygon en fonction des coordonnées x et y de l'objet
-                    polygon.translate(object["x"].toDouble(), object["y"].toDouble());
-                
-                    // Création du polygon et ajout à la scène
-                    QGraphicsPolygonItem* polygonItem = new QGraphicsPolygonItem(polygon);
-                    polygonItem->setBrush(Qt::red); // Pour visualiser le polygon
-                    polygonItem->setPen(Qt::NoPen); // Pas de bordure
-                    polygonItem->setData(0, "collision"); // Définir comme objet de collision
-                    polygonItem->setZValue(100); // Derrière les autres objets
-                    this->addItem(polygonItem); // Ajout à la scène
-
-                } else {
+                 else {
                     // qDebug() << "Creating rect collision at x=" << x << "y=" << y;
                     QGraphicsRectItem* rect = new QGraphicsRectItem(x, y, width, height);
                     rect->setBrush(Qt::red);
