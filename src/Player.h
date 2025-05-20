@@ -56,7 +56,7 @@
         void setHasWeapon(bool newHasWeapon) ;
         void punch();                           // Méthode pour frapper un ennemi
         void shoot(QPointF targetPos);           // Méthode pour tirer un projectile 
-        void loadWalkAnimations();
+        void loadAnimations();
         void playAttackAnimation();     // Méthode pour jouer l'animation d'attaque
         void playDeathAnimation();      // Méthode pour jouer l'animation de mort
         

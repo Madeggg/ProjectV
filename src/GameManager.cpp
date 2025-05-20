@@ -91,7 +91,8 @@ void GameManager::spawnEnemiesPhysique() {
     }
 
     Enemy* enemy = new Enemy("Physique", nullptr, player);
-    enemy->setPos(spawnPos);
+    enemy->setScale(2.0);
+    enemy->setPos(player->pos());
     qDebug() << "Position de spawn de l'ennemi :" << spawnPos;
     scene->addItem(enemy);
 }

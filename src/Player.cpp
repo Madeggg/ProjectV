@@ -15,11 +15,11 @@ Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), 
 
     walkTimer = new QTimer(this);
     connect(walkTimer, &QTimer::timeout, this, &Player::updateWalkAnimation);
-    loadWalkAnimations();
+    loadAnimations();
     setPixmap(*walkFront[0]);
 }
 
-void Player::loadWalkAnimations() {
+void Player::loadAnimations() {
     QPixmap sheet("img/Walk.png");
     QPixmap meleeSheet("img/Stab.png");
     QPixmap pistolSheet("img/Shoot.png");

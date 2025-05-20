@@ -30,6 +30,7 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         QTimer* movementTimer; // Timer pour le mouvement de l'ennemi
         QTimer* attackTimer;    // Timer pour l'attaque de l'ennemi
         bool canAttack = true;
+        int currentFrame = 0;
 
         //Déplacements classiques
         QVector<QPixmap*> walkFront;
@@ -77,7 +78,8 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
 
 
 
-        void loadWalkAnimations();
+        void loadAnimations();
+        void playWalkAnimation(); // Méthode pour jouer l'animation de marche
         void playAttackAnimation();     // Méthode pour jouer l'animation d'attaque
         void playDeathAnimation();      // Méthode pour jouer l'animation de mort
 
