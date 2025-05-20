@@ -23,7 +23,7 @@ void MainWindow::resizeEvent(QResizeEvent* event) {
     QMainWindow::resizeEvent(event);
     if (mainView && mainScene) {
         // Ajuste la vue pour garder le ratio de l'image de fond
-        mainView->fitInView(mainScene->sceneRect(), Qt::KeepAspectRatioByExpanding);
+        // mainView->fitInView(mainScene->sceneRect(), Qt::KeepAspectRatioByExpanding);
 
         // Centre la vue sur le joueur
         Player* player = mainScene->getPlayer(); 
@@ -44,7 +44,7 @@ void MainWindow::startGame() {
     mainView->setFocusPolicy(Qt::StrongFocus);
     mainView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mainView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    mainView->scale(5, 5);
+    mainView->scale(2.5, 2.5);
 
 
     // --- Création du HUD ---

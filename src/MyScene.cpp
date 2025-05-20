@@ -24,9 +24,10 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     // Création du joueur
     player = new Player();
     this->addItem(player);  // Ajout à la scène
-    player->setPos(1900, 2048);
+    player->setScale(2.0);
+    player->setPos(1800, 2048);
     qDebug() << "Player position after setPos:" << player->pos();
-    player->setZValue(50000000);
+    player->setZValue(50);
 
     connect(player, &Player::ammoBoxNeeded, this, &MyScene::spawnAmmoBox);
 
