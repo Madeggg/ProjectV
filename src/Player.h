@@ -59,6 +59,7 @@
         void loadWalkAnimations();
         void playAttackAnimation();     // Méthode pour jouer l'animation d'attaque
         void playDeathAnimation();      // Méthode pour jouer l'animation de mort
+        
     
         void revertToPreviousPosition();
        

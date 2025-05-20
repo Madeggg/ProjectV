@@ -27,13 +27,28 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         bool isDead = false; // Booléen pour savoir si l'ennemi est mort
         Weapon* weapon;
         QString type;       //Type de l'eenemi (physique ou distance)
-        QPixmap* sprite_up;
-        QPixmap* sprite_down;
-        QPixmap* sprite_right;
-        QPixmap* sprite_left;
         QTimer* movementTimer; // Timer pour le mouvement de l'ennemi
         QTimer* attackTimer;    // Timer pour l'attaque de l'ennemi
         bool canAttack = true;
+
+        //Déplacements classiques
+        QVector<QPixmap*> walkFront;
+        QVector<QPixmap*> walkBack;
+        QVector<QPixmap*> walkRight;
+        QVector<QPixmap*> walkLeft;
+
+        //Quand l'ennemi attaque sans arme à distance
+        QVector<QPixmap*> meleeFront;
+        QVector<QPixmap*> meleeBack;
+        QVector<QPixmap*> meleeRight;
+        QVector<QPixmap*> meleeLeft;
+
+        // Quand l'ennemi meurt
+        QVector<QPixmap*> deathFront;
+        QVector<QPixmap*> deathBack;
+        QVector<QPixmap*> deathRight;
+        QVector<QPixmap*> deathLeft;
+
 
     signals:
         void damagePlayer(int damage); // Signal pour infliger des dégâts au joueur
@@ -59,7 +74,12 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         void setDistance(bool newDistance); // Setter pour le booléen distance
         QRectF boundingRect() const;
         QPainterPath shape() const override;
-      
+
+
+
+        void loadWalkAnimations();
+        void playAttackAnimation();     // Méthode pour jouer l'animation d'attaque
+        void playDeathAnimation();      // Méthode pour jouer l'animation de mort
 
         // Méthode d'attaque de l'ennemi si son type est physique
         void punch(Player* player); 
@@ -70,8 +90,13 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         // Méthode générale pour infliger des dégâts au joueur
         void doDamage(Player* player); 
 
-        // Méthode de suivi du joueur
-        void moveTowardsPlayer(const QPointF& playerPos);
+        bool hasLineOfSightTo(Player* player); // Vérifie si l'ennemi a une ligne de vue sur le joueur
+
+        void wander(); // Méthode pour faire errer l'ennemi
+
+        void moveTowardsPlayerOrWander(Player* player); // Méthode pour déplacer l'ennemi vers le joueur, ou errer
+
+        void moveTowards(QPointF target); // Méthode pour déplacer l'ennemi vers une cible
 
         void takeDamage(int amount);    // Méthode pour infliger des dégâts à l'ennemi
 

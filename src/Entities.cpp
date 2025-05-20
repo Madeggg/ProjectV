@@ -27,12 +27,13 @@ Enemy::Enemy(QString type,QGraphicsItem* parent, Player* player) : QGraphicsPixm
     movementTimer = new QTimer(this);
     connect(movementTimer, &QTimer::timeout, this, [this]() {
         if (targetPlayer) {
-            moveTowardsPlayer(targetPlayer->pos());  // Met à jour la direction
+            moveTowardsPlayerOrWander(targetPlayer);  // Met à jour la direction
         }
     });
     movementTimer->start(100);  // Toutes les 100ms
 
 } 
+
 
 
 int Enemy::getHealth() const {
@@ -159,79 +160,94 @@ void Enemy::takeDamage(int amount) {
 
 
 bool Enemy::canMoveInDirection(const QPointF& direction){
-     // Calcul de la nouvelle position après le déplacement
+    if (!scene()) return false;
+
+    // Prochaine position en fonction de la direction et de la vitesse
     QPointF newPos = pos() + direction * speed;
+    QRectF futureRect(newPos, boundingRect().size());
 
-    // Créer un rectangle de collision pour la position suivante
-    QRectF nextBoundingRect(newPos, QSizeF(boundingRect().width(), boundingRect().height()));
+    // Vérifie s’il y aurait une collision à cette future position
+    QList<QGraphicsItem*> items = scene()->items(futureRect);
 
-    // Vérifier les collisions dans la direction souhaitée
-    QList<QGraphicsItem*> collisions = collidingItems();
-    for (QGraphicsItem* item : collisions) {
-        // Si un élément de type "collision" est trouvé, l'ennemi ne peut pas se déplacer dans cette direction
-        QVariant typeData = item->data(0);
-        if (typeData.toString() == "collision") {
-            return false;  // L'ennemi rencontre un obstacle
+    for (QGraphicsItem* item : items) {
+        if (item == this) continue;
+        if (item->data(0).toString() == "collision") {
+            return false; // Un mur ou un obstacle est détecté
         }
     }
 
-    // Vérifier si la nouvelle position est hors de la scène
-    if (!scene()->sceneRect().contains(newPos)) {
-        return false;  // L'ennemi serait hors de la scène
+    // Vérifie les limites de la scène
+    if (!scene()->sceneRect().contains(futureRect)) {
+        return false;
     }
 
-    return true;  // L'ennemi peut se déplacer dans cette direction
+    return true;
 }
 
 
-void Enemy::moveTowardsPlayer(const QPointF& playerPos) {
-    // Utiliser la position absolue du joueur dans la scène
-    QPointF direction = playerPos - pos(); // position actuelle de l'ennemi
-    qreal distance = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());  // Distance
+bool Enemy::hasLineOfSightTo(Player* player) {
+    if (!player || !scene()) return false;
 
-    // Si l'ennemi est trop proche du joueur, on inflige des dégâts
-    if(getType() == "Physique" && distance < 40) {
-        doDamage(targetPlayer);  // Infliger des dégâts au joueur
-        return;
-    }
+    QLineF line(pos(), player->pos());  // Ligne entre l'ennemi et le joueur
 
-    if(getType() == "Distance" && distance < 500) {
-        doDamage(targetPlayer);  // Infliger des dégâts au joueur
-        return;
-    }
-    // Si l'ennemi n'est pas trop proche, il doit éviter les obstacles et se déplacer
-    if (distance > 0) {
-        direction /= distance;  // Normalisation de la direction
+    // Crée une bounding box englobant la ligne 
+    QRectF boundingRect = QRectF(line.p1(), QSizeF(line.p2().x() - line.p1().x(),
+                                                   line.p2().y() - line.p1().y())).normalized();
 
-        // On crée une variable pour savoir si l'ennemi a trouvé une direction libre
-        bool canMove = false;
-        
-        // Essayer différentes directions (haut, bas, gauche, droite)
-        if (canMoveInDirection(direction)) {
-            setPos(x() + direction.x() * speed, y() + direction.y() * speed);  // Déplacer l'ennemi
-            canMove = true;
-        } else {
-            // Si la direction vers le joueur est bloquée, l'ennemi va tenter de se déplacer latéralement ou verticalement
-            // Tester une direction alternative (haut, bas, gauche, droite)
-            if (canMoveInDirection(QPointF(1, 0))) {  // Droite
-                setPos(x() + speed, y());
-                canMove = true;
-            } else if (canMoveInDirection(QPointF(-1, 0))) {  // Gauche
-                setPos(x() - speed, y());
-                canMove = true;
-            } else if (canMoveInDirection(QPointF(0, 1))) {  // Bas
-                setPos(x(), y() + speed);
-                canMove = true;
-            } else if (canMoveInDirection(QPointF(0, -1))) {  // Haut
-                setPos(x(), y() - speed);
-                canMove = true;
+    QList<QGraphicsItem*> itemsOnPath = scene()->items(boundingRect);
+
+    // Crée un chemin représentant la ligne
+    QPainterPath linePath;
+    linePath.moveTo(line.p1());
+    linePath.lineTo(line.p2());
+
+    for (QGraphicsItem* item : itemsOnPath) {
+        if (item == this || item == player) continue;
+
+        if (item->data(0).toString() == "collision") {
+            QPainterPath shape = item->shape();
+            shape.translate(item->pos()); // Adapter à la scène
+
+            if (shape.intersects(linePath)) {
+                return false; // Un obstacle bloque la ligne
             }
         }
+    }
 
-        // Si aucune direction n'est libre, l'ennemi ne bouge pas
-        // if (!canMove) {
-        //     qDebug() << "Aucune direction libre trouvée pour l'ennemi.";
-        // }
+    return true; // Aucun obstacle ne bloque la ligne 
+}
+
+
+void Enemy::wander() {
+    QList<QPointF> directions = {
+        QPointF(1, 0), QPointF(-1, 0), QPointF(0, 1), QPointF(0, -1)
+    };
+    std::shuffle(directions.begin(), directions.end(), *QRandomGenerator::global());
+
+    for (const QPointF& dir : directions) {
+        if (canMoveInDirection(dir)) {
+            setPos(x() + dir.x() * speed, y() + dir.y() * speed);
+            return;
+        }
+    }
+}
+
+void Enemy::moveTowardsPlayerOrWander(Player* player) {
+    if (hasLineOfSightTo(player)) {
+        moveTowards(player->pos());
+    } else {
+        wander();
+    }
+}
+
+void Enemy::moveTowards(QPointF target) {
+    QPointF direction = target - pos();
+    qreal dist = std::hypot(direction.x(), direction.y());
+    if (dist > 0) {
+        direction /= dist;
+        if (canMoveInDirection(direction)) {
+            setPos(x() + direction.x() * speed, y() + direction.y() * speed);
+        }
     }
 }
 

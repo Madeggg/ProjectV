@@ -24,6 +24,7 @@ void Player::loadWalkAnimations() {
     QPixmap meleeSheet("img/Stab.png");
     QPixmap pistolSheet("img/Shoot.png");
     QPixmap deathSheet("img/Death.png");
+    QPixmap idleSheet("img/Idle.png");
 
     //Tous nos sprites sont en taille 32*32
     int frameWidth = 32;
@@ -51,6 +52,9 @@ void Player::loadWalkAnimations() {
         deathLeft.append(new QPixmap(deathSheet.copy(i * frameWidth, 3 * frameHeight, frameWidth, frameHeight)));  // up
 
     }
+
+  
+
 }
 
 void Player::updateWalkAnimation() {
@@ -118,6 +122,9 @@ void Player::playDeathAnimation() {
         }
     }
 }
+
+
+
 
 
 

@@ -67,7 +67,7 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent* event);
-    
+   
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 
 private slots:
