@@ -161,7 +161,7 @@ void Player::moveDown() {
 
 void Player::revertToPreviousPosition() {
     setPos(previousPosition);
-    qDebug() << "Position restaurée à :" << previousPosition;
+    // qDebug() << "Position restaurée à :" << previousPosition;
 }
 
 void Player::checkKillCount() {

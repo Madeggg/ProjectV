@@ -23,7 +23,7 @@ void GameManager::resetGame() {
             scene->removeItem(item);
     }
 
-    player->setPos(200, 400);
+    player->setPos(2048, 2048);
     player->setHealth(10000);
     startGame(); // Redémarre la partie
 }

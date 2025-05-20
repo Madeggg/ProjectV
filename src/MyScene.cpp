@@ -24,8 +24,9 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     // Création du joueur
     player = new Player();
     this->addItem(player);  // Ajout à la scène
-    player->setPos(445, 555);
-    player->setZValue(50);
+    player->setPos(1900, 2048);
+    qDebug() << "Player position after setPos:" << player->pos();
+    player->setZValue(50000000);
 
     connect(player, &Player::ammoBoxNeeded, this, &MyScene::spawnAmmoBox);
 
@@ -236,7 +237,7 @@ void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 void MyScene::loadMap(){
 
     //Load and parse json file
-    QFile file("test1.json");
+    QFile file("saveV2.json");
     file.open(QIODevice::ReadOnly);
 
     QJsonDocument document = QJsonDocument::fromJson(file.readAll());
@@ -309,7 +310,7 @@ void MyScene::loadMap(){
                         // tile->setPos(x * 16, y * 16);
                         // tile->setOpacity(layer["opacity"].toDouble());
                         // this->addItem(tile);//draw the tile at the right position
-                        painter.drawPixmap(x * 16, y * 16, listPixmap[tileID]);
+                        painter.drawPixmap(x * 32, y * 32, listPixmap[tileID]);
 
                     }
                 }
