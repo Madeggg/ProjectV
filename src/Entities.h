@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QTimer>   
 #include <QString>
+#include <QGraphicsItem>
 
 #include "GameManager.h"
 #include "Player.h"
@@ -26,11 +27,15 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         bool distance; //Booléen pour savoir si l'ennemi attaque le joueur à distance ou pas
         bool isDead = false; // Booléen pour savoir si l'ennemi est mort
         Weapon* weapon;
-        QString type;       //Type de l'eenemi (physique ou distance)
+        QString type;       //Type de l'ennemi (physique ou distance)
         QTimer* movementTimer; // Timer pour le mouvement de l'ennemi
         QTimer* attackTimer;    // Timer pour l'attaque de l'ennemi
         bool canAttack = true;
+        bool canShoot = true;
         int currentFrame = 0;
+        int deathDuration;
+
+        //Zombie
 
         //Déplacements classiques
         QVector<QPixmap*> walkFront;
@@ -49,6 +54,26 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         QVector<QPixmap*> deathBack;
         QVector<QPixmap*> deathRight;
         QVector<QPixmap*> deathLeft;
+
+
+        //Vampire
+
+        QVector<QPixmap*> walkFrontVampire;
+        QVector<QPixmap*> walkBackVampire;
+        QVector<QPixmap*> walkRightVampire;
+        QVector<QPixmap*> walkLeftVampire;
+
+        QVector<QPixmap*> shootFront;
+        QVector<QPixmap*> shootBack;
+        QVector<QPixmap*> shootRight;
+        QVector<QPixmap*> shootLeft;
+
+        
+        QVector<QPixmap*> deathFrontVampire;
+        QVector<QPixmap*> deathBackVampire;
+        QVector<QPixmap*> deathRightVampire;
+        QVector<QPixmap*> deathLeftVampire;
+
 
 
     signals:
@@ -71,9 +96,8 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         void setWeapon(Weapon* newWeapon); 
         void setType(QString newType);     
         void showHitEffect();               // Méthode pour changer le sprite de l'ennemi lorsqu'il est touché
-        virtual void setApperance(QString newType); 
+        
         void setDistance(bool newDistance); // Setter pour le booléen distance
-        QRectF boundingRect() const;
         QPainterPath shape() const override;
 
 
@@ -89,8 +113,6 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         //Méthode d'attaque de l'ennemi si son type est distance
         void shoot(Player* player);
 
-        // Méthode générale pour infliger des dégâts au joueur
-        void doDamage(Player* player); 
 
         bool hasLineOfSightTo(Player* player); // Vérifie si l'ennemi a une ligne de vue sur le joueur
 

@@ -8,7 +8,7 @@
 
 // Méthodes de Enemy
 
-Enemy::Enemy(QString type,QGraphicsItem* parent, Player* player) : QGraphicsPixmapItem(parent), targetPlayer(player), health(100), damage(2), speed(6) {
+Enemy::Enemy(QString type,QGraphicsItem* parent, Player* player) : QGraphicsPixmapItem(parent), targetPlayer(player), health(40), damage(0), speed(6) {
     setShapeMode(QGraphicsPixmapItem::BoundingRectShape); 
     setDistance(false); // Par défaut, l'ennemi n'attaque pas à distance
     setType(type); 
@@ -36,10 +36,17 @@ Enemy::Enemy(QString type,QGraphicsItem* parent, Player* player) : QGraphicsPixm
 } 
 
 void Enemy::loadAnimations() {
+
+    //Zombie
     QPixmap sheet("img/WalkZombie.png");
     QPixmap meleeSheet("img/AttackZombie.png");
     QPixmap deathSheet("img/DeathZombie.png");
     QPixmap idleSheet("img/IdleZombie.png");
+
+    //Vampire
+    QPixmap sheetVampire("img/Vampires3_Walk_full.png");
+    QPixmap meleeSheetVampire("img/Vampires3_Attack_full.png");
+    QPixmap deathSheetVampire("img/Vampires3_Death_full.png");
 
     //Tous nos sprites sont en taille 32*32
     int frameWidth = 32;
@@ -67,6 +74,38 @@ void Enemy::loadAnimations() {
         deathLeft.append(new QPixmap(deathSheet.copy(i * frameWidth, 3 * frameHeight, frameWidth, frameHeight)));  // up
     }
 
+    int frameWidthWalk = sheetVampire.width() / 6;  // 6 colonnes pour le vampire
+    int frameHeightWalk = sheetVampire.height() / 4; // 4 lignes pour le vampire
+
+    for(int i = 0; i < 6; ++i) {
+        walkFrontVampire.append(new QPixmap(sheetVampire.copy(i * frameWidthWalk, 0 * frameHeightWalk, frameWidthWalk, frameHeightWalk))); // down
+        walkBackVampire.append(new QPixmap(sheetVampire.copy(i * frameWidthWalk, 1 * frameHeightWalk, frameWidthWalk, frameHeightWalk))); // left
+        walkLeftVampire.append(new QPixmap(sheetVampire.copy(i * frameWidthWalk, 2 * frameHeightWalk, frameWidthWalk, frameHeightWalk))); // right
+        walkRightVampire.append(new QPixmap(sheetVampire.copy(i * frameWidthWalk, 3 * frameHeightWalk, frameWidthWalk, frameHeightWalk))); // up
+    }
+
+    int frameWidthAttack = meleeSheetVampire.width() / 12;  // 12 colonnes pour le vampire
+    int frameHeightAttack = meleeSheetVampire.height() / 4; // 4 lignes pour le vampire
+
+
+    for(int i = 0; i < 12; ++i) {
+        shootFront.append(new QPixmap(meleeSheetVampire.copy(i * frameWidthAttack, 0 * frameHeightAttack, frameWidthAttack, frameHeightAttack))); // down
+        shootBack.append(new QPixmap(meleeSheetVampire.copy(i * frameWidthAttack, 1 * frameHeightAttack, frameWidthAttack, frameHeightAttack))); // left
+        shootLeft.append(new QPixmap(meleeSheetVampire.copy(i * frameWidthAttack, 2 * frameHeightAttack, frameWidthAttack, frameHeightAttack))); // right
+        shootRight.append(new QPixmap(meleeSheetVampire.copy(i * frameWidthAttack, 3 * frameHeightAttack, frameWidthAttack, frameHeightAttack))); // up
+    }
+
+    int frameWidthDeath = deathSheetVampire.width() / 11;  
+    int frameHeightDeath = deathSheetVampire.height() / 4; // 4 lignes pour le vampire
+
+    for(int i = 0; i < 11; ++i) {
+        deathFrontVampire.append(new QPixmap(deathSheetVampire.copy(i * frameWidthDeath, 0 * frameHeightDeath, frameWidthDeath, frameHeightDeath))); // down
+        deathBackVampire.append(new QPixmap(deathSheetVampire.copy(i * frameWidthDeath, 1 * frameHeightDeath, frameWidthDeath, frameHeightDeath))); // left
+        deathLeftVampire.append(new QPixmap(deathSheetVampire.copy(i * frameWidthDeath, 2 * frameHeightDeath, frameWidthDeath, frameHeightDeath))); // right
+        deathRightVampire.append(new QPixmap(deathSheetVampire.copy(i * frameWidthDeath, 3 * frameHeightDeath, frameWidthDeath, frameHeightDeath))); // up
+    }
+
+
 
 }
 
@@ -74,19 +113,37 @@ void Enemy::playWalkAnimation() {
     QVector<QPixmap*>* currentAnim = nullptr;
     QString direction = targetPlayer->getDirection(); 
 
-    if (direction == "down") {
-        currentAnim = &walkFront;
-    } else if (direction == "up") {
-        currentAnim = &walkBack;
-    } else if (direction == "left") {
-        currentAnim = &walkLeft;
-    } else if (direction == "right") {
-        currentAnim = &walkRight;
+    if(type == "Physique"){
+        
+
+        if (direction == "down") {
+            currentAnim = &walkFront;
+        } else if (direction == "up") {
+            currentAnim = &walkBack;
+        } else if (direction == "left") {
+            currentAnim = &walkLeft;
+        } else if (direction == "right") {
+            currentAnim = &walkRight;
+        }
+
+        
+    }
+    else if(type == "Distance"){
+       
+        if (direction == "down") {
+            currentAnim = &walkFrontVampire;
+        } else if (direction == "up") {
+            currentAnim = &walkBackVampire;
+        } else if (direction == "left") {
+            currentAnim = &walkLeftVampire;
+        } else if (direction == "right") {
+            currentAnim = &walkRightVampire;
+        }
     }
 
     if (currentAnim && !currentAnim->isEmpty()) {
-        currentFrame = (currentFrame + 1) % currentAnim->size();
-        setPixmap(*(*currentAnim)[currentFrame]);
+            currentFrame = (currentFrame + 1) % currentAnim->size();
+            setPixmap(*(*currentAnim)[currentFrame]);
     }
 }
 
@@ -94,23 +151,40 @@ void Enemy::playAttackAnimation() {
     QVector<QPixmap*>* currentAnim = nullptr;
     QString direction = targetPlayer->getDirection(); 
 
-    if (direction == "down") {
-        currentAnim = &meleeFront;
-    } else if (direction == "up") {
-        currentAnim = &meleeBack;
-    } else if (direction == "left") {
-        currentAnim = &meleeLeft;
-    } else if (direction == "right") {
-        currentAnim = &meleeRight;
+    if(type == "Physique"){
+        if (direction == "down") {
+            currentAnim = &meleeFront;
+        } else if (direction == "up") {
+            currentAnim = &meleeBack;
+        } else if (direction == "left") {
+            currentAnim = &meleeLeft;
+        } else if (direction == "right") {
+            currentAnim = &meleeRight;
+        }
+
+        
+    }
+    else if(type=="Distance"){
+        if (direction == "down") {
+            currentAnim = &shootFront;
+        } else if (direction == "up") {
+            currentAnim = &shootBack;
+        } else if (direction == "left") {
+            currentAnim = &shootLeft;
+        } else if (direction == "right") {
+            currentAnim = &shootRight;
+        }
+
+       
     }
 
     if (currentAnim && !currentAnim->isEmpty()) {
-        for (int i = 0; i < currentAnim->size(); ++i) {
-            QTimer::singleShot(i * 100, this, [this, currentAnim, i]() {
-                setPixmap(*(*currentAnim)[i]);
-            });
+            for (int i = 0; i < currentAnim->size(); ++i) {
+                QTimer::singleShot(i * 100, this, [this, currentAnim, i]() {
+                    setPixmap(*(*currentAnim)[i]);
+                });
+            }
         }
-    }
 }
 
 
@@ -118,17 +192,31 @@ void Enemy::playDeathAnimation() {
     QVector<QPixmap*>* currentAnim = nullptr;
     QString direction = targetPlayer->getDirection(); 
 
-
-    if (direction == "down") {
-        currentAnim = &deathFront;
-    } else if (direction == "up") {
-        currentAnim = &deathBack;
-    } else if (direction == "left") {
-        currentAnim = &deathLeft;
-    } else if (direction == "right") {
-        currentAnim = &deathRight;
+    if(type == "Physique"){
+        if (direction == "down") {
+            currentAnim = &deathFront;
+        } else if (direction == "up") {
+            currentAnim = &deathBack;
+        } else if (direction == "left") {
+            currentAnim = &deathLeft;
+        } else if (direction == "right") {
+            currentAnim = &deathRight;
+        }
     }
 
+    else if(type == "Distance"){
+        if (direction == "down") {
+            currentAnim = &deathFrontVampire;
+        } else if (direction == "up") {
+            currentAnim = &deathBackVampire;
+        } else if (direction == "left") {
+            currentAnim = &deathLeftVampire;
+        } else if (direction == "right") {
+            currentAnim = &deathRightVampire;
+        }
+    }
+
+    
     if (currentAnim && !currentAnim->isEmpty()) {
         for (int i = 0; i < currentAnim->size(); ++i) {
             QTimer::singleShot(i * 100, this, [this, currentAnim, i]() {
@@ -182,15 +270,7 @@ void Enemy::setType(QString newType) {
     type = newType;
 }
 
-void Enemy::setApperance(QString type) {
-    if(type == "Physique"){
-        setPixmap(QPixmap("img/sprite_ennemi_static.png").scaled(40, 40));
-    }
-    else if(type == "Distance"){
-        setPixmap(QPixmap("img/sprite_homelander_static.png").scaled(40, 40));
-    }
-    
-}
+
 
 
 void Enemy::setDistance(bool newDistance) {
@@ -198,69 +278,91 @@ void Enemy::setDistance(bool newDistance) {
 }
 
 void Enemy::punch(Player* player){
-    playAttackAnimation();  
+    if (!canAttack) return;  // Empêche de frapper trop souvent
+    canAttack = false;
 
+    playAttackAnimation();  
     player->takeDamage(damage); 
-    player->showHitEffect(); // Affiche l'effet de coup sur le joueur
+    player->showHitEffect(); 
     qDebug() << "Le joueur a pris des dégats ! PV restants : " << player->getHealth();  
+
+    attackTimer->start();  // Redémarre le timer pour autoriser la prochaine attaque dans 2 sec
 }
 
 
 void Enemy::shoot(Player* player) {
-    if (!scene() || !player) return;
+    if (!scene() || !player || !canShoot) return;
+    canShoot = false;
 
-    qDebug()<<"appel a shoot de enemy";
+    // Joue l'animation de tir
+    playAttackAnimation();
 
-    QPointF start = pos() + QPointF(boundingRect().width()/2, boundingRect().height()/2);
-    QPointF direction = player->pos() - start;
+    // Calcul du délai basé sur le nombre de frames
+    int frameCount = 12;     // ← nombre de frames dans ton animation shoot (adaptable)
+    int frameDuration = 100; // ← durée d'une frame en ms (comme dans playAttackAnimation)
+    int totalDuration = frameCount * frameDuration;
 
-    qreal length = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());
-    if (length == 0) return;
-    direction /= length;
+    QTimer::singleShot(totalDuration, this, [this, player]() {
+        if (!scene() || !player) return;
+        
+        //Pour faire partir le projectile du centre du sprite de l'ennemi
+        QPointF start = pos() + QPointF(pixmap().width() / 2, pixmap().height() / 2);
+       
 
-    qreal angle = std::atan2(direction.y(), direction.x());
-    qreal degrees = angle * 180 / M_PI;
+        QPointF targetCenter = player->pos() + QPointF(player->boundingRect().width()/2, player->boundingRect().height()/2);
+        QPointF direction = targetCenter - start;
 
-    Projectile* p = new Projectile(start, direction, 5,20); 
-    p->setSprite(new QPixmap("img/laserBeam.png"));
-    p->setRotation(degrees);
-    p->setMaxDistance(500); // Distance maximale du projectile
-    p->setSource("enemy");  // Définit la source du projectile
+        qreal length = std::sqrt(direction.x() * direction.x() + direction.y() * direction.y());
+        if (length == 0) return;
+        direction /= length;
 
-    scene()->addItem(p);
-    
+        qreal angle = std::atan2(direction.y(), direction.x());
+        qreal degrees = angle * 180 / M_PI;
+
+        Projectile* p = new Projectile(start, direction, 5, 20); 
+        p->setSprite(new QPixmap("img/laserBeam.png"));
+        p->setRotation(degrees);
+        p->setMaxDistance(500);
+        p->setSource("enemy");
+
+        scene()->addItem(p);
+
+        // Autorise le prochain tir après un délai (si nécessaire)
+        QTimer::singleShot(1500, this, [this]() {
+            canShoot = true;
+        });
+    });
 }
 
-void Enemy::doDamage(Player* player) {
-    if (!canAttack || !player || !scene()) return;
 
-    
 
-    if (getType() == "Physique") {
-        punch(player);
-    } 
-    else if (getType() == "Distance") {
-        shoot(player);
-    }
 
-    canAttack = false;
-    attackTimer->start();
-}
+
 
 
 void Enemy::takeDamage(int amount) {
     if (isDead) return;
 
     health -= amount;
-    if (health <= 0) {
-        playDeathAnimation();
+    if (health <= 0 && !isDead) {
         isDead = true;
+        playDeathAnimation();
         qDebug() << "L'ennemi est mort. Suppression de la scène";
 
-        scene()->removeItem(this);
-        deleteLater();
+        if(type == "Physique"){
+            deathDuration = 7*100;  // 7 frames à 100ms pour le zombie
+        }
+        else if (type == "Distance"){
+            deathDuration = 11*100;  // 11 frames à 100ms pour le vampire
+        }
+ 
 
-        if(targetPlayer){
+        QTimer::singleShot(deathDuration, this, [this]() {
+            if (scene()) scene()->removeItem(this);
+                deleteLater();
+        });
+
+        if (targetPlayer) {
             targetPlayer->checkKillCount();
         }
     }
@@ -355,13 +457,22 @@ void Enemy::moveTowards(QPointF target) {
     QPointF direction = target - pos();
     qreal dist = std::hypot(direction.x(), direction.y());
 
-    // Distance minimale à respecter
-    const qreal minDistance = 40;
+  
 
     // S'il est trop proche, on n'avance plus et on attaque
-    if (dist <= minDistance) {
-        doDamage(targetPlayer);
-        return;
+    if (dist <= 40) {
+        if(type == "Physique"){
+            punch(targetPlayer); // Attaque le joueur
+            return;
+        }
+        
+    }
+
+    if(dist <= 200){
+        if(type == "Distance"){
+            shoot(targetPlayer); // Attaque le joueur
+            return;
+        }
     }
 
     // Sinon, on se rapproche du joueur
@@ -389,9 +500,7 @@ void Enemy::showHitEffect() {
 }
 
 
- QRectF Enemy::boundingRect() const {
-    return QRectF(0, 0, 40, 40);  // Utiliser la taille réelle de l'ennemi
-}
+
 
  QPainterPath Enemy::shape() const{
         QPainterPath path;

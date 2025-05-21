@@ -63,7 +63,7 @@ void GameManager::update() {
     if (frameCount % 300 == 0) { // toutes les 5 secondes à 60 FPS
         spawnEnemiesPhysique();
         
-        if(player->getKillCount() > 5) { // Si le joueur a tué 5 ennemis
+        if(player->getKillCount() > 1) { // Si le joueur a tué 5 ennemis
             spawnEnemiesDistance();
         }
     }
@@ -99,19 +99,28 @@ void GameManager::spawnEnemiesPhysique() {
 
 
 void GameManager::spawnEnemiesDistance() {
-    static QVector<QPointF> safeSpawnPoints = {
-        {625,50}, {970,295}, {15,575}, {15,265},        
-        {70,390}, {445,970}, {10,800}, {970,570},       //liste de points de spawns hors collisions pour les ennemis
-        {685,590}, {965,790}, {970,600}, {175,870}  
-    };
+    const int mapLimit = 4096;
+    const int minDistanceFromPlayer = 200; // distance minimale entre joueur et ennemi
 
-    int index = QRandomGenerator::global()->bounded(safeSpawnPoints.size());
-    QPointF spawnPos = safeSpawnPoints[index];
+    QPointF spawnPos;
+    QPointF playerPos = player->pos();
+    qreal distance = 0;
+
+    // Essaye plusieurs fois jusqu'à trouver une position assez éloignée
+    for (int attempts = 0; attempts < 50; ++attempts) {
+        qreal x = QRandomGenerator::global()->bounded(mapLimit);
+        qreal y = QRandomGenerator::global()->bounded(mapLimit);
+        spawnPos = QPointF(x, y);
+
+        distance = std::hypot(spawnPos.x() - playerPos.x(), spawnPos.y() - playerPos.y());
+        if (distance >= minDistanceFromPlayer)
+            break;
+    }
 
     Enemy* enemy = new Enemy("Distance", nullptr, player);
-    enemy->setHealth(200);
-    enemy->setSpeed(10);
-    enemy->setPos(spawnPos);
+    enemy->setScale(2.0);
+    enemy->setPos(player->pos());
+    qDebug() << "Position de spawn de l'ennemi :" << spawnPos;
     scene->addItem(enemy);
 }
 

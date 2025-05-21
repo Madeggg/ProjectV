@@ -88,7 +88,7 @@ void MyScene::update() {
 
                 // ☠️ Projectile d'ennemi → touche le joueur
                 if (projectile->getSource() == "enemy" && collidingItem == player) {
-                    player->takeDamage(projectile->getDamage());
+                    //player->takeDamage(projectile->getDamage());
                     qDebug() << "Le joueur a été touché par un tir ennemi ! PV restants :" << player->getHealth();
 
                     removeItem(projectile);
