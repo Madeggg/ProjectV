@@ -8,7 +8,7 @@
 
 // Méthodes de Enemy
 
-Enemy::Enemy(QString type,QGraphicsItem* parent, Player* player) : QGraphicsPixmapItem(parent), targetPlayer(player), health(10), damage(20), speed(6) {
+Enemy::Enemy(QString type,QGraphicsItem* parent, Player* player) : QGraphicsPixmapItem(parent), targetPlayer(player), health(100), damage(2), speed(6) {
     setShapeMode(QGraphicsPixmapItem::BoundingRectShape); 
     setDistance(false); // Par défaut, l'ennemi n'attaque pas à distance
     setType(type); 
@@ -201,6 +201,7 @@ void Enemy::punch(Player* player){
     playAttackAnimation();  
 
     player->takeDamage(damage); 
+    player->showHitEffect(); // Affiche l'effet de coup sur le joueur
     qDebug() << "Le joueur a pris des dégats ! PV restants : " << player->getHealth();  
 }
 
@@ -374,29 +375,17 @@ void Enemy::moveTowards(QPointF target) {
 }
 
 void Enemy::showHitEffect() {
+    auto* effect = new QGraphicsColorizeEffect(this);
+    effect->setColor(Qt::red);
+    effect->setStrength(1.0);
+    setGraphicsEffect(effect);
 
-    if(getType() == "Physique"){
-         this->setPixmap(QPixmap("img/sprite_ennemi_static_hit.png").scaled(40, 40));
-    }
-    else if (getType() == "Distance"){
-        this->setPixmap(QPixmap("img/sprite_homelander_static_hit.png").scaled(40, 40));
-    }
-   
-
-    QTimer* timer = new QTimer(this);
-    timer->setSingleShot(true);
-    QObject::connect(timer, &QTimer::timeout, this, [this]() {
-        if (!this->getIsDead()) {
-            if(getType() == "Physique"){
-                this->setPixmap(QPixmap("img/sprite_ennemi_static.png").scaled(40, 40));
-            }
-            else if(getType() == "Distance"){
-                this->setPixmap(QPixmap("img/sprite_homelander_static.png").scaled(40, 40));
-            }
-            
+    QTimer::singleShot(100, this, [this, effect]() {
+        if (graphicsEffect() == effect) {
+            setGraphicsEffect(nullptr);
         }
+        // Pas besoin de delete manuellement, Qt s'en occupe grâce au parent
     });
-    timer->start(100); // 100ms d'effet visuel
 }
 
 

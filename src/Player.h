@@ -8,7 +8,9 @@
     #include <QTimer>
     #include <QVector>
     #include <QPixmap>
+    #include <QGraphicsColorizeEffect>
     #include "GameManager.h"
+
    
 
     // Déclaration anticipée
@@ -59,6 +61,7 @@
         void loadAnimations();
         void playAttackAnimation();     // Méthode pour jouer l'animation d'attaque
         void playDeathAnimation();      // Méthode pour jouer l'animation de mort
+        void showHitEffect(); // Méthode pour afficher l'effet de coup
         
     
         void revertToPreviousPosition();

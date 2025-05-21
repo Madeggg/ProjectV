@@ -124,6 +124,19 @@ void Player::playDeathAnimation() {
 }
 
 
+void Player::showHitEffect() {
+    auto* effect = new QGraphicsColorizeEffect(this); // 👈 parent = this
+    effect->setColor(Qt::red);
+    effect->setStrength(1.0);
+    setGraphicsEffect(effect);
+
+    QTimer::singleShot(100, this, [this, effect]() {
+        if (graphicsEffect() == effect) {
+            setGraphicsEffect(nullptr);
+        }
+        // Pas besoin de delete manuellement, Qt s'en occupe grâce au parent (sinon seg fault)
+    });
+}
 
 
 
