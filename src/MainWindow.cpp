@@ -91,6 +91,7 @@ void MainWindow::showGameOverMenu() {
 
     if (mainScene) {
         mainScene->getGameManager()->setPause(true);
+        if (mainScene->timer) mainScene->timer->stop(); // timer de la scène
     }
 }
 

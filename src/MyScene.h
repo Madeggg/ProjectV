@@ -58,7 +58,7 @@ public:
     void setHUD(HUD* hudWidget);
 
    
-
+    QTimer* timer;
 
 
 
@@ -74,7 +74,6 @@ private slots:
     void update();
 
 private:
-    QTimer* timer;
     GameManager* gameManager;
     Player* player;
     Enemy* enemy;

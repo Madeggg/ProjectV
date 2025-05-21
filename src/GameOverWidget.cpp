@@ -2,20 +2,23 @@
 
 GameOverWidget::GameOverWidget(QWidget* parent) : QWidget(parent) {
     setStyleSheet("background-color: rgba(0, 0, 0, 180); color: white; font-size: 24px;");
-    setFixedSize(800, 600); // Mets ici la taille de ton écran de jeu
+    // setFixedSize(2000, 2000); fixer la taille de l'écran mais pas optimal.
+
+    if (parent)
+        this->setGeometry(parent->rect());
 
     label = new QLabel("Game Over", this);
     label->setAlignment(Qt::AlignCenter);
     label->setStyleSheet("background-color: #222; color: white; font-size: 64px; font-weight: bold;");
-    label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    label->setGeometry(0, height() / 4, width(), 100); // centré en haut
 
     restartButton = new QPushButton("Restart", this);
+    restartButton->setStyleSheet("font-size: 24px; padding: 10px 20px;");
     connect(restartButton, &QPushButton::clicked, this, &GameOverWidget::restartClicked);
 
-    QVBoxLayout* layout = new QVBoxLayout(this);
-    layout->addWidget(label, 1); // Le label prend tout l'espace disponible
-    layout->addWidget(restartButton, 0, Qt::AlignHCenter | Qt::AlignBottom);
-    setLayout(layout);
+    int btnWidth = 200;
+    int btnHeight = 50;
+    restartButton->setGeometry((width() - btnWidth) / 2, (height() - btnHeight) / 2, btnWidth, btnHeight);
 
     connect(restartButton, &QPushButton::clicked, this, [this]() {
         this->hide();                 // Cacher le widget Game Over

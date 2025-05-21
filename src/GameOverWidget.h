@@ -21,6 +21,8 @@ signals:
 private:
     QLabel* label;
     QPushButton* restartButton;
+
+    
 };
 
 #endif // GAMEOVERWIDGET_H
