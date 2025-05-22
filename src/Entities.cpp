@@ -113,7 +113,8 @@ void Enemy::playWalkAnimation() {
     QVector<QPixmap*>* currentAnim = nullptr;
     QString direction = targetPlayer->getDirection(); 
 
-    if(type == "Physique"){
+    if(canPlayAnimation){
+        if(type == "Physique"){
         
 
         if (direction == "down") {
@@ -144,14 +145,18 @@ void Enemy::playWalkAnimation() {
     if (currentAnim && !currentAnim->isEmpty()) {
             currentFrame = (currentFrame + 1) % currentAnim->size();
             setPixmap(*(*currentAnim)[currentFrame]);
+        }
     }
 }
+
+    
 
 void Enemy::playAttackAnimation() {
     QVector<QPixmap*>* currentAnim = nullptr;
     QString direction = targetPlayer->getDirection(); 
 
-    if(type == "Physique"){
+    if(canPlayAnimation){
+         if(type == "Physique"){
         if (direction == "down") {
             currentAnim = &meleeFront;
         } else if (direction == "up") {
@@ -185,12 +190,18 @@ void Enemy::playAttackAnimation() {
                 });
             }
         }
+    }
+    
+   
 }
 
 
 void Enemy::playDeathAnimation() {
     QVector<QPixmap*>* currentAnim = nullptr;
     QString direction = targetPlayer->getDirection(); 
+     
+    canPlayAnimation = false;
+
 
     if(type == "Physique"){
         if (direction == "down") {
@@ -298,14 +309,14 @@ void Enemy::shoot(Player* player) {
     playAttackAnimation();
 
     // Calcul du délai basé sur le nombre de frames
-    int frameCount = 12;     // ← nombre de frames dans ton animation shoot (adaptable)
+    int frameCount = 12;     // ← nombre de frames dans l'animatiojn shoot
     int frameDuration = 100; // ← durée d'une frame en ms (comme dans playAttackAnimation)
     int totalDuration = frameCount * frameDuration;
 
     QTimer::singleShot(totalDuration, this, [this, player]() {
         if (!scene() || !player) return;
         
-        //Pour faire partir le projectile du centre du sprite de l'ennemi
+        //Pour faire partir le projectile du centre du sprite de l'ennemi (MARCHE PAS)
         QPointF start = pos() + QPointF(pixmap().width() / 2, pixmap().height() / 2);
        
 

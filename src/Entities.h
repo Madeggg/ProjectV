@@ -32,6 +32,7 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         QTimer* attackTimer;    // Timer pour l'attaque de l'ennemi
         bool canAttack = true;
         bool canShoot = true;
+        bool canPlayAnimation = true; // Booléen pour savoir si l'animation de déplacement ou d'attaque peut être jouée, si il est à false on peut lancer l'animation de mort
         int currentFrame = 0;
         int deathDuration;
 
