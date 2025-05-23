@@ -9,7 +9,7 @@ Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), 
 
     
     hasWeapon = false; // Par défaut, le joueur n'a pas d'arme
-    weapon = inventory[0]; //Arme de melee par défaut
+    
 
     setDirection("down"); // Direction par défaut
 
@@ -17,6 +17,10 @@ Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), 
     connect(walkTimer, &QTimer::timeout, this, &Player::updateWalkAnimation);
     loadAnimations();
     setPixmap(*walkFront[0]);
+
+    Weapon* melee = new Weapon("Melee", this);  // Arme par défaut 
+    inventory[Melee] = melee;
+
 }
 
 void Player::loadAnimations() {
@@ -80,12 +84,12 @@ void Player::playAttackAnimation() {
     QVector<QPixmap*>* currentAnim = nullptr;
     QString type = getCurrentWeapon() ? getCurrentWeapon()->getType() : "Melee";
 
-    if (type == "Pistol") {
+    if (type == "Pistol" && getCurrentWeapon()->getAmmo() > 0) {        // Pistol
         if (direction == "down") currentAnim = &pistolFront;
         else if (direction == "up") currentAnim = &pistolBack;
         else if (direction == "left") currentAnim = &pistolLeft;
         else if (direction == "right") currentAnim = &pistolRight;
-    } else { // Melee (no weapon)
+    } else { // Melee 
         if (direction == "down") currentAnim = &meleeFront;
         else if (direction == "up") currentAnim = &meleeBack;
         else if (direction == "left") currentAnim = &meleeLeft;
@@ -234,10 +238,15 @@ void Player::setHasWeapon(bool newHasWeapon) {
 
 
 Player::Slot Player::pickWeapon(Weapon* w){
-    if (!w) return Melee; // pas d'arme à ramasser
 
     // Détermine le slot cible
     Slot pickedSlot = Melee;           // valeur par défaut (au cas où)
+
+    if (w->getType() == "Melee") {
+        pickedSlot          = Melee;
+        inventory[Melee] = w; // Arme de mêlée par défaut
+    }
+    
 
     if (w->getType() == "Pistol") {
         pickedSlot          = Pistol;

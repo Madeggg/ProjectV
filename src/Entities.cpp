@@ -111,7 +111,8 @@ void Enemy::loadAnimations() {
 
 void Enemy::playWalkAnimation() {
     QVector<QPixmap*>* currentAnim = nullptr;
-    QString direction = targetPlayer->getDirection(); 
+    QString direction = facingDirection;
+
 
     if(canPlayAnimation){
         if(type == "Physique"){
@@ -153,7 +154,8 @@ void Enemy::playWalkAnimation() {
 
 void Enemy::playAttackAnimation() {
     QVector<QPixmap*>* currentAnim = nullptr;
-    QString direction = targetPlayer->getDirection(); 
+    QString direction = facingDirection;
+
 
     if(canPlayAnimation){
          if(type == "Physique"){
@@ -198,7 +200,8 @@ void Enemy::playAttackAnimation() {
 
 void Enemy::playDeathAnimation() {
     QVector<QPixmap*>* currentAnim = nullptr;
-    QString direction = targetPlayer->getDirection(); 
+    QString direction = facingDirection;
+
      
     canPlayAnimation = false;
 
@@ -237,8 +240,16 @@ void Enemy::playDeathAnimation() {
     }
 }
 
+void Enemy::updateFacingDirection() {
+    if (!targetPlayer) return;
 
-  
+    QPointF delta = targetPlayer->pos() - pos();
+    if (std::abs(delta.x()) > std::abs(delta.y())) {
+        facingDirection = delta.x() > 0 ? "right" : "left";
+    } else {
+        facingDirection = delta.y() > 0 ? "down" : "up";
+    }
+}
 
 
 
@@ -292,6 +303,7 @@ void Enemy::punch(Player* player){
     if (!canAttack) return;  // Empêche de frapper trop souvent
     canAttack = false;
 
+    updateFacingDirection(); 
     playAttackAnimation();  
     player->takeDamage(damage); 
     player->showHitEffect(); 
@@ -305,6 +317,7 @@ void Enemy::shoot(Player* player) {
     if (!scene() || !player || !canShoot) return;
     canShoot = false;
 
+    updateFacingDirection(); 
     // Joue l'animation de tir
     playAttackAnimation();
 
@@ -463,6 +476,7 @@ void Enemy::moveTowardsPlayerOrWander(Player* player) {
 }
 
 void Enemy::moveTowards(QPointF target) {
+    updateFacingDirection(); 
     playWalkAnimation();
 
     QPointF direction = target - pos();

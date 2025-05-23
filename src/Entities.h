@@ -17,6 +17,7 @@ class Player;
 class Weapon;
 
 
+
 class Enemy : public QObject, public QGraphicsPixmapItem{
     Q_OBJECT
     protected:
@@ -35,6 +36,7 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         bool canPlayAnimation = true; // Booléen pour savoir si l'animation de déplacement ou d'attaque peut être jouée, si il est à false on peut lancer l'animation de mort
         int currentFrame = 0;
         int deathDuration;
+        QString facingDirection; // "up", "down", "left", "right"
 
         //Zombie
 
@@ -107,6 +109,7 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         void playWalkAnimation(); // Méthode pour jouer l'animation de marche
         void playAttackAnimation();     // Méthode pour jouer l'animation d'attaque
         void playDeathAnimation();      // Méthode pour jouer l'animation de mort
+        void updateFacingDirection(); // Met à jour la direction de l'ennemi en fonction de sa position par rapport au joueur
 
         // Méthode d'attaque de l'ennemi si son type est physique
         void punch(Player* player); 

@@ -38,9 +38,9 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
 
     //Sounds effects
     for (int i = 0; i < 4; ++i) {
-    knifeSounds[i] = new QSoundEffect(this);
-    knifeSounds[i]->setSource(QUrl::fromLocalFile(QString("sound/knife%1.wav").arg(i+1)));
-    knifeSounds[i]->setVolume(0.7);
+        knifeSounds[i] = new QSoundEffect(this);
+        knifeSounds[i]->setSource(QUrl::fromLocalFile(QString("sound/knife%1.wav").arg(i+1)));
+        knifeSounds[i]->setVolume(0.7);
     }
 
     moveSound = new QSoundEffect(this);
@@ -102,7 +102,7 @@ void MyScene::update() {
         Weapon* weapon = dynamic_cast<Weapon*>(item);
         if (weapon && weapon->scene() != nullptr && weapon->collidesWithItem(player)) {
             qDebug() << "Le joueur a récupéré une arme de type :" << weapon->getType();
-            player->switchTo(player->pickWeapon(weapon)); // change d'arm  
+            player->switchTo(player->pickWeapon(weapon)); // change d'arme 
             weapon->setParentItem(player);      // plus de parent graphique
             removeItem(weapon);         // retire de la scène
             player->setHasWeapon(true); // le joueur a une arme
@@ -161,10 +161,6 @@ void MyScene::keyPressEvent(QKeyEvent* event)
     // ────────────────────── 2. Changement d’arme ─────────────────────
     // (&, é, ") sur clavier AZERTY  =>  Qt::Key_1, Qt::Key_2, Qt::Key_3
     if (event->key() == Qt::Key_1) {      // &
-        if (!player->selectSlot(Player::Melee)) {
-            qDebug() << "Pas d’arme de mêlée équipée.";
-            return;
-        }
         player->switchTo(Player::Melee);
         qDebug() << "Arme de type " << player->getCurrentWeapon()->getType() << " équipée.";
     }
@@ -413,7 +409,7 @@ void MyScene::spawnWeapon() {
         Weapon* pistol = new Weapon("Pistol");
         pistol->setSprite(new QPixmap("img/pistol.png")); 
         pistol->setAmmo(10);        // 10 balles par défaut
-        pistol->setPos(450, 380);   
+        pistol->setPos(1800, 2048);   
         this->addItem(pistol);
         pistolSpawned = true; // Marque l'arme comme déjà spawnée
         
