@@ -18,8 +18,10 @@ Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), 
     loadAnimations();
     setPixmap(*walkFront[0]);
 
-    Weapon* melee = new Weapon("Melee", this);  // Arme par défaut 
+    Weapon* melee = new Weapon("Melee");
     inventory[Melee] = melee;
+    weapon = inventory[Melee];
+
 
 }
 
@@ -278,6 +280,7 @@ Player::Slot Player::pickWeapon(Weapon* w){
 void Player::switchTo(Slot s)
 {
     currentSlot = s;
+    weapon = inventory[s];   // Met à jour l'arme courante
     emit weaponChanged(inventory[s]);    // signal pour le HUD
 }
 
@@ -297,32 +300,40 @@ void Player::punch() {
     }
 }
 
-void Player::shoot(QPointF mouseScenePos){
-    
+
+void Player::shoot(QPointF mouseScenePos) {
+    if (!canShoot) return;  // Pas prêt à tirer
+
     Weapon* weapon = getCurrentWeapon();
     MyScene* sc = qobject_cast<MyScene*>(scene());
 
     if (!weapon || !sc) return;
 
-    // --- PISTOL -------------------------------------------------------------
-    if (weapon->getType() == "Pistol") {
+    // 🔒 Empêche le prochain tir pendant l’animation
+    canShoot = false;
 
-        if (weapon->getAmmo() < 1 || !sc) return;               // pas de balle ou pas de scène
-        
-        else{
+    // Lance l’animation d’attaque
+    playAttackAnimation();
+
+    QString type = weapon->getType();
+
+    int fireCooldown = 400; // Durée de l'anim de tir en ms
+
+    if (type == "Pistol") {
+        if (weapon->getAmmo() < 1) return;
+
+        // Délai pour laisser le temps à l'animation de se jouer
+        QTimer::singleShot(fireCooldown / 2, this, [=]() {
             sc->addProjectile(mouseScenePos);
             weapon->setAmmo(weapon->getAmmo() - 1);
             emit weapon->ammoChanged(weapon->getAmmo());
             qDebug() << "Tir pistolet - munitions restantes:" << weapon->getAmmo();
-        }
-        return;
+        });
     }
 
-    // --- SHOTGUN ------------------------------------------------------------
-    if (weapon->getType() == "Shotgun") {
-        if (weapon->getAmmo() < 3 || !sc) return;               // il faut au moins 3 balles pour tirer au shotgun
+    else if (type == "Shotgun") {
+        if (weapon->getAmmo() < 3) return;
 
-        // directions : 0°, +30°, -30° (facile à ajuster)
         QList<QPointF> dirs;
         if (direction == "right") {
             dirs << QPointF(1, 0) << QPointF(1, -0.5) << QPointF(1, 0.5);
@@ -334,17 +345,73 @@ void Player::shoot(QPointF mouseScenePos){
             dirs << QPointF(0, 1) << QPointF(-0.5, 1) << QPointF(0.5, 1);
         }
 
-        // Crée les 3 projectiles
-        for (const QPointF& d : dirs) {
-            QPointF norm = d / std::hypot(d.x(), d.y());
-            sc->addProjectileDir(norm, 6, 30, 100); 
-
-        }
-        weapon->setAmmo(weapon->getAmmo() - 3);
-        emit weapon->ammoChanged(weapon->getAmmo());
-        qDebug() << "Tir shotgun - munitions restantes:" << weapon->getAmmo();
+        QTimer::singleShot(fireCooldown / 2, this, [=]() {
+            for (const QPointF& d : dirs) {
+                QPointF norm = d / std::hypot(d.x(), d.y());
+                sc->addProjectileDir(norm, 6, 30, 100);
+            }
+            weapon->setAmmo(weapon->getAmmo() - 3);
+            emit weapon->ammoChanged(weapon->getAmmo());
+            qDebug() << "Tir shotgun - munitions restantes:" << weapon->getAmmo();
+        });
     }
+
+    // 🔓 Autorise le tir après cooldown complet
+    QTimer::singleShot(fireCooldown, this, [this]() {
+        canShoot = true;
+    });
 }
+
+
+
+// void Player::shoot(QPointF mouseScenePos){
+    
+//     Weapon* weapon = getCurrentWeapon();
+//     MyScene* sc = qobject_cast<MyScene*>(scene());
+
+//     if (!weapon || !sc) return;
+
+//     // --- PISTOL -------------------------------------------------------------
+//     if (weapon->getType() == "Pistol") {
+
+//         if (weapon->getAmmo() < 1 || !sc) return;               // pas de balle ou pas de scène
+        
+//         else{
+//             sc->addProjectile(mouseScenePos);
+//             weapon->setAmmo(weapon->getAmmo() - 1);
+//             emit weapon->ammoChanged(weapon->getAmmo());
+//             qDebug() << "Tir pistolet - munitions restantes:" << weapon->getAmmo();
+//         }
+//         return;
+//     }
+
+//     // --- SHOTGUN ------------------------------------------------------------
+//     if (weapon->getType() == "Shotgun") {
+//         if (weapon->getAmmo() < 3 || !sc) return;               // il faut au moins 3 balles pour tirer au shotgun
+
+//         // directions : 0°, +30°, -30° (facile à ajuster)
+//         QList<QPointF> dirs;
+//         if (direction == "right") {
+//             dirs << QPointF(1, 0) << QPointF(1, -0.5) << QPointF(1, 0.5);
+//         } else if (direction == "left") {
+//             dirs << QPointF(-1, 0) << QPointF(-1, -0.5) << QPointF(-1, 0.5);
+//         } else if (direction == "up") {
+//             dirs << QPointF(0, -1) << QPointF(-0.5, -1) << QPointF(0.5, -1);
+//         } else { // down
+//             dirs << QPointF(0, 1) << QPointF(-0.5, 1) << QPointF(0.5, 1);
+//         }
+
+//         // Crée les 3 projectiles
+//         for (const QPointF& d : dirs) {
+//             QPointF norm = d / std::hypot(d.x(), d.y());
+//             sc->addProjectileDir(norm, 6, 30, 100); 
+
+//         }
+//         weapon->setAmmo(weapon->getAmmo() - 3);
+//         emit weapon->ammoChanged(weapon->getAmmo());
+//         qDebug() << "Tir shotgun - munitions restantes:" << weapon->getAmmo();
+//     }
+// }
 
 
 

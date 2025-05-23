@@ -80,6 +80,7 @@ private:
     QPixmap pixBackground;
     bool pistolSpawned = false;
     bool shotgunSpawned = false;
+    bool ammoBoxSpawned = false;
 
      //Pause 
     QGraphicsRectItem* pauseOverlay = nullptr;

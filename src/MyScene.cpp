@@ -60,6 +60,7 @@ MyScene::~MyScene() {
 void MyScene::update() {
     gameManager->update(); // Mise à jour logique du jeu (ennemis, etc.)
     spawnWeapon();
+    spawnAmmoBox();
 
     QList<QGraphicsItem*> itemsInScene = items();
 
@@ -116,13 +117,15 @@ void MyScene::update() {
         if (item->data(0).toString() == "ammo" && item->scene() != nullptr && item->collidesWithItem(player)) {
             if (player->getHasWeapon()) {
                 Weapon* currentWeapon = player->getCurrentWeapon();
-                currentWeapon->setAmmo(currentWeapon->getAmmo() + 10);
+                currentWeapon->setAmmo(currentWeapon->getAmmo() + 20);
                 qDebug() << "Player picked up ammo. New ammo count:" << currentWeapon->getAmmo();
             }
-            removeItem(item);
-            delete item;
-            continue;
-        }
+        removeItem(item);
+        delete item;    
+        ammoBoxSpawned = false;
+        return;
+    }
+
     }
 }
 
@@ -391,16 +394,42 @@ void MyScene::loadMap(){
 
 
 
-    
 void MyScene::spawnAmmoBox() {
+    if (ammoBoxSpawned) return;  // ⚠️ Déjà une boîte présente, on ne fait rien
+
+    // Crée la boîte de munitions
     QGraphicsPixmapItem* ammoBox = new QGraphicsPixmapItem(QPixmap("img/ammo_box.png").scaled(40, 40));
     ammoBox->setData(0, "ammo");
 
-    ammoBox->setPos(445,555); 
+    QPointF position;
+    bool valid = false;
+
+    for (int attempts = 0; attempts < 20 && !valid; ++attempts) {
+        int x = QRandomGenerator::global()->bounded(0, 4096);
+        int y = QRandomGenerator::global()->bounded(0, 4096);
+        position = QPointF(x, y);
+
+        QGraphicsRectItem testBox(QRectF(position, QSizeF(40, 40)));
+        valid = true;
+
+        for (QGraphicsItem* item : items(position)) {
+            if (item->data(0).toString() == "collision") {
+                valid = false;
+                break;
+            }
+        }
+    }
+
+    ammoBox->setPos(position);
+
 
     addItem(ammoBox);
+    ammoBoxSpawned = true;
+
     
 }
+
+
 
 
 void MyScene::spawnWeapon() {
@@ -419,8 +448,8 @@ void MyScene::spawnWeapon() {
         // Fait apparaître l'arme dans la scène
         Weapon* shotgun = new Weapon("Shotgun");
         shotgun->setSprite(new QPixmap("img/shotgun.png")); 
-        shotgun->setAmmo(10);        // 10 balles par défaut
-        shotgun->setPos(450, 380);   
+        shotgun->setAmmo(15);        // 15 balles par défaut
+        shotgun->setPos(1800, 2048);   
         this->addItem(shotgun);
         shotgunSpawned = true; // Marque l'arme comme déjà spawnée
     }

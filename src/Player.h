@@ -80,6 +80,7 @@
         int currentFrame = 0;
         int killCount = 0;
         bool hasWeapon;
+        bool canShoot   = true; // Pour éviter de tirer trop souvent
         Weapon* inventory[3] = {nullptr,nullptr,nullptr};   // Tableau d'armes pour l'inventaire
         Slot currentSlot = Melee;   //Par défaut, le joueur utilise l'arme de mêlée
 
