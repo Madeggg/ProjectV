@@ -1,49 +1,90 @@
 #include "HUD.h"
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QFont>
+#include <QGraphicsDropShadowEffect>
 
 HUD::HUD(QWidget* parent) : QWidget(parent), score(0), ammo(0), timeElapsed(0) {
-    setFixedSize(200, 120);
+    setFixedSize(350, 215);
 
-    // Police simple et lisible
-    QFont font("Arial", 14, QFont::Bold);
-
-    scoreLabel = new QLabel("Score: 0", this);
-    ammoLabel = new QLabel("Munitions: 0", this);
-    timeLabel = new QLabel("Temps: 00:00", this);
-    healthLabel = new QLabel("Vie: 100", this);
-    weaponLabel = new QLabel("Arme: -", this);
-    weaponLabel->setFont(font);
-    weaponLabel->setStyleSheet("color: white;");
-    weaponLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-
-
-    // Appliquer la police et la couleur à tous les labels
-    QList<QLabel*> labels = {scoreLabel, healthLabel, ammoLabel, timeLabel};
-    for(auto label : labels) {
-        label->setFont(font);
-        label->setStyleSheet("color: white;");
-        label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    // Police un peu plus moderne et agréable
+    QFont font("Segoe UI", 14, QFont::Bold);
+    if (!font.exactMatch()) { // fallback si non dispo
+        font = QFont("Arial", 14, QFont::Bold);
     }
 
-    // Layout vertical simple avec espacement
-    QVBoxLayout* layout = new QVBoxLayout(this);
-    layout->setContentsMargins(10, 10, 10, 10);
-    layout->setSpacing(8);
-    layout->addWidget(scoreLabel);
-    layout->addWidget(healthLabel);
-    layout->addWidget(ammoLabel);
-    layout->addWidget(timeLabel);
-    layout->addWidget(weaponLabel); 
-    setLayout(layout);
+    // Création des labels "titres"
+    QLabel* scoreTitle = new QLabel("🎯 Score:");
+    QLabel* healthTitle = new QLabel("❤️ Vie:");
+    QLabel* ammoTitle = new QLabel("🔫 Munitions:");
+    QLabel* timeTitle = new QLabel("⏱ Temps:");
+    QLabel* weaponTitle = new QLabel("🗡 Arme:");
 
-    // Fond noir opaque pour bien voir
-    setStyleSheet("background-color: black; border-radius: 5px;");
+    // Création des labels "valeurs"
+    scoreLabel = new QLabel("0");
+    healthLabel = new QLabel("100");
+    ammoLabel = new QLabel("0");
+    timeLabel = new QLabel("00:00");
+    weaponLabel = new QLabel("-");
 
+    QList<QLabel*> allTitles = {scoreTitle, healthTitle, ammoTitle, timeTitle, weaponTitle};
+    QList<QLabel*> allValues = {scoreLabel, healthLabel, ammoLabel, timeLabel, weaponLabel};
+
+    // Style commun titres
+    for (auto lbl : allTitles) {
+        lbl->setFont(font);
+        lbl->setStyleSheet("color: #f0f0f0;");
+        lbl->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    }
+
+    // Style commun valeurs
+    for (auto lbl : allValues) {
+        lbl->setFont(font);
+        lbl->setStyleSheet("color: #a0eaff;");
+        lbl->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    }
+
+    // Ombre portée légère sur les labels pour relief
+    auto addShadow = [](QLabel* lbl) {
+        QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect(lbl);
+        effect->setBlurRadius(4);
+        effect->setOffset(1,1);
+        effect->setColor(QColor(0,0,0,160));
+        lbl->setGraphicsEffect(effect);
+    };
+
+    for(auto lbl : allTitles + allValues) {
+        addShadow(lbl);
+    }
+
+    // Layout horizontal pour chaque ligne: titre + valeur
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(15, 15, 15, 15);
+    mainLayout->setSpacing(16);
+
+    for (int i = 0; i < allTitles.size(); ++i) {
+        QHBoxLayout* row = new QHBoxLayout();
+        row->addWidget(allTitles[i], 1);
+        row->addWidget(allValues[i], 1);
+        mainLayout->addLayout(row);
+    }
+    setLayout(mainLayout);
+
+    // Fond noir semi-transparent avec dégradé léger et bords arrondis
+    setStyleSheet(R"(
+        background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                    stop:0 rgba(0,0,0,220),
+                                    stop:1 rgba(20,20,20,180));
+        border-radius: 10px;
+        border: 2px solid #00cfff;
+    )");
+
+    // Timer pour mise à jour temps
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, static_cast<void (HUD::*)()>(&HUD::updateTime));
     timer->start(1000);
 }
+
 
 void HUD::addScore(int points) {
     score += points;
@@ -55,7 +96,7 @@ void HUD::updateTime() {
     timeElapsed++;
     int minutes = timeElapsed / 60;
     int seconds = timeElapsed % 60;
-    timeLabel->setText(QString("Temps: %1:%2")
+    timeLabel->setText(QString("%1:%2")
                        .arg(minutes, 2, 10, QChar('0'))
                        .arg(seconds, 2, 10, QChar('0')));
 }
