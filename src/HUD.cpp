@@ -12,6 +12,11 @@ HUD::HUD(QWidget* parent) : QWidget(parent), score(0), ammo(0), timeElapsed(0) {
     ammoLabel = new QLabel("Munitions: 0", this);
     timeLabel = new QLabel("Temps: 00:00", this);
     healthLabel = new QLabel("Vie: 100", this);
+    weaponLabel = new QLabel("Arme: -", this);
+    weaponLabel->setFont(font);
+    weaponLabel->setStyleSheet("color: white;");
+    weaponLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
 
     // Appliquer la police et la couleur à tous les labels
     QList<QLabel*> labels = {scoreLabel, healthLabel, ammoLabel, timeLabel};
@@ -29,6 +34,7 @@ HUD::HUD(QWidget* parent) : QWidget(parent), score(0), ammo(0), timeElapsed(0) {
     layout->addWidget(healthLabel);
     layout->addWidget(ammoLabel);
     layout->addWidget(timeLabel);
+    layout->addWidget(weaponLabel); 
     setLayout(layout);
 
     // Fond noir opaque pour bien voir
@@ -95,4 +101,8 @@ void HUD::pauseTimer() {
 }
 void HUD::resumeTimer() {
     if (timer) timer->start(1000);
+}
+
+void HUD::updateWeaponLabel(const QString& weaponName) {
+    weaponLabel->setText("Arme: " + weaponName);
 }

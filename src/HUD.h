@@ -35,12 +35,14 @@ public slots:
     void updateAmmo(int newAmmo);
     void updateTime(int seconds);
     void addPoints(int points);
+    void updateWeaponLabel(const QString& weaponName);
 
 private:
     QLabel* scoreLabel;
     QLabel* ammoLabel;
     QLabel* timeLabel;
     QLabel* healthLabel;
+    QLabel* weaponLabel;
 
 
     int score;

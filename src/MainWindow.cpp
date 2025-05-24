@@ -63,16 +63,24 @@ void MainWindow::startGame() {
 
 
 
-
+    //Centrer la vue
     connect(mainScene->getPlayer(), &Player::playerMoved, this, [this]() {
         mainView->centerOn(mainScene->getPlayer());    
     });
 
-
+    //Gérer le nombre de munitions
     Weapon* weapon = mainScene->getPlayer()->getCurrentWeapon();
     if (weapon) {
         connect(weapon, &Weapon::ammoChanged, hud, &HUD::updateAmmo);
     }
+    //Gérer le nom de l'arme choisis
+    connect(mainScene->getPlayer(), &Player::weaponChanged, [this](Weapon* weapon){
+        if (weapon)
+            hud->updateWeaponLabel(weapon->getType());
+        else
+            hud->updateWeaponLabel("-");
+    });
+
 
     connect(mainScene->getGameManager(), &GameManager::gameOver, this, &MainWindow::showGameOverMenu);
 
