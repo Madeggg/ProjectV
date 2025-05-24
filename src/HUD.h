@@ -20,6 +20,8 @@ public:
     void setScore(int score);
 
     void setWeapon(Weapon* weapon);
+    int getScore() const { return score; }
+
 
     //Timer
     void pauseTimer();

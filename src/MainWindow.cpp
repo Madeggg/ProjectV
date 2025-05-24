@@ -87,13 +87,18 @@ void MainWindow::showGameOverMenu() {
                              (mainView->height() - gameOverWidget->height()) / 2);
         connect(gameOverWidget, &GameOverWidget::restartClicked, this, &MainWindow::restartGame);
     }
+    if (hud) {
+        gameOverWidget->setScore(hud->getScore());
+    }
+
     gameOverWidget->show();
 
     if (mainScene) {
         mainScene->getGameManager()->setPause(true);
-        if (mainScene->timer) mainScene->timer->stop(); // timer de la scène
+        if (mainScene->timer) mainScene->timer->stop();
     }
 }
+
 
 void MainWindow::restartGame() {
     if (gameOverWidget) {

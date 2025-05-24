@@ -8,7 +8,7 @@
 
 // Méthodes de Enemy
 
-Enemy::Enemy(QString type,QGraphicsItem* parent, Player* player) : QGraphicsPixmapItem(parent), targetPlayer(player), health(40), damage(0), speed(6) {
+Enemy::Enemy(QString type,QGraphicsItem* parent, Player* player) : QGraphicsPixmapItem(parent), targetPlayer(player), health(40), damage(10), speed(6) {
     setShapeMode(QGraphicsPixmapItem::BoundingRectShape); 
     setDistance(false); // Par défaut, l'ennemi n'attaque pas à distance
     setType(type); 
