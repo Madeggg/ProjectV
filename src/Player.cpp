@@ -442,7 +442,7 @@ void Player::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QW
     QGraphicsPixmapItem::paint(painter, option, widget);
 
     // Dessine la hitbox en vert semi-transparent
-    painter->setPen(QPen(Qt::green, 2));
+    //painter->setPen(QPen(Qt::green, 2));
     painter->setBrush(Qt::NoBrush);
     painter->drawRect(boundingRect());
 }

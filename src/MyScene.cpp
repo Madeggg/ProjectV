@@ -57,7 +57,7 @@ void MyScene::update() {
     QList<QGraphicsItem*> itemsInScene = items();
 
     for (QGraphicsItem* item : itemsInScene) {
-        // ----- 🔫 Gestion des projectiles -----
+        // -----  Gestion des projectiles -----
         Projectile* projectile = dynamic_cast<Projectile*>(item);
         if (projectile && projectile->scene() != nullptr) {
             QList<QGraphicsItem*> collisions = projectile->collidingItems();
@@ -65,7 +65,7 @@ void MyScene::update() {
             for (QGraphicsItem* collidingItem : collisions) {
                 if (!collidingItem) continue;
 
-                // 🎯 Projectile du joueur → touche un ennemi
+                //  Projectile du joueur → touche un ennemi
                 if (projectile->getSource() == "player" && collidingItem->data(0).toString() == "enemy") {
                     Enemy* enemy = dynamic_cast<Enemy*>(collidingItem);
                     if (enemy && !enemy->getIsDead() && enemy->scene() != nullptr) {
@@ -79,7 +79,7 @@ void MyScene::update() {
                     }
                 }
 
-                // ☠️ Projectile d'ennemi → touche le joueur
+                //  Projectile d'ennemi → touche le joueur
                 if (projectile->getSource() == "enemy" && collidingItem == player) {
                     //player->takeDamage(projectile->getDamage());
                     qDebug() << "Le joueur a été touché par un tir ennemi ! PV restants :" << player->getHealth();
@@ -91,7 +91,7 @@ void MyScene::update() {
             }
         }
 
-        // ----- 🪖 Récupération d'une arme -----
+        // -----  Récupération d'une arme -----
         Weapon* weapon = dynamic_cast<Weapon*>(item);
         if (weapon && weapon->scene() != nullptr && weapon->collidesWithItem(player)) {
             qDebug() << "Le joueur a récupéré une arme de type :" << weapon->getType();
@@ -105,7 +105,7 @@ void MyScene::update() {
             continue;
         }
 
-        // ----- 📦 Récupération de munitions -----
+        // -----  Récupération de munitions -----
         if (item->data(0).toString() == "ammo" && item->scene() != nullptr && item->collidesWithItem(player)) {
             if (player->getHasWeapon()) {
                 Weapon* currentWeapon = player->getCurrentWeapon();
@@ -119,12 +119,15 @@ void MyScene::update() {
         }
 
         if (item->data(0).toString() == "health" && item->scene() != nullptr && item->collidesWithItem(player)) {
-            if (player->getHealth() < 80) {
-                player->setHealth(std::min(player->getHealth() + 20, 100));
-                qDebug() << "Player picked up health. New health:" << player->getHealth();
-            } else {
-                qDebug() << "Player health is over 80HP, no health needed.";
+            if (player->getHealth() <= 80) {
+                player->setHealth(player->getHealth() + 20);        // Soigne le joueur de 20 PV
             }
+
+            else {
+                player->setHealth(100);         // Si le joueur a plus de 80 PV, il est soigné à 100
+            }
+
+            qDebug() << "Player picked up health. New health:" << player->getHealth();
 
             // Supprime le cœur dans tous les cas
             healthSpawned = false;
@@ -384,7 +387,6 @@ void MyScene::loadMap(){
                  else {
                     // qDebug() << "Creating rect collision at x=" << x << "y=" << y;
                     QGraphicsRectItem* rect = new QGraphicsRectItem(x, y, width, height);
-                    rect->setBrush(Qt::red);
                     rect->setPen(QPen(Qt::transparent));  // ou laisse un fin contour
                     rect->setData(0, "collision");
                     rect->setZValue(100);
@@ -423,7 +425,7 @@ void MyScene::spawnAmmoBox() {
 
 void MyScene::spawnHealth() {
     if (!healthSpawned && player->getKillCount() % 4 == 0 && player->getKillCount() != 0) {
-        healthSpawned = true;  // 👈 Mettre à true tout de suite !
+        healthSpawned = true;  
 
         QGraphicsPixmapItem* hearth = new QGraphicsPixmapItem(QPixmap("img/hearth.png").scaled(20, 20));
         hearth->setData(0, "health");
@@ -505,7 +507,7 @@ void MyScene::addProjectileDir(QPointF direction, int speed, int damage, int max
     qreal degrees = angle * 180 / M_PI;
 
     Projectile* p = new Projectile(start, direction, speed, damage);
-    p->setSprite(new QPixmap("img/bullet1.png"));  // ✅ ici aussi tu avais oublié le point-virgule
+    p->setSprite(new QPixmap("img/bullet1.png"));  
     p->setRotation(degrees);
     p->setSource("player");
     p->setMaxDistance(maxDistance);
