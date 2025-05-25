@@ -68,8 +68,8 @@ Incarnez **Butcher**, un justicier solitaire, et survivez à des vagues d'ennemi
 
 - Vous commencez sans arme.
 - Vous débloquez progressivement des armes  :
-  - **Pistolet** (attaque à mi-distance)
-  - **Fusil à pompe** (attaque à courte distance)
+  - **Pistolet** (attaque à mi-distance), disponible à partir de 3 enemies tués.
+  - **Fusil à pompe** (attaque à courte distance) disponible à partir de 7 enemies tués
 - L’univers est vu du dessus, avec un style **pixel art**.
 - Le jeu s’arrête lorsque vous mourrez : un écran de mort affiche votre score, avec possibilité de le sauvegarder.
 - Une boite de munitions apparait tous 3 les enemies tués. N'oubliez pas de sélectionner l'arme souhaitée avant de récuperer la boite !
