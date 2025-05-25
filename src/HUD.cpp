@@ -1,8 +1,5 @@
 #include "HUD.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QFont>
-#include <QGraphicsDropShadowEffect>
+
 
 HUD::HUD(QWidget* parent) : QWidget(parent), score(0), ammo(0), timeElapsed(0) {
     setFixedSize(350, 215);

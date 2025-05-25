@@ -1,7 +1,7 @@
 // Cette page est la afin de gérer le Personnage principal, et les controles par le joueur
 
 #include "Player.h"
-#include <QPixmap>
+
 
 Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), health(100), speed(5) {
     setShapeMode(QGraphicsPixmapItem::BoundingRectShape); 
@@ -367,55 +367,6 @@ void Player::shoot(QPointF mouseScenePos) {
 }
 
 
-
-// void Player::shoot(QPointF mouseScenePos){
-    
-//     Weapon* weapon = getCurrentWeapon();
-//     MyScene* sc = qobject_cast<MyScene*>(scene());
-
-//     if (!weapon || !sc) return;
-
-//     // --- PISTOL -------------------------------------------------------------
-//     if (weapon->getType() == "Pistol") {
-
-//         if (weapon->getAmmo() < 1 || !sc) return;               // pas de balle ou pas de scène
-        
-//         else{
-//             sc->addProjectile(mouseScenePos);
-//             weapon->setAmmo(weapon->getAmmo() - 1);
-//             emit weapon->ammoChanged(weapon->getAmmo());
-//             qDebug() << "Tir pistolet - munitions restantes:" << weapon->getAmmo();
-//         }
-//         return;
-//     }
-
-//     // --- SHOTGUN ------------------------------------------------------------
-//     if (weapon->getType() == "Shotgun") {
-//         if (weapon->getAmmo() < 3 || !sc) return;               // il faut au moins 3 balles pour tirer au shotgun
-
-//         // directions : 0°, +30°, -30° (facile à ajuster)
-//         QList<QPointF> dirs;
-//         if (direction == "right") {
-//             dirs << QPointF(1, 0) << QPointF(1, -0.5) << QPointF(1, 0.5);
-//         } else if (direction == "left") {
-//             dirs << QPointF(-1, 0) << QPointF(-1, -0.5) << QPointF(-1, 0.5);
-//         } else if (direction == "up") {
-//             dirs << QPointF(0, -1) << QPointF(-0.5, -1) << QPointF(0.5, -1);
-//         } else { // down
-//             dirs << QPointF(0, 1) << QPointF(-0.5, 1) << QPointF(0.5, 1);
-//         }
-
-//         // Crée les 3 projectiles
-//         for (const QPointF& d : dirs) {
-//             QPointF norm = d / std::hypot(d.x(), d.y());
-//             sc->addProjectileDir(norm, 6, 30, 100); 
-
-//         }
-//         weapon->setAmmo(weapon->getAmmo() - 3);
-//         emit weapon->ammoChanged(weapon->getAmmo());
-//         qDebug() << "Tir shotgun - munitions restantes:" << weapon->getAmmo();
-//     }
-// }
 
 
 

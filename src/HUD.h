@@ -4,6 +4,11 @@
 #include <QWidget>
 #include <QLabel>
 #include <QTimer>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QFont>
+#include <QGraphicsDropShadowEffect>
+
 #include "Entities.h" // Pour Weapon
 
 class Weapon; // Déclaration anticipée

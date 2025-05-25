@@ -1,7 +1,5 @@
 #include "GameOverWidget.h"
-#include <QHeaderView>
-#include <QDebug>
-#include <algorithm>
+
 
 GameOverWidget::GameOverWidget(QWidget* parent) : QWidget(parent), currentScore(0) {
     setStyleSheet("background-color: black; color: white; font-size: 24px;");

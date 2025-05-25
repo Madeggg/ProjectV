@@ -9,6 +9,9 @@
 #include <QTableWidget>
 #include <QFile>
 #include <QTextStream>
+#include <QHeaderView>
+#include <QDebug>
+#include <algorithm>
 
 class GameOverWidget : public QWidget {
     Q_OBJECT

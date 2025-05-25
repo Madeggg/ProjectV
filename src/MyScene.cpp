@@ -1,14 +1,6 @@
 #include "MyScene.h"
 
-#include <QTimer>
-#include <QKeyEvent>
-#include <QFile>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QJsonValue>
-#include <QGraphicsRectItem>
-#include <QDebug>
+
 
 MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     loadMap(); 

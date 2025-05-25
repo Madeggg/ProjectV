@@ -9,6 +9,8 @@
     #include <QVector>
     #include <QPixmap>
     #include <QGraphicsColorizeEffect>
+
+    
     #include "GameManager.h"
 
    

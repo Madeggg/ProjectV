@@ -9,6 +9,11 @@
 #include <QString>
 #include <QGraphicsItem>
 
+#include <QGraphicsScene>
+#include <QPixmap>
+#include <QRandomGenerator>
+#include <QStringList>
+
 #include "GameManager.h"
 #include "Player.h"
 #include "MyScene.h"

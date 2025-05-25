@@ -19,10 +19,19 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QGraphicsProxyWidget>
-#include "GameManager.h"
+
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
+
+
 #include "Player.h"
 #include "Entities.h"
 #include "HUD.h"
+#include "GameManager.h"
+
 
 // Déclaration anticipée
 class GameManager;

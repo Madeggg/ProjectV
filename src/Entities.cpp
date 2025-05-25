@@ -1,10 +1,7 @@
 // Cette page sert à tout ce qui est hostile (enemies, bombes etc..) + les projectiles tirés par joueur ou ennemis + les armes
 
 #include "Entities.h"
-#include <QGraphicsScene>
-#include <QPixmap>
-#include <QRandomGenerator>
-#include <QStringList>
+
 
 // Méthodes de Enemy
 
