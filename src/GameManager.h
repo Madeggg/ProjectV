@@ -33,10 +33,13 @@ private:
     QTimer* gameLoopTimer;
     QTimer* enemySpawnTimer; // Timer pour le spawn des ennemis
     int frameCount = 0; // Compteur de frames
+    int lastKillCountForReaper = -1;
+    int lastKillCountForVampire = -1;
 
     void checkCollisions(); // À développer plus tard
-    void spawnEnemiesPhysique();
-    void spawnEnemiesDistance();
+    void spawnZombies();
+    void spawnVampires();
+    void spawnReapers();
 signals:
     void gameOver();
 };

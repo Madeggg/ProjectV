@@ -60,7 +60,7 @@ MyScene::~MyScene() {
 void MyScene::update() {
     gameManager->update(); // Mise à jour logique du jeu (ennemis, etc.)
     spawnWeapon();
-    spawnAmmoBox();
+    spawnHealth();
 
     QList<QGraphicsItem*> itemsInScene = items();
 
@@ -120,12 +120,28 @@ void MyScene::update() {
                 currentWeapon->setAmmo(currentWeapon->getAmmo() + 20);
                 qDebug() << "Player picked up ammo. New ammo count:" << currentWeapon->getAmmo();
             }
-        removeItem(item);
-        delete item;    
-        ammoBoxSpawned = false;
-        return;
-    }
+            removeItem(item);
+            delete item;    
+            ammoBoxSpawned = false;
+            return;
+        }
 
+        if (item->data(0).toString() == "health" && item->scene() != nullptr && item->collidesWithItem(player)) {
+            if (player->getHealth() < 80) {
+                player->setHealth(std::min(player->getHealth() + 20, 100));
+                qDebug() << "Player picked up health. New health:" << player->getHealth();
+            } else {
+                qDebug() << "Player health is over 80HP, no health needed.";
+            }
+
+            // Supprime le cœur dans tous les cas
+            healthSpawned = false;
+            if (item->scene()) {
+                removeItem(item);
+                delete item;
+            }
+            return;
+        }
     }
 }
 
@@ -395,39 +411,37 @@ void MyScene::loadMap(){
 
 
 void MyScene::spawnAmmoBox() {
-    if (ammoBoxSpawned) return;  // ⚠️ Déjà une boîte présente, on ne fait rien
+   
 
     // Crée la boîte de munitions
     QGraphicsPixmapItem* ammoBox = new QGraphicsPixmapItem(QPixmap("img/ammo_box.png").scaled(40, 40));
     ammoBox->setData(0, "ammo");
 
-    QPointF position;
-    bool valid = false;
+    ammoBox->setPos(player->getLastKillPosition());
 
-    for (int attempts = 0; attempts < 20 && !valid; ++attempts) {
-        int x = QRandomGenerator::global()->bounded(0, 4096);
-        int y = QRandomGenerator::global()->bounded(0, 4096);
-        position = QPointF(x, y);
-
-        QGraphicsRectItem testBox(QRectF(position, QSizeF(40, 40)));
-        valid = true;
-
-        for (QGraphicsItem* item : items(position)) {
-            if (item->data(0).toString() == "collision") {
-                valid = false;
-                break;
-            }
-        }
-    }
-
-    ammoBox->setPos(position);
-
-
-    addItem(ammoBox);
+     //On ajoute l'arme 1sec après le kill
+        QTimer::singleShot(1500, this, [=]() {
+            addItem(ammoBox);
+        });
+    
     ammoBoxSpawned = true;
 
-    
+        
 }
+
+void MyScene::spawnHealth() {
+    if (!healthSpawned && player->getKillCount() % 4 == 0 && player->getKillCount() != 0) {
+        QGraphicsPixmapItem* hearth = new QGraphicsPixmapItem(QPixmap("img/hearth.png").scaled(20, 20));
+        hearth->setData(0, "health");
+        hearth->setPos(player->getLastKillPosition());
+
+        QTimer::singleShot(1500, this, [this, hearth]() {
+            addItem(hearth);
+            healthSpawned = true;
+        });
+    }
+}
+
 
 
 
@@ -438,22 +452,32 @@ void MyScene::spawnWeapon() {
         Weapon* pistol = new Weapon("Pistol");
         pistol->setSprite(new QPixmap("img/pistol.png")); 
         pistol->setAmmo(10);        // 10 balles par défaut
-        pistol->setPos(1800, 2048);   
-        this->addItem(pistol);
+        pistol->setPos(player->getLastKillPosition());
+
+        //On ajoute l'arme 1sec après le kill
+        QTimer::singleShot(1500, this, [=]() {
+            addItem(pistol);
+        });
+
         pistolSpawned = true; // Marque l'arme comme déjà spawnée
         
     }
 
-    if(player->getKillCount() == 5 && !shotgunSpawned){
+    if(player->getKillCount() == 6 && !shotgunSpawned){
         // Fait apparaître l'arme dans la scène
         Weapon* shotgun = new Weapon("Shotgun");
         shotgun->setSprite(new QPixmap("img/shotgun.png")); 
         shotgun->setAmmo(15);        // 15 balles par défaut
-        shotgun->setPos(1800, 2048);   
-        this->addItem(shotgun);
+        shotgun->setPos(player->getLastKillPosition());   
+         //On ajoute l'arme 1sec après le kill
+        QTimer::singleShot(1500, this, [=]() {
+            addItem(shotgun);
+        });
         shotgunSpawned = true; // Marque l'arme comme déjà spawnée
     }
 }
+
+
 
 void MyScene::addProjectile(QPointF targetPos) {
     QPointF start = player->pos() + QPointF(player->boundingRect().width()/2, player->boundingRect().height()/2); // départ du projectile au centre du joueur

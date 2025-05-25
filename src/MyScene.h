@@ -41,6 +41,7 @@ public:
     Player* getPlayer() const;
     void loadMap();
     void spawnAmmoBox(); // Fait apparaître une boîte de munitions
+    void spawnHealth(); // Fait apparaître un coeur de soin
     void spawnWeapon(); // Fait apparaître une arme
     void addProjectile(QPointF targetPos);
 
@@ -81,6 +82,7 @@ private:
     bool pistolSpawned = false;
     bool shotgunSpawned = false;
     bool ammoBoxSpawned = false;
+    bool healthSpawned = false;
 
      //Pause 
     QGraphicsRectItem* pauseOverlay = nullptr;

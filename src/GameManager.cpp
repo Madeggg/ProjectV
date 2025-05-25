@@ -60,45 +60,70 @@ void GameManager::update() {
         }
     }
 
-    if (frameCount % 300 == 0) { // toutes les 5 secondes à 60 FPS
-        spawnEnemiesPhysique();
-        
-        if(player->getKillCount() > 1) { // Si le joueur a tué 5 ennemis
-            spawnEnemiesDistance();
-        }
+
+    // Zombie : toutes les 5 secondes
+    if (frameCount % 300 == 0) {
+        spawnZombies();
+    }
+
+    int killCount = player->getKillCount();
+
+    // Reaper : tous les 3 kills
+    if (killCount >= 3 && killCount % 3 == 0 && killCount != lastKillCountForReaper) {
+        spawnReapers();
+        lastKillCountForReaper = killCount;
+    }
+
+    // Vampire : tous les 10 kills
+    if (killCount >= 10 && killCount % 10 == 0 && killCount != lastKillCountForVampire) {
+        spawnVampires();
+        lastKillCountForVampire = killCount;
     }
 
    
 }
 
-void GameManager::spawnEnemiesPhysique() {
+void GameManager::spawnZombies() {
     const int mapLimit = 4096;
-    const int minDistanceFromPlayer = 200; // distance minimale entre joueur et ennemi
+    const int minDistanceFromPlayer = 200;
 
     QPointF spawnPos;
     QPointF playerPos = player->pos();
     qreal distance = 0;
 
-    // Essaye plusieurs fois jusqu'à trouver une position assez éloignée
     for (int attempts = 0; attempts < 50; ++attempts) {
         qreal x = QRandomGenerator::global()->bounded(mapLimit);
         qreal y = QRandomGenerator::global()->bounded(mapLimit);
         spawnPos = QPointF(x, y);
-
         distance = std::hypot(spawnPos.x() - playerPos.x(), spawnPos.y() - playerPos.y());
-        if (distance >= minDistanceFromPlayer)
-            break;
+
+        // Vérifie distance + pas de collision
+        QRectF testRect(spawnPos, QSizeF(40, 40)); // hitbox approximative du zombie
+        QList<QGraphicsItem*> collisions = scene->items(testRect);
+
+        bool blocked = false;
+        for (QGraphicsItem* item : collisions) {
+            if (item->data(0).toString() == "collision") {
+                blocked = true;
+                break;
+            }
+        }
+
+        if (distance >= minDistanceFromPlayer && !blocked) {
+            Enemy* zombie = new Zombie(nullptr, player);
+            zombie->setScale(2.0);
+            zombie->setPos(playerPos.x() + 200, playerPos.y() + 200); 
+            scene->addItem(zombie);
+            qDebug() << "Zombie spawn à :" << spawnPos;
+            return;
+        }
     }
 
-    Enemy* enemy = new Enemy("Physique", nullptr, player);
-    enemy->setScale(2.0);
-    enemy->setPos(player->pos());
-    qDebug() << "Position de spawn de l'ennemi :" << spawnPos;
-    scene->addItem(enemy);
+    qDebug() << "Aucun emplacement valide trouvé pour le zombie.";
 }
 
 
-void GameManager::spawnEnemiesDistance() {
+void GameManager::spawnVampires() {
     const int mapLimit = 4096;
     const int minDistanceFromPlayer = 200; // distance minimale entre joueur et ennemi
 
@@ -117,11 +142,37 @@ void GameManager::spawnEnemiesDistance() {
             break;
     }
 
-    Enemy* enemy = new Enemy("Distance", nullptr, player);
-    enemy->setScale(2.0);
-    enemy->setPos(player->pos());
+    Enemy* vampire = new Vampire(nullptr, player);
+    vampire->setScale(1.5);
+    vampire->setPos(playerPos.x() + 250, playerPos.y() + 250);
     qDebug() << "Position de spawn de l'ennemi :" << spawnPos;
-    scene->addItem(enemy);
+    scene->addItem(vampire);
+}
+
+void GameManager::spawnReapers() {
+    const int mapLimit = 4096;
+    const int minDistanceFromPlayer = 200; // distance minimale entre joueur et ennemi
+
+    QPointF spawnPos;
+    QPointF playerPos = player->pos();
+    qreal distance = 0;
+
+    // Essaye plusieurs fois jusqu'à trouver une position assez éloignée
+    for (int attempts = 0; attempts < 50; ++attempts) {
+        qreal x = QRandomGenerator::global()->bounded(mapLimit);
+        qreal y = QRandomGenerator::global()->bounded(mapLimit);
+        spawnPos = QPointF(x, y);
+
+        distance = std::hypot(spawnPos.x() - playerPos.x(), spawnPos.y() - playerPos.y());
+        if (distance >= minDistanceFromPlayer)
+            break;
+    }
+
+    Enemy* reaper = new Reaper(nullptr, player);
+    reaper->setScale(1.0);
+    reaper->setPos(playerPos.x() + 230, playerPos.y() + 230); 
+    qDebug() << "Position de spawn de l'ennemi :" << spawnPos;
+    scene->addItem(reaper);
 }
 
 

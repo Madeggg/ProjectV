@@ -37,6 +37,7 @@
         int getKillCount() const;
         bool getHasWeapon() const;
         Weapon* getCurrentWeapon() const;
+        QPointF getLastKillPosition() const;
         
         enum Slot {Melee = 0, Pistol = 1, Shotgun = 2};     // Enumération pour les types d'armes
         int getAmmo(Slot s) const; //Pour avoir les munitions de l'arme actuelle (au slot s)
@@ -56,6 +57,7 @@
         Slot pickWeapon(Weapon* w); // Méthode pour placer une arme dans l'inventaire, renvoie le slot occupé par cette arme
         void switchTo(Slot s);      // Méthode pour changer d'arme
         void setHasWeapon(bool newHasWeapon) ;
+        void setLastKillPosition(const QPointF& pos);
         void punch();                           // Méthode pour frapper un ennemi
         void shoot(QPointF targetPos);           // Méthode pour tirer un projectile 
         void loadAnimations();
@@ -79,6 +81,7 @@
         QString direction;      // Direction actuelle du joueur (gauche, droite, haut, bas)
         int currentFrame = 0;
         int killCount = 0;
+        QPointF lastKillPosition;   // Position du dernier kill pour le spawn d'items
         bool hasWeapon;
         bool canShoot   = true; // Pour éviter de tirer trop souvent
         Weapon* inventory[3] = {nullptr,nullptr,nullptr};   // Tableau d'armes pour l'inventaire

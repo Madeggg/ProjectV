@@ -17,7 +17,7 @@ class Player;
 class Weapon;
 
 
-
+//Enemy est une classe abstraite, elle ne peut être instanciée que par les classe filles
 class Enemy : public QObject, public QGraphicsPixmapItem{
     Q_OBJECT
     protected:
@@ -25,20 +25,18 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         int health;
         int damage;
         int speed;
-        bool distance; //Booléen pour savoir si l'ennemi attaque le joueur à distance ou pas
+        bool distance;  //Booléen pour savoir si l'ennemi attaque le joueur à distance ou pas
         bool isDead = false; // Booléen pour savoir si l'ennemi est mort
         Weapon* weapon;
-        QString type;       //Type de l'ennemi (physique ou distance)
         QTimer* movementTimer; // Timer pour le mouvement de l'ennemi
         QTimer* attackTimer;    // Timer pour l'attaque de l'ennemi
         bool canAttack = true;
         bool canShoot = true;
-        bool canPlayAnimation = true; // Booléen pour savoir si l'animation de déplacement ou d'attaque peut être jouée, si il est à false on peut lancer l'animation de mort
         int currentFrame = 0;
         int deathDuration;
         QString facingDirection; // "up", "down", "left", "right"
+       
 
-        //Zombie
 
         //Déplacements classiques
         QVector<QPixmap*> walkFront;
@@ -46,11 +44,11 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         QVector<QPixmap*> walkRight;
         QVector<QPixmap*> walkLeft;
 
-        //Quand l'ennemi attaque sans arme à distance
-        QVector<QPixmap*> meleeFront;
-        QVector<QPixmap*> meleeBack;
-        QVector<QPixmap*> meleeRight;
-        QVector<QPixmap*> meleeLeft;
+        //Quand l'ennemi attaque 
+        QVector<QPixmap*> attackFront;
+        QVector<QPixmap*> attackBack;
+        QVector<QPixmap*> attackRight;
+        QVector<QPixmap*> attackLeft;
 
         // Quand l'ennemi meurt
         QVector<QPixmap*> deathFront;
@@ -58,34 +56,12 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         QVector<QPixmap*> deathRight;
         QVector<QPixmap*> deathLeft;
 
-
-        //Vampire
-
-        QVector<QPixmap*> walkFrontVampire;
-        QVector<QPixmap*> walkBackVampire;
-        QVector<QPixmap*> walkRightVampire;
-        QVector<QPixmap*> walkLeftVampire;
-
-        QVector<QPixmap*> shootFront;
-        QVector<QPixmap*> shootBack;
-        QVector<QPixmap*> shootRight;
-        QVector<QPixmap*> shootLeft;
-
-        
-        QVector<QPixmap*> deathFrontVampire;
-        QVector<QPixmap*> deathBackVampire;
-        QVector<QPixmap*> deathRightVampire;
-        QVector<QPixmap*> deathLeftVampire;
-
-
-
     signals:
         void damagePlayer(int damage); // Signal pour infliger des dégâts au joueur
     
-
     public:
         //Constructeur
-        Enemy(QString type,QGraphicsItem* parent = nullptr, Player* player = nullptr); 
+        Enemy(QGraphicsItem* parent = nullptr, Player* player = nullptr, int health = 0, int damage = 0, int speed = 0); 
         //Accesseurs
         int getHealth() const;
         int getDamage() const;
@@ -97,60 +73,88 @@ class Enemy : public QObject, public QGraphicsPixmapItem{
         void setDamage(int newDamage);
         void setSpeed(int newSpeed);
         void setWeapon(Weapon* newWeapon); 
-        void setType(QString newType);     
         void showHitEffect();               // Méthode pour changer le sprite de l'ennemi lorsqu'il est touché
         
-        void setDistance(bool newDistance); // Setter pour le booléen distance
         QPainterPath shape() const override;
 
+        virtual void loadAnimations() = 0;
+        virtual void playWalkAnimation() = 0; // Méthode pour jouer l'animation de marche
+        virtual void playAttackAnimation() = 0;     // Méthode pour jouer l'animation d'attaque
+        virtual void playDeathAnimation() = 0;      // Méthode pour jouer l'animation de mort
 
+        virtual void attack(Player* player) = 0;
 
-        void loadAnimations();
-        void playWalkAnimation(); // Méthode pour jouer l'animation de marche
-        void playAttackAnimation();     // Méthode pour jouer l'animation d'attaque
-        void playDeathAnimation();      // Méthode pour jouer l'animation de mort
-        void updateFacingDirection(); // Met à jour la direction de l'ennemi en fonction de sa position par rapport au joueur
-
-        // Méthode d'attaque de l'ennemi si son type est physique
-        void punch(Player* player); 
-
-        //Méthode d'attaque de l'ennemi si son type est distance
-        void shoot(Player* player);
-
+        void updateFacingDirection();       // Met à jour la direction de l'ennemi en fonction de sa position par rapport au joueur
 
         bool hasLineOfSightTo(Player* player); // Vérifie si l'ennemi a une ligne de vue sur le joueur
+        virtual void wander() = 0; // Méthode pour faire errer l'ennemi
+        virtual void moveTowardsPlayerOrWander(Player* player); // Méthode pour déplacer l'ennemi vers le joueur, ou errer
+        virtual void moveTowards(QPointF target) = 0; // Méthode pour déplacer l'ennemi vers une cible
 
-        void wander(); // Méthode pour faire errer l'ennemi
-
-        void moveTowardsPlayerOrWander(Player* player); // Méthode pour déplacer l'ennemi vers le joueur, ou errer
-
-        void moveTowards(QPointF target); // Méthode pour déplacer l'ennemi vers une cible
-
-        void takeDamage(int amount);    // Méthode pour infliger des dégâts à l'ennemi
+        virtual void takeDamage(int amount) = 0;    // Méthode pour infliger des dégâts à l'ennemi
 
         bool canMoveInDirection(const QPointF& direction);
 };
 
-// //Classe soldier qui hérite de Enemy
+class Zombie : public Enemy{
 
-// class Soldier : public Enemy, public virtual QGraphicsPixmapItem {
-//     public:
-//         // Constructeur
-//         Soldier(QString type,QGraphicsItem* parent = nullptr, Weapon* w = nullptr); // Constructeur
+    public:
+        Zombie(QGraphicsItem* parent = nullptr, Player* player = nullptr); // Constructeur
 
+        void loadAnimations() override; // Charge les animations spécifiques au zombie
+        void playWalkAnimation() override; // Joue l'animation de marche du zombie
+        void playAttackAnimation() override; // Joue l'animation d'attaque du zombie
+        void playDeathAnimation() override; // Joue l'animation de mort du zombie
 
+        void wander() override; 
+        void moveTowards(QPointF target) override;
+        void moveTowardsPlayerOrWander(Player* player) override; 
 
-// };
+        void takeDamage(int amount) override; 
 
-// class Hero : public Enemy, public virtual QGraphicsPixmapItem {
-//     public:
-//         // Constructeur
-//         Hero(QString type,QGraphicsItem* parent = nullptr, Weapon* w = nullptr); // Constructeur
-//         void setApperance(); // Méthode pour définir l'apparence du héros
+        void attack(Player* player) override; 
+};
+
+class Vampire : public Enemy{
+
+    public:
+        Vampire(QGraphicsItem* parent = nullptr, Player* player = nullptr); // Constructeur
+
+        void loadAnimations() override; // Charge les animations spécifiques au vampire
+        void playWalkAnimation() override; // Joue l'animation de marche du vampire
+        void playAttackAnimation() override; // Joue l'animation d'attaque du vampire
+        void playDeathAnimation() override; // Joue l'animation de mort du vampire
+
         
-       
+        void wander() override; 
+        void moveTowardsPlayerOrWander(Player* player) override; 
+        void moveTowards(QPointF target) override;
 
-// };
+        void takeDamage(int amount) override;
+
+        void attack(Player* player) override; // Attaque le joueur avec une attaque à distance
+};
+
+
+class Reaper : public Enemy{
+    private:
+        bool canPlayWalkAnimation = true; // Pour éviter de jouer l'animation de marche quand il attaque
+    public:
+        Reaper(QGraphicsItem* parent = nullptr, Player* player = nullptr); // Constructeur
+
+        void loadAnimations() override; // Charge les animations spécifiques au reaper
+        void playWalkAnimation() override; 
+        void playAttackAnimation() override; 
+        void playDeathAnimation() override; 
+        
+        void wander() override; 
+        void moveTowardsPlayerOrWander(Player* player) override; 
+        void moveTowards(QPointF target) override;
+
+        void takeDamage(int amount) override;
+
+        void attack(Player* player) override; // Attaque le joueur 
+};
 
 class Weapon : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT

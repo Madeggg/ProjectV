@@ -21,6 +21,7 @@ Player::Player(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent), 
     Weapon* melee = new Weapon("Melee");
     inventory[Melee] = melee;
     weapon = inventory[Melee];
+    melee->setAmmo(std::min(0,0));  // Arme de mêlée n'a pas de munitions(on met max 0 pour éviter des valeurs aléatoires)
 
 
 }
@@ -196,7 +197,7 @@ void Player::checkKillCount() {
 
     emit scoreChanged(killCount * 10); 
 
-    if (killCount % 5 == 0) {
+    if (killCount % 3 == 0) {
         emit ammoBoxNeeded();
     }
 }
@@ -238,6 +239,9 @@ void Player::setHasWeapon(bool newHasWeapon) {
     hasWeapon = newHasWeapon;
 }
 
+void Player::setLastKillPosition(const QPointF& pos) {
+    lastKillPosition = pos;
+}
 
 Player::Slot Player::pickWeapon(Weapon* w){
 
@@ -439,6 +443,10 @@ bool Player::getHasWeapon() const {
 
 Weapon* Player::getCurrentWeapon() const{
     return inventory[currentSlot];
+}
+
+QPointF Player::getLastKillPosition() const {
+    return lastKillPosition; // Retourne la position du dernier kill
 }
 
 int Player::getAmmo(Slot s) const{
