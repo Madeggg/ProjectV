@@ -21,8 +21,8 @@ Assurez-vous d'avoir les éléments suivants installés sur votre système **Lin
 1. **Télécharger l'archive ZIP du projet** et l'extraire :
 
 ```bash
-unzip project-v.zip
-cd project-v
+unzip ProjectV.zip
+cd ProjectV
 ```
 
 2. **Compiler avec qmake** :
