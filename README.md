@@ -36,6 +36,8 @@ qmake6
 QT += core widgets multimedia
 ```
 
+Puis retourner dans le bash et tapez : 
+
 ```bash
 make
 ```
