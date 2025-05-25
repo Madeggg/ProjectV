@@ -74,7 +74,7 @@ Incarnez **Butcher**, un justicier solitaire, et survivez à des vagues d'ennemi
 ### Boss
 
 Trois boss apparaissent au fil du jeu :
-- **Zombie** : attaque au corp à corp, dégat faible.
+- **Zombie** : attaque au corps à corps, dégat faible.
 - **Vampire** : attaque à distance, dégat moyen.
 - **Reaper** : dangereux et imprévisible
 
@@ -87,7 +87,8 @@ Trois boss apparaissent au fil du jeu :
 - `Player.cpp/h` : gestion du joueur
 - `HUD.cpp/h` : affichage du score, barre de vie, minuteur
 - `src/` : ressources graphiques et sons
-- `map.json` : carte du jeu exportée depuis **Tiled**
+- `saveV2.json` : carte du jeu exportée depuis **Tiled**
+- `MyScene.cpp/h` : Gère la scène du jeu.
 
 ---
 
@@ -95,4 +96,6 @@ Trois boss apparaissent au fil du jeu :
 
 Ce projet est à but pédagogique et n’est pas destiné à une distribution commerciale.
 La carte du jeu provient de 'bluecarrot16' sur reddit.
+Les sprites proviennent tous de itch.io
+Les sons proviennent de pixabay.com
 
