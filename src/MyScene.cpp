@@ -431,16 +431,18 @@ void MyScene::spawnAmmoBox() {
 
 void MyScene::spawnHealth() {
     if (!healthSpawned && player->getKillCount() % 4 == 0 && player->getKillCount() != 0) {
+        healthSpawned = true;  // 👈 Mettre à true tout de suite !
+
         QGraphicsPixmapItem* hearth = new QGraphicsPixmapItem(QPixmap("img/hearth.png").scaled(20, 20));
         hearth->setData(0, "health");
         hearth->setPos(player->getLastKillPosition());
 
         QTimer::singleShot(1500, this, [this, hearth]() {
             addItem(hearth);
-            healthSpawned = true;
         });
     }
 }
+
 
 
 
