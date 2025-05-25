@@ -33,7 +33,7 @@ void Player::loadAnimations() {
     QPixmap deathSheet("img/Death.png");
     QPixmap idleSheet("img/Idle.png");
 
-    //Tous nos sprites sont en taille 32*32
+    //Sprite du zombie en taille 32*32
     int frameWidth = 32;
     int frameHeight = 32;
 
@@ -289,7 +289,7 @@ void Player::switchTo(Slot s)
 }
 
 
-void Player::punch() {
+void Player::stab() {
     for (QGraphicsItem* item : scene()->items()) {
         Enemy* enemy = dynamic_cast<Enemy*>(item);
         if (enemy) {
@@ -313,7 +313,7 @@ void Player::shoot(QPointF mouseScenePos) {
 
     if (!weapon || !sc) return;
 
-    // 🔒 Empêche le prochain tir pendant l’animation
+    //  Empêche le prochain tir pendant l’animation
     canShoot = false;
 
     // Lance l’animation d’attaque
@@ -360,7 +360,7 @@ void Player::shoot(QPointF mouseScenePos) {
         });
     }
 
-    // 🔓 Autorise le tir après cooldown complet
+    //  Autorise le tir après cooldown complet
     QTimer::singleShot(fireCooldown, this, [this]() {
         canShoot = true;
     });
@@ -408,6 +408,7 @@ int Player::getAmmo(Slot s) const{
 
 void Player::setHealth(int newHealth) {
     health = newHealth;
+    emit healthChanged(newHealth);
 }
 
 void Player::setDirection(const QString& dir){
@@ -437,13 +438,13 @@ QRectF Player::boundingRect() const {
 
 
 
-void Player::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
-    // Appelle le paint d'origine pour afficher le sprite
-    QGraphicsPixmapItem::paint(painter, option, widget);
+// void Player::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
+//      Appelle le paint d'origine pour afficher le sprite
+//     QGraphicsPixmapItem::paint(painter, option, widget);
 
-    // Dessine la hitbox en vert semi-transparent
-    //painter->setPen(QPen(Qt::green, 2));
-    painter->setBrush(Qt::NoBrush);
-    painter->drawRect(boundingRect());
-}
+//      Dessine la hitbox en vert semi-transparent
+//     painter->setPen(QPen(Qt::green, 2));
+//     painter->setBrush(Qt::NoBrush);
+//     painter->drawRect(boundingRect());
+// }
 

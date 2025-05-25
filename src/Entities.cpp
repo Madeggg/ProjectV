@@ -178,7 +178,7 @@ void Enemy::showHitEffect() {
  //==================================ZOMBIE==================================
 
 Zombie::Zombie(QGraphicsItem* parent, Player* player) 
-    : Enemy(nullptr,player, 60, 1, 5) {
+    : Enemy(nullptr,player, 60, 5, 5) {
          loadAnimations(); // Charger les animations
 }
 
@@ -397,7 +397,7 @@ void Zombie::attack(Player* player) {
 //==================================VAMPIRE==================================
 
 Vampire::Vampire(QGraphicsItem* parent, Player* player) 
-    : Enemy(nullptr,player, 100, 1, 6) {
+    : Enemy(nullptr,player, 100, 20, 6) {
          loadAnimations(); // Charger les animations
 }
 
@@ -632,7 +632,7 @@ void Vampire::attack(Player* player){
 }
 
 Reaper::Reaper(QGraphicsItem* parent, Player* player) 
-    : Enemy(nullptr,player, 100, 1, 7) {
+    : Enemy(nullptr,player, 100, 20, 7) {
          loadAnimations(); // Charger les animations
 }
 

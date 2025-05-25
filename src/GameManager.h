@@ -40,6 +40,8 @@ private:
     void spawnZombies();
     void spawnVampires();
     void spawnReapers();
+    QPointF findValidSpawnPositionNearPlayer(int offset, int maxAttempts);
+
 signals:
     void gameOver();
 };

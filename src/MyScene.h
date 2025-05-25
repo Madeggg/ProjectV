@@ -52,6 +52,8 @@ public:
     void spawnAmmoBox(); // Fait apparaître une boîte de munitions
     void spawnHealth(); // Fait apparaître un coeur de soin
     void spawnWeapon(); // Fait apparaître une arme
+
+    //Pour les armes qui tirent en trajectoire droite 
     void addProjectile(QPointF targetPos);
 
     //Pour les armes qui tirent en direction fixe (shotgun)

@@ -258,7 +258,7 @@ void MyScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 
     if(event->button() == Qt::LeftButton){
         if (!player->getHasWeapon() || player->getCurrentWeapon()->getAmmo() <= 0) {
-            player->punch(); // Si le joueur n'a pas d'arme ou pas de munitions, il tape
+            player->stab(); // Si le joueur n'a pas d'arme ou pas de munitions, il tape
             player->playAttackAnimation(); // Joue l'animation d'attaque
             int soundIndex = QRandomGenerator::global()->bounded(4); // Choisit un son aléatoire
             knifeSounds[soundIndex]->play(); // Joue le son d'attaque
@@ -459,10 +459,11 @@ void MyScene::spawnWeapon() {
         
     }
 
-    if(player->getKillCount() == 6 && !shotgunSpawned){
+    if(player->getKillCount() == 7 && !shotgunSpawned){
         // Fait apparaître l'arme dans la scène
         Weapon* shotgun = new Weapon("Shotgun");
         shotgun->setSprite(new QPixmap("img/shotgun.png")); 
+        shotgun->setScale(1.5);
         shotgun->setAmmo(15);        // 15 balles par défaut
         shotgun->setPos(player->getLastKillPosition());   
          //On ajoute l'arme 1sec après le kill
@@ -475,6 +476,7 @@ void MyScene::spawnWeapon() {
 
 
 
+//Pour le pistolet
 void MyScene::addProjectile(QPointF targetPos) {
     QPointF start = player->pos() + QPointF(player->boundingRect().width()/2, player->boundingRect().height()/2); // départ du projectile au centre du joueur
     QPointF direction = targetPos - start;
@@ -487,7 +489,7 @@ void MyScene::addProjectile(QPointF targetPos) {
     qreal degrees = angle * 180 / M_PI;
 
 
-    Projectile* p = new Projectile(start, direction, 7,20);
+    Projectile* p = new Projectile(start, direction, 7,15);
     p->setSprite(new QPixmap("img/bullet1.png")); 
     p->setRotation(degrees);
     p->setSource("player");         // Définit la source du projectile
@@ -496,6 +498,7 @@ void MyScene::addProjectile(QPointF targetPos) {
 
 }
 
+//Pour le shotgun
 void MyScene::addProjectileDir(QPointF direction, int speed, int damage, int maxDistance) {
     QPointF start = player->pos() + QPointF(player->boundingRect().width()/2, player->boundingRect().height()/2);
 

@@ -18,7 +18,7 @@ void GameManager::startGame() {
 }
 
 void GameManager::resetGame() {
-    for (QGraphicsItem* item : scene->items()) { // Supprime tous les items sauf le joueur (à améliorer plus tard)
+    for (QGraphicsItem* item : scene->items()) { // Supprime tous les items sauf le joueur 
         if (item != player)
             scene->removeItem(item);
     }
@@ -84,21 +84,54 @@ void GameManager::update() {
 }
 
 void GameManager::spawnZombies() {
-    const int mapLimit = 4096;
-    const int minDistanceFromPlayer = 200;
+    QPointF spawnPos = findValidSpawnPositionNearPlayer(200, 50);
+    Enemy* zombie = new Zombie(nullptr, player);
+    zombie->setScale(2.0);
+    zombie->setPos(spawnPos);
+    scene->addItem(zombie);
+    qDebug() << "Zombie spawn à :" << spawnPos;
+}
 
-    QPointF spawnPos;
+
+void GameManager::spawnReapers() {
+    QPointF spawnPos = findValidSpawnPositionNearPlayer(230, 50);
+    Enemy* reaper = new Reaper(nullptr, player);
+    reaper->setScale(1.0);
+    reaper->setPos(spawnPos);
+    scene->addItem(reaper);
+    qDebug() << "Reaper spawn à :" << spawnPos;
+}
+
+void GameManager::spawnVampires() {
+    QPointF spawnPos = findValidSpawnPositionNearPlayer(250, 50);
+    Enemy* vampire = new Vampire(nullptr, player);
+    vampire->setScale(1.5);
+    vampire->setPos(spawnPos);
+    scene->addItem(vampire);
+    qDebug() << "Vampire spawn à :" << spawnPos;
+}
+
+
+
+Player* GameManager::getPlayer() const {
+    return player;
+}
+
+
+QPointF GameManager::findValidSpawnPositionNearPlayer(int offset, int maxAttempts) {
+    const int step = offset;
     QPointF playerPos = player->pos();
-    qreal distance = 0;
 
-    for (int attempts = 0; attempts < 50; ++attempts) {
-        qreal x = QRandomGenerator::global()->bounded(mapLimit);
-        qreal y = QRandomGenerator::global()->bounded(mapLimit);
-        spawnPos = QPointF(x, y);
-        distance = std::hypot(spawnPos.x() - playerPos.x(), spawnPos.y() - playerPos.y());
+    for (int i = 0; i < maxAttempts; ++i) {
+        int dx = QRandomGenerator::global()->bounded(-1, 2); // -1, 0, ou 1
+        int dy = QRandomGenerator::global()->bounded(-1, 2);
 
-        // Vérifie distance + pas de collision
-        QRectF testRect(spawnPos, QSizeF(40, 40)); // hitbox approximative du zombie
+        // Ignore (0, 0) pour éviter le centre exact
+        if (dx == 0 && dy == 0) continue;
+
+        QPointF candidate = playerPos + QPointF(dx * step, dy * step);
+
+        QRectF testRect(candidate, QSizeF(40, 40));
         QList<QGraphicsItem*> collisions = scene->items(testRect);
 
         bool blocked = false;
@@ -109,80 +142,13 @@ void GameManager::spawnZombies() {
             }
         }
 
-        if (distance >= minDistanceFromPlayer && !blocked) {
-            Enemy* zombie = new Zombie(nullptr, player);
-            zombie->setScale(2.0);
-            zombie->setPos(playerPos.x() + 200, playerPos.y() + 200); 
-            scene->addItem(zombie);
-            qDebug() << "Zombie spawn à :" << spawnPos;
-            return;
-        }
+        if (!blocked)
+            return candidate;
     }
 
-    qDebug() << "Aucun emplacement valide trouvé pour le zombie.";
+    // Si aucune position valide trouvée, retourne position joueur (sécurité)
+    return playerPos + QPointF(step, step);
 }
-
-
-void GameManager::spawnVampires() {
-    const int mapLimit = 4096;
-    const int minDistanceFromPlayer = 200; // distance minimale entre joueur et ennemi
-
-    QPointF spawnPos;
-    QPointF playerPos = player->pos();
-    qreal distance = 0;
-
-    // Essaye plusieurs fois jusqu'à trouver une position assez éloignée
-    for (int attempts = 0; attempts < 50; ++attempts) {
-        qreal x = QRandomGenerator::global()->bounded(mapLimit);
-        qreal y = QRandomGenerator::global()->bounded(mapLimit);
-        spawnPos = QPointF(x, y);
-
-        distance = std::hypot(spawnPos.x() - playerPos.x(), spawnPos.y() - playerPos.y());
-        if (distance >= minDistanceFromPlayer)
-            break;
-    }
-
-    Enemy* vampire = new Vampire(nullptr, player);
-    vampire->setScale(1.5);
-    vampire->setPos(playerPos.x() + 250, playerPos.y() + 250);
-    qDebug() << "Position de spawn de l'ennemi :" << spawnPos;
-    scene->addItem(vampire);
-}
-
-void GameManager::spawnReapers() {
-    const int mapLimit = 4096;
-    const int minDistanceFromPlayer = 200; // distance minimale entre joueur et ennemi
-
-    QPointF spawnPos;
-    QPointF playerPos = player->pos();
-    qreal distance = 0;
-
-    // Essaye plusieurs fois jusqu'à trouver une position assez éloignée
-    for (int attempts = 0; attempts < 50; ++attempts) {
-        qreal x = QRandomGenerator::global()->bounded(mapLimit);
-        qreal y = QRandomGenerator::global()->bounded(mapLimit);
-        spawnPos = QPointF(x, y);
-
-        distance = std::hypot(spawnPos.x() - playerPos.x(), spawnPos.y() - playerPos.y());
-        if (distance >= minDistanceFromPlayer)
-            break;
-    }
-
-    Enemy* reaper = new Reaper(nullptr, player);
-    reaper->setScale(1.0);
-    reaper->setPos(playerPos.x() + 230, playerPos.y() + 230); 
-    qDebug() << "Position de spawn de l'ennemi :" << spawnPos;
-    scene->addItem(reaper);
-}
-
-
-
-
-Player* GameManager::getPlayer() const {
-    return player;
-}
-
-
 
 
 void GameManager::setPause(bool pause) {

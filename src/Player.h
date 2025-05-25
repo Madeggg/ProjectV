@@ -10,7 +10,7 @@
     #include <QPixmap>
     #include <QGraphicsColorizeEffect>
 
-    
+
     #include "GameManager.h"
 
    
@@ -21,7 +21,7 @@
 
 
 
-    class Player : public QObject, public QGraphicsPixmapItem { //QGraphicsPixmapItem, sous-classe de QGraphicsItem, affiche une image (pixmap) dans une scène graphique
+    class Player : public QObject, public QGraphicsPixmapItem { 
         Q_OBJECT
 
     public:
@@ -45,8 +45,8 @@
         int getAmmo(Slot s) const; //Pour avoir les munitions de l'arme actuelle (au slot s)
 
        
-    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override; // Méthode pour afficher la hitbox du joueur
-    QRectF boundingRect() const override; // Méthode pour changer la hitbox du player
+        // void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override; // Méthode pour afficher la hitbox du joueur
+        QRectF boundingRect() const override; // Méthode pour changer la hitbox du player
 
         
         
@@ -60,7 +60,7 @@
         void switchTo(Slot s);      // Méthode pour changer d'arme
         void setHasWeapon(bool newHasWeapon) ;
         void setLastKillPosition(const QPointF& pos);
-        void punch();                           // Méthode pour frapper un ennemi
+        void stab();                           // Méthode pour frapper un ennemi
         void shoot(QPointF targetPos);           // Méthode pour tirer un projectile 
         void loadAnimations();
         void playAttackAnimation();     // Méthode pour jouer l'animation d'attaque
