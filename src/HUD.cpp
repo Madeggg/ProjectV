@@ -4,9 +4,9 @@
 HUD::HUD(QWidget* parent) : QWidget(parent), score(0), ammo(0), timeElapsed(0) {
     setFixedSize(350, 215);
 
-    // Police un peu plus moderne et agréable
+    // Police 
     QFont font("Segoe UI", 14, QFont::Bold);
-    if (!font.exactMatch()) { // fallback si non dispo
+    if (!font.exactMatch()) { 
         font = QFont("Arial", 14, QFont::Bold);
     }
 
@@ -67,7 +67,7 @@ HUD::HUD(QWidget* parent) : QWidget(parent), score(0), ammo(0), timeElapsed(0) {
     }
     setLayout(mainLayout);
 
-    // Fond noir semi-transparent avec dégradé léger et bords arrondis
+    // Fond 
     setStyleSheet(R"(
         background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                     stop:0 rgba(0,0,0,220),
@@ -76,7 +76,7 @@ HUD::HUD(QWidget* parent) : QWidget(parent), score(0), ammo(0), timeElapsed(0) {
         border: 2px solid #00cfff;
     )");
 
-    // Timer pour mise à jour temps
+    // Timer mise à jour du temps
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, static_cast<void (HUD::*)()>(&HUD::updateTime));
     timer->start(1000);
@@ -129,7 +129,7 @@ void HUD::setWeapon(Weapon* weapon) {
     this->weapon = weapon;
     if (weapon) {
         connect(weapon, &Weapon::ammoChanged, this, &HUD::updateAmmo);
-        updateAmmo(weapon->getAmmo()); // Met à jour l'affichage immédiatement
+        updateAmmo(weapon->getAmmo()); 
     }
 }
 

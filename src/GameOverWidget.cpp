@@ -1,6 +1,6 @@
 #include "GameOverWidget.h"
 
-
+// Constructeur du widget de fin de partie
 GameOverWidget::GameOverWidget(QWidget* parent) : QWidget(parent), currentScore(0) {
     setStyleSheet("background-color: black; color: white; font-size: 24px;");
     if (parent)
@@ -8,24 +8,30 @@ GameOverWidget::GameOverWidget(QWidget* parent) : QWidget(parent), currentScore(
 
     QVBoxLayout* layout = new QVBoxLayout(this);
 
+    // Label principal "Game Over"
     label = new QLabel("Game Over");
     label->setAlignment(Qt::AlignCenter);
     label->setStyleSheet("font-size: 48px; font-weight: bold;");
     layout->addWidget(label);
 
+    // Champ pour entrer le pseudo
     nameInput = new QLineEdit(this);
     nameInput->setPlaceholderText("Entrez votre pseudo...");
     layout->addWidget(nameInput);
 
+    // Bouton pour recommencer la partie
     restartButton = new QPushButton("Restart");
     restartButton->setStyleSheet("font-size: 24px;");
     layout->addWidget(restartButton);
+
+    // Quand on clique sur Restart, on sauvegarde le score et on relance la partie
     connect(restartButton, &QPushButton::clicked, this, &GameOverWidget::saveScore);
     connect(restartButton, &QPushButton::clicked, this, [this]() {
         this->hide();
         emit restartClicked();
     });
 
+    // Tableau des meilleurs scores
     highScoreTable = new QTableWidget(0, 2, this);
     highScoreTable->setHorizontalHeaderLabels(QStringList() << "Nom" << "Score");
     highScoreTable->horizontalHeader()->setStretchLastSection(true);
@@ -36,13 +42,16 @@ GameOverWidget::GameOverWidget(QWidget* parent) : QWidget(parent), currentScore(
 
     layout->addWidget(highScoreTable);
 
+
     loadHighScores();
 }
 
+// mettre à jour le score actuel
 void GameOverWidget::setScore(int score) {
     currentScore = score;
 }
 
+// Sauvegarde le score et le pseudo 
 void GameOverWidget::saveScore() {
     QString name = nameInput->text().trimmed();
     if (name.isEmpty()) name = "Anonyme";
@@ -57,6 +66,7 @@ void GameOverWidget::saveScore() {
     loadHighScores();
 }
 
+// Charge les meilleurs scores 
 void GameOverWidget::loadHighScores() {
     QList<QPair<QString, int>> scores;
 
@@ -75,10 +85,12 @@ void GameOverWidget::loadHighScores() {
         file.close();
     }
 
+    // Trie les scores 
     std::sort(scores.begin(), scores.end(), [](const QPair<QString, int>& a, const QPair<QString, int>& b) {
-        return b.second < a.second; // ordre décroissant
+        return b.second < a.second; 
     });
 
+    // Affiche les 3 meilleurs scores 
     highScoreTable->setRowCount(0);
     for (int i = 0; i < qMin(3, scores.size()); ++i) {
         highScoreTable->insertRow(i);
